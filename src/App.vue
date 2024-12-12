@@ -1,15 +1,15 @@
 <!-- App.vue -->
 <template>
-  <div id="app">
+  <!-- <div id="app"> -->
     <!-- Navbar (Optional) -->
-    <b-navbar type="dark" variant="primary">
+    <!-- <b-navbar type="dark" variant="primary">
       <b-navbar-brand href="#">Decision Support Tool</b-navbar-brand>
-    </b-navbar>
+    </b-navbar> -->
 
     <!-- Main Dashboard Component -->
     <MainDashboard />
     <!-- <ResultBarChart /> -->
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -21,12 +21,12 @@ export default {
   name: 'App',
   components: {
     MainDashboard
-//    ResultBarChart
+  //  ResultBarChart
   }
 };
 </script>
 
-<style>
+<!-- <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -42,4 +42,4 @@ export default {
   height: 100vh; /* Full viewport height */
 }
 
-</style>
+</style> -->

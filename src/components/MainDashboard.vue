@@ -38,7 +38,7 @@
         <p>Review your information and submit the form.</p>
       </div>
       <div v-if="currentStep === steps.length - 1">
-        <h3>Optimization Results</h3>
+        <!-- <pre>{{ chartData }}</pre> -->
         <div v-if="resultData">
           <!-- Display the bar chart -->
           <ResultBarChart :chart-data="chartData" :options="chartOptions" />
@@ -543,7 +543,7 @@ export default {
               rows: [
                 { capacity: 3000, storageVolume: 0, cost: 0 },
                 { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
+                { capacity: 10000, storageVolume: 0, cost: 0 },
               ],
               changeRate: -2,
               maintenanceCost: 4,
@@ -616,18 +616,11 @@ export default {
   },
   computed: {
     chartData() {
-      if (!this.resultData) return null;
+      // Define the years (x-axis) and fuels (categories)
+      const years = ['2025', '2030', '2035', '2040', '2045'];
+      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
 
-      // Collect all years from the data
-      const yearsSet = new Set();
-      this.resultData.forEach((item) => {
-        item.schedule.forEach((s) => {
-          yearsSet.add(s.year);
-        });
-      });
-      const years = Array.from(yearsSet).sort();
-
-      // Define fuel colors (same as previous steps)
+      // Define colors for each fuel
       const fuelColors = {
         'MGO': '#007bff',
         'Liquid Hydrogen': '#28a745',
@@ -637,37 +630,34 @@ export default {
         'LNG': '#6f42c1',
       };
 
-      // Prepare datasets
-      const datasets = [];
-
-      this.resultData.forEach((fuelData) => {
-        const fuelName = fuelData.fuel;
-        const data = [];
-
-        years.forEach((year) => {
-          // Find the schedule for the current year
-          const scheduleForYear = fuelData.schedule.find((s) => s.year === year);
-          if (scheduleForYear) {
-            // Sum capacities where "opened" or "operating" is true
-            const totalCapacity = scheduleForYear.capacities
-              .filter((c) => c.opened || c.operating)
-              .reduce((sum, c) => sum + c.capacity, 0);
-            data.push(totalCapacity);
-          } else {
-            data.push(0);
-          }
-        });
-
-        datasets.push({
-          label: fuelName,
-          data: data,
-          backgroundColor: fuelColors[fuelName],
-        });
+      // Initialize datasets for each fuel
+      const datasets = fuels.map((fuel) => {
+        return {
+          label: fuel,
+          data: years.map((year) => {
+            // Check if the fuel has data for the year
+            if (this.resultData[fuel] && this.resultData[fuel][year]) {
+             // Extract the capacities for the current fuel and year
+             const capacitiesForYear = this.resultData[fuel][year];
+            
+            // Calculate the total capacity for 'opened' or 'operating'
+            return Object.keys(capacitiesForYear)
+              .filter((capacity) => {
+                const status = capacitiesForYear[capacity];
+                return status.opened || status.operating;
+              })
+            .reduce((sum, capacity) => sum + parseInt(capacity, 10), 0);
+            }
+            return 0; // Default to 0 if no data for the year
+          }),
+          backgroundColor: fuelColors[fuel],
+        };
       });
 
+      // Return the Chart.js data format
       return {
-        labels: years,
-        datasets: datasets,
+        labels: years, // X-axis labels
+        datasets, // Y-axis datasets
       };
     },
   },
@@ -777,10 +767,16 @@ export default {
           return response.json();
         })
         .then((data) => {
-          // Store the received data in resultData
-          this.resultData = data;
-          // Navigate to the "Results" step
-          this.currentStep = this.steps.length - 1;
+          if (data.status === 0) {
+            //display the optimal solution
+            alert(`Optimal solution:\n${JSON.stringify(data.solution, null, 2)}`);
+            this.resultData = data.solution;
+            // Navigate to the "Results" step
+            this.currentStep = this.steps.length - 1;
+          } else {
+            //Display non-optimal solution
+            alert(`Non-optimal solution:\nStatus: ${data.status}`)
+          }
         })
         .catch((error) => {
           console.error('Error submitting data:', error);
