@@ -38,10 +38,10 @@
         <p>Review your information and submit the form.</p>
       </div>
       <div v-if="currentStep === steps.length - 1">
-        <!-- <pre>{{ chartData }}</pre> -->
+        <!-- <pre>{{ costChartData }}</pre> -->
         <div v-if="resultData">
           <!-- Display the bar chart -->
-          <ResultBarChart :chart-data="chartData" :options="chartOptions" />
+          <ResultBarChart :chart-data="chartData" :chart-cost-data="costChartData" :chart-options="chartOptions" />
         </div>
         <div v-else>
           <p>No results available.</p>
@@ -80,356 +80,9 @@ export default {
   },
   data() {
     return {
-      currentStep: 0,
-      resultData:
-        [
-          {
-            "fuel": "MGO",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2030",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  }
-                ]
-              },
-              {
-                "year": "2035",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "fuel": "Liquid Hydrogen",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": []
-              },
-              {
-                "year": "2030",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2035",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "fuel": "Compressed Hydrogen",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": []
-              },
-              {
-                "year": "2030",
-                "capacities": []
-              },
-              {
-                "year": "2035",
-                "capacities": []
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  },
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "fuel": "Ammonia",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": []
-              },
-              {
-                "year": "2030",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2035",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "fuel": "Methanol",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": []
-              },
-              {
-                "year": "2030",
-                "capacities": []
-              },
-              {
-                "year": "2035",
-                "capacities": []
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "fuel": "LNG",
-            "schedule": [
-              {
-                "year": "2025",
-                "capacities": []
-              },
-              {
-                "year": "2030",
-                "capacities": [
-                  {
-                    "capacity": 5000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2035",
-                "capacities": [
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2040",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": true
-                  },
-                  {
-                    "capacity": 7000,
-                    "opened": true,
-                    "operating": false,
-                    "closed": false
-                  }
-                ]
-              },
-              {
-                "year": "2045",
-                "capacities": [
-                  {
-                    "capacity": 3000,
-                    "opened": true,
-                    "operating": true,
-                    "closed": false
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-
+      currentStep: 3,
+      resultData: [],
+      resultCosts: [],
       steps: [
         { label: 'Port Fuel Capacity' },
         { label: 'Fuel Selection' },
@@ -616,6 +269,8 @@ export default {
   },
   computed: {
     chartData() {
+      //if (!this.resultData || !this.resultData.solution) return null;
+
       // Define the years (x-axis) and fuels (categories)
       const years = ['2025', '2030', '2035', '2040', '2045'];
       const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
@@ -637,16 +292,16 @@ export default {
           data: years.map((year) => {
             // Check if the fuel has data for the year
             if (this.resultData[fuel] && this.resultData[fuel][year]) {
-             // Extract the capacities for the current fuel and year
-             const capacitiesForYear = this.resultData[fuel][year];
-            
-            // Calculate the total capacity for 'opened' or 'operating'
-            return Object.keys(capacitiesForYear)
-              .filter((capacity) => {
-                const status = capacitiesForYear[capacity];
-                return status.opened || status.operating;
-              })
-            .reduce((sum, capacity) => sum + parseInt(capacity, 10), 0);
+              // Extract the capacities for the current fuel and year
+              const capacitiesForYear = this.resultData[fuel][year];
+
+              // Calculate the total capacity for 'opened' or 'operating'
+              return Object.keys(capacitiesForYear)
+                .filter((capacity) => {
+                  const status = capacitiesForYear[capacity];
+                  return status.opened || status.operating;
+                })
+                .reduce((sum, capacity) => sum + parseInt(capacity, 10), 0);
             }
             return 0; // Default to 0 if no data for the year
           }),
@@ -660,6 +315,50 @@ export default {
         datasets, // Y-axis datasets
       };
     },
+    costChartData() {
+      const years = ["2025", "2030", "2035", "2040", "2045"];
+      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+
+      const fuelColors = {
+        MGO: "#007bff",
+        "Liquid Hydrogen": "#28a745",
+        "Compressed Hydrogen": "#17a2b8",
+        Ammonia: "#ffc107",
+        Methanol: "#dc3545",
+        LNG: "#6f42c1",
+      };
+
+      const datasets = fuels.map((fuel) => {
+        return {
+          label: fuel,
+          backgroundColor: fuelColors[fuel],
+          data: years.map((year) => {
+            // Check if the fuel has data for the year
+            if (this.resultCosts[fuel] && this.resultCosts[fuel][year]) {
+              // Extract the costs for the current fuel and year
+              const costForYear = this.resultCosts[fuel][year];
+
+              // Calculate the total capacity for 'opened' or 'operating'
+              return Object.keys(costForYear).reduce((totalCost, capacity) => {
+                const costData = costForYear[capacity];
+                const openedCost = costData.opened || 0;
+                const operatingCost = costData.operating || 0;
+                const closedCost = costData.closed || 0;
+                return totalCost + openedCost + operatingCost + closedCost;
+              }, 0);
+            }
+            // If no data for this fuel/year, return 0
+            return 0;
+          }),
+        };
+      });
+
+      return {
+        labels: years,
+        datasets: datasets,
+      };
+    },
+
   },
   methods: {
     nextStep() {
@@ -769,8 +468,9 @@ export default {
         .then((data) => {
           if (data.status === 0) {
             //display the optimal solution
-            alert(`Optimal solution:\n${JSON.stringify(data.solution, null, 2)}`);
+            //alert(`Optimal solution:\n${JSON.stringify(data.solution, null, 2)}`);
             this.resultData = data.solution;
+            this.resultCosts = data.costs;
             // Navigate to the "Results" step
             this.currentStep = this.steps.length - 1;
           } else {
@@ -873,6 +573,7 @@ export default {
   background-color: #f9f9f9;
   margin-top: 2rem;
   min-height: 300px;
+  height: auto;
 }
 
 /* Step footer styles */

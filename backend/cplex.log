@@ -1,0 +1,3347 @@
+
+Log started (V22.1.0.0) Mon Dec  9 21:01:42 2024
+
+CPLEX Error  1607: Line 10: Expected '+' or '-', found '['.
+No file read.
+CPLEX Error  1607: Line 10: Expected '+' or '-', found '['.
+No file read.
+CPLEX Error  1607: Line 10: Expected '+' or '-', found '['.
+No file read.
+CPLEX Error  1608: Line 12: Expected '+','-' or sense, found '['.
+No file read.
+CPLEX Error  1608: Line 12: Expected '+','-' or sense, found '['.
+No file read.
+Warning, line 280: Name 'z_0_0_1_0' does not exist.
+Warning, line 285: Name 'z_0_0_2_0' does not exist.
+Warning, line 305: Name 'z_0_1_0_0' does not exist.
+Warning, line 310: Name 'z_0_1_2_0' does not exist.
+Warning, line 330: Name 'z_0_2_0_0' does not exist.
+Warning, line 335: Name 'z_0_2_1_0' does not exist.
+Warning, line 355: Name 'z_1_0_1_0' does not exist.
+Warning, line 360: Name 'z_1_0_2_0' does not exist.
+Warning, line 380: Name 'z_1_1_0_0' does not exist.
+Warning, line 385: Name 'z_1_1_2_0' does not exist.
+Warning, line 405: Name 'z_1_2_0_0' does not exist.
+Warning, line 410: Name 'z_1_2_1_0' does not exist.
+Warning, line 430: Name 'z_2_0_1_0' does not exist.
+Warning, line 435: Name 'z_2_0_2_0' does not exist.
+Warning, line 455: Name 'z_2_1_0_0' does not exist.
+Warning, line 460: Name 'z_2_1_2_0' does not exist.
+Warning, line 480: Name 'z_2_2_0_0' does not exist.
+Warning, line 485: Name 'z_2_2_1_0' does not exist.
+Warning, line 505: Name 'z_3_0_1_0' does not exist.
+Warning, line 510: Name 'z_3_0_2_0' does not exist.
+52 name warnings not printed.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.01 sec. (0.03 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 50 rows and 225 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 202 rows, 189 columns, and 933 nonzeros.
+Reduced MIP has 189 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.88 ticks)
+Found incumbent of value 3529000.000000 after 0.02 sec. (1.85 ticks)
+Probing time = 0.00 sec. (0.13 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 161 rows and 155 columns.
+Reduced MIP has 41 rows, 34 columns, and 182 nonzeros.
+Reduced MIP has 34 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.20 ticks)
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 41 rows, 34 columns, and 182 nonzeros.
+Reduced MIP has 34 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+Probing time = 0.00 sec. (0.03 ticks)
+Clique table members: 9.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (7.80 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (7.80 ticks)
+
+Solution pool: 1 solution saved.
+
+MIP - Integer optimal solution:  Objective =  0.0000000000e+00
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.80 ticks  (166.04 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_1_0                       1.000000
+y_0_2_0                       1.000000
+y_1_1_0                       1.000000
+y_1_2_0                       1.000000
+y_3_1_0                       1.000000
+y_3_2_0                       1.000000
+y_5_2_0                       1.000000
+s_0_2_1                       1.000000
+s_1_2_1                       1.000000
+s_3_2_1                       1.000000
+s_5_0_1                       1.000000
+s_0_2_2                       1.000000
+s_1_2_2                       1.000000
+s_3_2_2                       1.000000
+s_5_0_2                       1.000000
+s_0_0_3                       1.000000
+s_1_2_3                       1.000000
+s_3_2_3                       1.000000
+y_5_0_3                       1.000000
+y_0_0_4                       1.000000
+s_0_0_4                       1.000000
+y_0_1_4                       1.000000
+y_1_0_4                       1.000000
+s_1_2_4                       1.000000
+y_2_0_4                       1.000000
+y_2_1_4                       1.000000
+y_2_2_4                       1.000000
+y_3_0_4                       1.000000
+s_3_2_4                       1.000000
+y_4_0_4                       1.000000
+y_4_1_4                       1.000000
+y_4_2_4                       1.000000
+s_5_0_4                       1.000000
+y_5_1_4                       1.000000
+x_1_2_0                       1.000000
+x_3_0_0                       1.000000
+x_5_0_3                       1.000000
+z_0_0_1_1                     1.000000
+z_0_0_2_1                     1.000000
+z_0_1_0_1                     1.000000
+z_0_1_2_1                     1.000000
+z_0_2_0_1                     1.000000
+z_0_2_1_1                     1.000000
+z_0_0_1_2                     1.000000
+z_0_0_2_2                     1.000000
+z_0_1_0_2                     1.000000
+z_0_1_2_2                     1.000000
+z_0_2_0_2                     1.000000
+z_0_2_1_2                     1.000000
+z_0_0_1_3                     1.000000
+z_0_0_2_3                     1.000000
+z_0_1_0_3                     1.000000
+z_0_1_2_3                     1.000000
+z_0_2_0_3                     1.000000
+z_0_2_1_3                     1.000000
+z_0_0_1_4                     1.000000
+z_0_0_2_4                     1.000000
+z_0_1_0_4                     1.000000
+z_0_1_2_4                     1.000000
+z_0_2_0_4                     1.000000
+z_0_2_1_4                     1.000000
+z_1_0_1_1                     1.000000
+z_1_0_2_1                     1.000000
+z_1_1_0_1                     1.000000
+z_1_1_2_1                     1.000000
+z_1_2_0_1                     1.000000
+z_1_2_1_1                     1.000000
+z_1_0_1_2                     1.000000
+z_1_0_2_2                     1.000000
+z_1_1_0_2                     1.000000
+z_1_1_2_2                     1.000000
+z_1_2_0_2                     1.000000
+z_1_2_1_2                     1.000000
+z_1_0_1_3                     1.000000
+z_1_0_2_3                     1.000000
+z_1_1_0_3                     1.000000
+z_1_1_2_3                     1.000000
+z_1_2_0_3                     1.000000
+z_1_2_1_3                     1.000000
+z_1_0_1_4                     1.000000
+z_1_0_2_4                     1.000000
+z_1_1_0_4                     1.000000
+z_1_1_2_4                     1.000000
+z_1_2_0_4                     1.000000
+z_1_2_1_4                     1.000000
+z_2_0_1_1                     1.000000
+z_2_0_2_1                     1.000000
+z_2_1_0_1                     1.000000
+z_2_1_2_1                     1.000000
+z_2_2_0_1                     1.000000
+z_2_2_1_1                     1.000000
+z_2_0_1_2                     1.000000
+z_2_0_2_2                     1.000000
+z_2_1_0_2                     1.000000
+z_2_1_2_2                     1.000000
+z_2_2_0_2                     1.000000
+z_2_2_1_2                     1.000000
+z_2_0_1_3                     1.000000
+z_2_0_2_3                     1.000000
+z_2_1_0_3                     1.000000
+z_2_1_2_3                     1.000000
+z_2_2_0_3                     1.000000
+z_2_2_1_3                     1.000000
+z_2_0_1_4                     1.000000
+z_2_0_2_4                     1.000000
+z_2_1_0_4                     1.000000
+z_2_1_2_4                     1.000000
+z_2_2_0_4                     1.000000
+z_2_2_1_4                     1.000000
+z_3_0_1_1                     1.000000
+z_3_0_2_1                     1.000000
+z_3_1_0_1                     1.000000
+z_3_1_2_1                     1.000000
+z_3_2_0_1                     1.000000
+z_3_2_1_1                     1.000000
+z_3_0_1_2                     1.000000
+z_3_0_2_2                     1.000000
+z_3_1_0_2                     1.000000
+z_3_1_2_2                     1.000000
+z_3_2_0_2                     1.000000
+z_3_2_1_2                     1.000000
+z_3_0_1_3                     1.000000
+z_3_0_2_3                     1.000000
+z_3_1_0_3                     1.000000
+z_3_1_2_3                     1.000000
+z_3_2_0_3                     1.000000
+z_3_2_1_3                     1.000000
+z_3_0_1_4                     1.000000
+z_3_0_2_4                     1.000000
+z_3_1_0_4                     1.000000
+z_3_1_2_4                     1.000000
+z_3_2_0_4                     1.000000
+z_3_2_1_4                     1.000000
+z_4_0_1_1                     1.000000
+z_4_0_2_1                     1.000000
+z_4_1_0_1                     1.000000
+z_4_1_2_1                     1.000000
+z_4_2_0_1                     1.000000
+z_4_2_1_1                     1.000000
+z_4_0_1_2                     1.000000
+z_4_0_2_2                     1.000000
+z_4_1_0_2                     1.000000
+z_4_1_2_2                     1.000000
+z_4_2_0_2                     1.000000
+z_4_2_1_2                     1.000000
+z_4_0_1_3                     1.000000
+z_4_0_2_3                     1.000000
+z_4_1_0_3                     1.000000
+z_4_1_2_3                     1.000000
+z_4_2_0_3                     1.000000
+z_4_2_1_3                     1.000000
+z_4_0_1_4                     1.000000
+z_4_0_2_4                     1.000000
+z_4_1_0_4                     1.000000
+z_4_1_2_4                     1.000000
+z_4_2_0_4                     1.000000
+z_4_2_1_4                     1.000000
+z_5_0_1_1                     1.000000
+z_5_0_2_1                     1.000000
+z_5_1_0_1                     1.000000
+z_5_1_2_1                     1.000000
+z_5_2_0_1                     1.000000
+z_5_2_1_1                     1.000000
+z_5_0_1_2                     1.000000
+z_5_0_2_2                     1.000000
+z_5_1_0_2                     1.000000
+z_5_1_2_2                     1.000000
+z_5_2_0_2                     1.000000
+z_5_2_1_2                     1.000000
+z_5_0_1_3                     1.000000
+z_5_0_2_3                     1.000000
+z_5_1_0_3                     1.000000
+z_5_1_2_3                     1.000000
+z_5_2_0_3                     1.000000
+z_5_2_1_3                     1.000000
+z_5_0_1_4                     1.000000
+z_5_0_2_4                     1.000000
+z_5_1_0_4                     1.000000
+z_5_1_2_4                     1.000000
+z_5_2_0_4                     1.000000
+z_5_2_1_4                     1.000000
+All other variables matching '*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 35 rows and 198 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 217 rows, 252 columns, and 1026 nonzeros.
+Reduced MIP has 252 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.91 ticks)
+Found incumbent of value -2.4566215e+10 after 0.00 sec. (1.84 ticks)
+Probing time = 0.00 sec. (0.14 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 176 rows and 209 columns.
+Reduced MIP has 41 rows, 43 columns, and 191 nonzeros.
+Reduced MIP has 43 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.22 ticks)
+Probing time = 0.00 sec. (0.02 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 41 rows, 43 columns, and 191 nonzeros.
+Reduced MIP has 43 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.12 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (8.76 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (8.76 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal, tolerance (0.0001/1e-06):  Objective = -8.1007057989e+11
+Current MIP best bound = -8.1011104852e+11 (gap = 4.04686e+07, 0.00%)
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.76 ticks  (186.42 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_1                       1.000000
+y_0_1_0                       1.000000
+y_1_1_3                       1.000000
+y_1_2_1                       1.000000
+y_2_1_3                       1.000000
+y_2_2_1                       1.000000
+y_3_1_1                       1.000000
+y_3_2_3                       1.000000
+y_4_1_3                       1.000000
+y_4_2_1                       1.000000
+y_5_1_1                       1.000000
+y_5_2_3                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 35 rows and 202 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 205 rows, 248 columns, and 1018 nonzeros.
+Reduced MIP has 248 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.93 ticks)
+Found incumbent of value -8.2604596e+10 after 0.02 sec. (1.98 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.27 ticks)
+Cover probing fixed 7 vars, tightened 8 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 174 rows and 208 columns.
+Reduced MIP has 31 rows, 40 columns, and 152 nonzeros.
+Reduced MIP has 40 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.20 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 31 rows, 40 columns, and 152 nonzeros.
+Reduced MIP has 40 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.10 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 78.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+Root relaxation solution time = 0.00 sec. (0.04 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                      -7.42566e+11  -7.47488e+11             0.66%
+      0     0        cutoff        -7.42566e+11                      2    0.00%
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (8.70 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (8.70 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective = -7.4256643193e+11
+Solution time =    0.08 sec.  Iterations = 2  Nodes = 0
+Deterministic time = 8.71 ticks  (111.61 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_0                       1.000000
+y_1_2_1                       1.000000
+y_2_2_1                       1.000000
+y_3_2_1                       1.000000
+y_4_2_1                       1.000000
+y_5_2_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_0_3                       1.000000
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_4                       1.000000
+s_1_1_3                       1.000000
+s_1_2_2                       1.000000
+s_1_2_4                       1.000000
+s_3_0_3                       1.000000
+s_3_2_2                       1.000000
+s_3_2_4                       1.000000
+s_5_0_3                       1.000000
+s_5_2_2                       1.000000
+s_5_2_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+x_2_2_2                       1.000000
+x_4_1_2                       1.000000
+All other variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_0_3                       1.000000
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_4                       1.000000
+s_1_1_3                       1.000000
+s_1_2_2                       1.000000
+s_1_2_4                       1.000000
+s_3_0_3                       1.000000
+s_3_2_2                       1.000000
+s_3_2_4                       1.000000
+s_5_0_3                       1.000000
+s_5_2_2                       1.000000
+s_5_2_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 130 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 220 rows, 320 columns, and 1120 nonzeros.
+Reduced MIP has 320 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.97 ticks)
+Found incumbent of value 9.9189667e+11 after 0.02 sec. (2.11 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.28 ticks)
+Cover probing fixed 6 vars, tightened 3 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 186 rows and 268 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.24 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.11 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 78.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+Root relaxation solution time = 0.00 sec. (0.04 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                      -9.44943e+10  -9.94161e+10             5.21%
+      0     0        cutoff        -9.44943e+10                      3    0.00%
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (8.89 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (8.89 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective = -9.4494340334e+10
+Solution time =    0.06 sec.  Iterations = 3  Nodes = 0
+Deterministic time = 8.89 ticks  (141.19 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 130 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 220 rows, 320 columns, and 1120 nonzeros.
+Reduced MIP has 320 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.97 ticks)
+Found incumbent of value 2.4535702e+12 after 0.02 sec. (2.11 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.28 ticks)
+Cover probing fixed 6 vars, tightened 3 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 186 rows and 268 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.24 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.09 sec. (9.32 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.09 sec. (9.32 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.3696624948e+10
+Solution time =    0.09 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.32 ticks  (99.15 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 292 rows, 381 columns, and 1635 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.41 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.06 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.06 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.06 ticks  (253.60 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 35 rows and 92 columns.
+MIP Presolve modified 150 coefficients.
+Reduced MIP has 277 rows, 358 columns, and 1466 nonzeros.
+Reduced MIP has 358 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (1.30 ticks)
+Found incumbent of value 2.6225146e+11 after 0.01 sec. (3.11 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.40 ticks)
+Cover probing fixed 6 vars, tightened 6 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 234 rows and 300 columns.
+Reduced MIP has 43 rows, 58 columns, and 224 nonzeros.
+Reduced MIP has 58 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.29 ticks)
+Probing time = 0.00 sec. (0.07 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 43 rows, 58 columns, and 224 nonzeros.
+Reduced MIP has 58 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.14 sec. (10.79 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.14 sec. (10.79 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.16 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.79 ticks  (69.15 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 304 rows, 381 columns, and 1635 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.42 ticks)
+Probing fixed 44 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.39 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.39 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.39 ticks  (141.76 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 304 rows, 381 columns, and 1635 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.42 ticks)
+Probing fixed 44 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.01 sec. (4.39 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.01 sec. (4.39 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.39 ticks  (93.50 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 304 rows, 381 columns, and 1635 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.42 ticks)
+Probing fixed 44 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.39 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.39 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.39 ticks  (95.53 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.41 ticks)
+Found incumbent of value 5.1853288e+10 after 0.03 sec. (3.21 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.02 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.13 sec. (10.47 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.13 sec. (10.47 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.14 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.47 ticks  (74.79 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+CPLEX Error  1615: Line 1: Expected number, found '='.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+3 of 3 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 4.7778e+10.
+Tried aggregator 1 time.
+MIP Presolve eliminated 21 rows and 70 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.44 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (8.94 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (8.94 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.94 ticks  (144.26 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+x_0_0                         1.000000
+All other variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+3 of 3 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 4.7778e+10.
+Tried aggregator 1 time.
+MIP Presolve eliminated 22 rows and 71 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.44 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (8.94 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (8.94 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.95 ticks  (144.29 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+x_0_0                         1.000000
+x_0_1                         1.000000
+All other variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+CPLEX Error  1615: Line 1: Expected number, found 'y'.
+Warning, line 2: Characters after RHS value are ignored.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 3 MIP starts.
+Retaining values of one MIP start for possible repair.
+Infeasibility row 'auto_c_000000006':  0 >= 7.
+Presolve time = 0.00 sec. (0.76 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (1.03 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (1.03 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 1.04 ticks  (64.72 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.41 ticks)
+Found incumbent of value 5.1853288e+10 after 0.01 sec. (3.21 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (10.47 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (10.47 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.47 ticks  (168.89 ticks/sec)
+
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 3 MIP starts.
+Retaining values of one MIP start for possible repair.
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.15 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.44 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.44 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.44 ticks  (27.32 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.41 ticks)
+Found incumbent of value 5.1853288e+10 after 0.02 sec. (3.21 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (10.47 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (10.47 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.47 ticks  (166.21 ticks/sec)
+
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 3 MIP starts.
+Retaining values of one MIP start for possible repair.
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.15 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.44 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.44 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.00 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.44 ticks  (436.83 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 108 coefficients.
+Reduced MIP has 303 rows, 381 columns, and 1630 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.41 ticks)
+Found incumbent of value 5.1853288e+10 after 0.02 sec. (3.21 ticks)
+Probing fixed 42 vars, tightened 0 bounds.
+Probing changed sense of 15 constraints.
+Probing time = 0.00 sec. (0.48 ticks)
+Cover probing fixed 7 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 255 rows and 318 columns.
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 48 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (10.47 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (10.47 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.47 ticks  (222.79 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 69 columns.
+MIP Presolve modified 110 coefficients.
+Reduced MIP has 292 rows, 381 columns, and 1635 nonzeros.
+Reduced MIP has 381 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.40 ticks)
+Found incumbent of value 5.0504422e+10 after 0.00 sec. (3.18 ticks)
+Probing fixed 46 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.54 ticks)
+Cover probing fixed 6 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 246 rows and 318 columns.
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.37 ticks)
+Probing time = 0.00 sec. (0.11 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (10.74 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (10.74 ticks)
+
+Solution pool: 5 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.75 ticks  (170.56 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 76 rows and 135 columns.
+MIP Presolve added 4 rows and 0 columns.
+MIP Presolve modified 112 coefficients.
+Reduced MIP has 241 rows, 315 columns, and 1341 nonzeros.
+Reduced MIP has 315 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.31 ticks)
+Found incumbent of value 5.8188422e+10 after 0.00 sec. (2.82 ticks)
+Probing fixed 26 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.47 ticks)
+Cover probing fixed 4 vars, tightened 12 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 195 rows and 252 columns.
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.28 ticks)
+Probing time = 0.00 sec. (0.11 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (8.97 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (8.97 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7768451000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.97 ticks  (144.74 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 72 columns.
+MIP Presolve modified 111 coefficients.
+Reduced MIP has 290 rows, 378 columns, and 1615 nonzeros.
+Reduced MIP has 378 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.40 ticks)
+Found incumbent of value 8.2968190e+10 after 0.00 sec. (3.04 ticks)
+Probing fixed 40 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.55 ticks)
+Cover probing fixed 10 vars, tightened 13 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 244 rows and 315 columns.
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.36 ticks)
+Probing time = 0.00 sec. (0.11 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (10.58 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (10.58 ticks)
+
+Solution pool: 5 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.58 ticks  (170.60 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+5 of 5 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 4.7768e+10.
+Tried aggregator 1 time.
+MIP Presolve eliminated 75 rows and 135 columns.
+MIP Presolve added 2 rows and 0 columns.
+MIP Presolve modified 115 coefficients.
+Reduced MIP has 241 rows, 315 columns, and 1341 nonzeros.
+Reduced MIP has 315 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.28 ticks)
+Probing fixed 26 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.47 ticks)
+Cover probing fixed 4 vars, tightened 16 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 195 rows and 252 columns.
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.28 ticks)
+Probing time = 0.00 sec. (0.11 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (7.54 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (7.54 ticks)
+
+Solution pool: 5 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.54 ticks  (121.66 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Warning, line 3: Unfinished constraint is discarded.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 2 times.
+MIP Presolve eliminated 24 rows and 74 columns.
+MIP Presolve modified 110 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 288 rows, 374 columns, and 1594 nonzeros.
+Reduced MIP has 374 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.80 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.35 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.35 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.35 ticks  (140.28 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.05 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 72 columns.
+MIP Presolve modified 111 coefficients.
+Reduced MIP has 290 rows, 378 columns, and 1615 nonzeros.
+Reduced MIP has 378 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.40 ticks)
+Found incumbent of value 8.2968190e+10 after 0.02 sec. (3.04 ticks)
+Probing fixed 40 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.55 ticks)
+Cover probing fixed 10 vars, tightened 13 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 244 rows and 315 columns.
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.36 ticks)
+Probing time = 0.00 sec. (0.11 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 46 rows, 63 columns, and 255 nonzeros.
+Reduced MIP has 63 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (10.58 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (10.58 ticks)
+
+Solution pool: 5 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 10.58 ticks  (225.05 ticks/sec)
+
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 5 MIP starts.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 2 times.
+MIP Presolve eliminated 24 rows and 74 columns.
+MIP Presolve modified 110 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 288 rows, 374 columns, and 1594 nonzeros.
+Reduced MIP has 374 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.80 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.58 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.58 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 4.58 ticks  (286.36 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+
+Problem not changed.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 133 columns.
+MIP Presolve modified 94 coefficients.
+Reduced MIP has 218 rows, 317 columns, and 1105 nonzeros.
+Reduced MIP has 317 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.96 ticks)
+Found incumbent of value 2.4891787e+12 after 0.02 sec. (2.11 ticks)
+Probing fixed 30 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.29 ticks)
+Cover probing fixed 8 vars, tightened 1 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 184 rows and 265 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.23 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.59 sec. (9.29 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.59 sec. (9.29 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.59 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.29 ticks  (15.65 ticks/sec)
+
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+1 of 4 MIP starts provided solutions.
+MIP start 'm4' defined initial solution with objective 2.4892e+12.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 1 time.
+MIP Presolve eliminated 24 rows and 134 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 218 rows, 316 columns, and 1098 nonzeros.
+Reduced MIP has 316 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.96 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.28 ticks)
+Cover probing fixed 6 vars, tightened 3 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 184 rows and 264 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 78.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+
+Root node processing (before b&c):
+  Real time             =    0.22 sec. (8.06 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.22 sec. (8.06 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.25 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.06 ticks  (32.25 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+2 of 2 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 4.7778e+10.
+Tried aggregator 1 time.
+MIP Presolve eliminated 25 rows and 135 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 218 rows, 316 columns, and 1098 nonzeros.
+Reduced MIP has 316 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.98 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.28 ticks)
+Cover probing fixed 6 vars, tightened 19 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 184 rows and 264 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (7.96 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (7.96 ticks)
+
+Solution pool: 3 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.08 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.96 ticks  (102.05 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+2 of 3 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 4.7778e+10.
+Tried aggregator 2 times.
+MIP Presolve eliminated 57 rows and 168 columns.
+MIP Presolve added 4 rows and 0 columns.
+MIP Presolve modified 99 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 189 rows, 278 columns, and 942 nonzeros.
+Reduced MIP has 278 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.18 ticks)
+Probing fixed 22 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.25 ticks)
+Cover probing fixed 4 vars, tightened 16 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 155 rows and 226 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.21 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.20 sec. (7.92 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.20 sec. (7.92 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7777776600e+10
+Solution time =    0.20 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.93 ticks  (39.04 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 26 rows and 136 columns.
+MIP Presolve modified 94 coefficients.
+Reduced MIP has 216 rows, 314 columns, and 1094 nonzeros.
+Reduced MIP has 314 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.96 ticks)
+Found incumbent of value 2.4710879e+12 after 0.00 sec. (2.08 ticks)
+Probing fixed 33 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.02 sec. (0.29 ticks)
+Cover probing fixed 6 vars, tightened 3 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 182 rows and 262 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.69 sec. (9.29 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.69 sec. (9.29 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.70 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.30 ticks  (13.22 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+1 of 4 MIP starts provided solutions.
+MIP start 'm4' defined initial solution with objective 2.4711e+12.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 1 time.
+MIP Presolve eliminated 27 rows and 137 columns.
+MIP Presolve modified 93 coefficients.
+Reduced MIP has 216 rows, 313 columns, and 1087 nonzeros.
+Reduced MIP has 313 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.95 ticks)
+Probing fixed 34 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.28 ticks)
+Cover probing fixed 6 vars, tightened 3 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 182 rows and 261 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.26 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 78.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+
+Root node processing (before b&c):
+  Real time             =    0.33 sec. (8.05 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.33 sec. (8.05 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7782896800e+10
+Solution time =    0.33 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.05 ticks  (24.46 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_1_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 2 MIP starts.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 2 times.
+MIP Presolve eliminated 55 rows and 170 columns.
+MIP Presolve added 2 rows and 0 columns.
+MIP Presolve modified 97 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 189 rows, 278 columns, and 942 nonzeros.
+Reduced MIP has 278 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.26 ticks)
+Found incumbent of value 2.4485152e+12 after 0.03 sec. (2.43 ticks)
+Probing fixed 22 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.25 ticks)
+Cover probing fixed 4 vars, tightened 0 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 155 rows and 226 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.21 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.42 sec. (9.38 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.42 sec. (9.38 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7799112200e+10
+Solution time =    0.44 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.38 ticks  (21.46 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 4 MIP starts.
+Retaining values of one MIP start for possible repair.
+Row 'auto_c_000000054' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.12 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (0.40 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (0.40 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.40 ticks  (24.78 ticks/sec)
+
+No conflict exists.
+No conflict exists.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.00 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.00 ticks  (0.95 ticks/sec)
+
+No constraints match 'y*'.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.03 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 4 times.
+MIP Presolve eliminated 64 rows and 395 columns.
+MIP Presolve added 1 rows and 1 columns.
+MIP Presolve modified 120 coefficients.
+Aggregator did 9 substitutions.
+Reduced MIP has 25 rows, 45 columns, and 133 nonzeros.
+Reduced MIP has 45 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.70 ticks)
+Found incumbent of value 3.4261929e+10 after 0.02 sec. (0.88 ticks)
+Probing fixed 18 vars, tightened 0 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.02 sec. (0.03 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 19 rows and 33 columns.
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.04 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.02 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (3.02 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (3.02 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.4230901000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.02 ticks  (64.36 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_0_0                       1.000000
+y_1_0_0                       1.000000
+y_3_0_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 2 MIP starts.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 4 times.
+MIP Presolve eliminated 65 rows and 395 columns.
+MIP Presolve added 1 rows and 1 columns.
+MIP Presolve modified 120 coefficients.
+Aggregator did 9 substitutions.
+Reduced MIP has 25 rows, 45 columns, and 133 nonzeros.
+Reduced MIP has 45 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.70 ticks)
+Found incumbent of value 3.4264282e+10 after 0.02 sec. (1.03 ticks)
+Probing fixed 18 vars, tightened 0 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 19 rows and 33 columns.
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.04 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.02 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (3.18 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (3.18 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.4233254000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.18 ticks  (67.59 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_1_0                       1.000000
+y_1_0_0                       1.000000
+y_3_0_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 2 MIP starts.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 4 times.
+MIP Presolve eliminated 66 rows and 395 columns.
+MIP Presolve added 1 rows and 1 columns.
+MIP Presolve modified 120 coefficients.
+Aggregator did 9 substitutions.
+Reduced MIP has 25 rows, 45 columns, and 133 nonzeros.
+Reduced MIP has 45 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.70 ticks)
+Found incumbent of value 3.4266141e+10 after 0.02 sec. (1.03 ticks)
+Probing fixed 18 vars, tightened 0 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 19 rows and 33 columns.
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.04 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.02 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (3.18 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (3.18 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.4235113000e+10
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.18 ticks  (102.50 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_0_0                       1.000000
+y_3_0_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+2 of 2 MIP starts provided solutions.
+MIP start 'm1' defined initial solution with objective 3.4235e+10.
+Tried aggregator 4 times.
+MIP Presolve eliminated 67 rows and 396 columns.
+MIP Presolve added 1 rows and 1 columns.
+MIP Presolve modified 120 coefficients.
+Aggregator did 9 substitutions.
+Reduced MIP has 25 rows, 45 columns, and 133 nonzeros.
+Reduced MIP has 45 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.70 ticks)
+Probing fixed 18 vars, tightened 0 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 19 rows and 33 columns.
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.04 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.02 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (3.03 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (3.03 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.4235113000e+10
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.04 ticks  (94.85 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_0_0                       1.000000
+y_3_0_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 2 MIP starts.
+Retaining values of one MIP start for possible repair.
+Tried aggregator 4 times.
+MIP Presolve eliminated 68 rows and 396 columns.
+MIP Presolve added 1 rows and 1 columns.
+MIP Presolve modified 118 coefficients.
+Aggregator did 9 substitutions.
+Reduced MIP has 25 rows, 45 columns, and 133 nonzeros.
+Reduced MIP has 45 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.70 ticks)
+Found incumbent of value 3.4266635e+10 after 0.02 sec. (1.02 ticks)
+Probing fixed 18 vars, tightened 0 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 19 rows and 33 columns.
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.04 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6 rows, 12 columns, and 32 nonzeros.
+Reduced MIP has 12 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.02 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (3.17 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (3.17 ticks)
+
+Solution pool: 2 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.4235607000e+10
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.17 ticks  (99.01 ticks/sec)
+
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_0                       1.000000
+y_1_0_0                       1.000000
+y_3_0_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Problem addition successful.
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Warning:  No solution found from 2 MIP starts.
+Retaining values of one MIP start for possible repair.
+Row 'auto_c_000000054' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.28 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.28 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.28 ticks  (17.69 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 133 columns.
+MIP Presolve modified 94 coefficients.
+Reduced MIP has 218 rows, 317 columns, and 1105 nonzeros.
+Reduced MIP has 317 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.96 ticks)
+Found incumbent of value 2.4891787e+12 after 0.02 sec. (2.11 ticks)
+Probing fixed 30 vars, tightened 0 bounds.
+Probing changed sense of 14 constraints.
+Probing time = 0.00 sec. (0.29 ticks)
+Cover probing fixed 8 vars, tightened 1 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 184 rows and 265 columns.
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.23 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 34 rows, 52 columns, and 170 nonzeros.
+Reduced MIP has 52 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.11 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.33 sec. (9.29 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.33 sec. (9.29 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.34 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.29 ticks  (27.02 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Incumbent solution
+All variables matching 'x*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.01 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 85 columns.
+MIP Presolve modified 94 coefficients.
+Reduced MIP has 266 rows, 365 columns, and 1273 nonzeros.
+Reduced MIP has 365 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.08 ticks)
+Found incumbent of value 2.4805122e+12 after 0.02 sec. (2.23 ticks)
+Probing fixed 100 vars, tightened 0 bounds.
+Probing changed sense of 12 constraints.
+Probing time = 0.00 sec. (0.61 ticks)
+Cover probing fixed 0 vars, tightened 6 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 224 rows and 305 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (9.15 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (9.15 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.15 ticks  (194.64 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 85 columns.
+MIP Presolve modified 94 coefficients.
+Reduced MIP has 266 rows, 365 columns, and 1273 nonzeros.
+Reduced MIP has 365 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.08 ticks)
+Found incumbent of value 2.4805122e+12 after 0.02 sec. (2.23 ticks)
+Probing fixed 100 vars, tightened 0 bounds.
+Probing changed sense of 12 constraints.
+Probing time = 0.00 sec. (0.61 ticks)
+Cover probing fixed 0 vars, tightened 6 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 224 rows and 305 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.32 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (9.15 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (9.15 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.15 ticks  (147.55 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 71 rows and 145 columns.
+MIP Presolve added 2 rows and 0 columns.
+MIP Presolve modified 92 coefficients.
+Reduced MIP has 221 rows, 305 columns, and 1057 nonzeros.
+Reduced MIP has 305 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.04 ticks)
+Found incumbent of value 2.4594370e+12 after 0.00 sec. (2.02 ticks)
+Probing fixed 69 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.02 sec. (0.56 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 179 rows and 245 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (7.69 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (7.69 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.70 ticks  (248.25 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 5 times.
+MIP Presolve eliminated 227 rows and 330 columns.
+MIP Presolve modified 100 coefficients.
+Aggregator did 63 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.02 sec. (1.94 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (2.00 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (2.00 ticks)
+
+Solution pool: 1 solution saved.
+
+MIP - Integer optimal solution:  Objective =  4.7767957000e+10
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 2.01 ticks  (125.32 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_1                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 64 rows and 145 columns.
+MIP Presolve modified 78 coefficients.
+Reduced MIP has 221 rows, 305 columns, and 1057 nonzeros.
+Reduced MIP has 305 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.96 ticks)
+Found incumbent of value 2.4734721e+12 after 0.02 sec. (1.89 ticks)
+Probing fixed 69 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.56 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 179 rows and 245 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (7.57 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (7.57 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7758900000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.57 ticks  (164.51 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (14.03 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (7.24 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000012':  0 >= 6000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (13.98 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (7.01 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (14.91 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (13.98 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 65 rows and 145 columns.
+MIP Presolve modified 78 coefficients.
+Reduced MIP has 221 rows, 305 columns, and 1057 nonzeros.
+Reduced MIP has 305 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.96 ticks)
+Found incumbent of value 2.4734721e+12 after 0.00 sec. (1.93 ticks)
+Probing fixed 69 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.01 sec. (0.56 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 179 rows and 245 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (7.61 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (7.61 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7758900000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 7.61 ticks  (120.76 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Infeasibility row 'auto_c_000000006':  0 >= 7000.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.01 sec. (0.22 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.01 sec. (0.22 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound =  0.0000000000e+00 (gap is infinite)
+Solution time =    0.01 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.22 ticks  (14.82 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Found incumbent of value 3.5142948e+10 after 0.00 sec. (0.04 ticks)
+Tried aggregator 2 times.
+MIP Presolve eliminated 192 rows and 329 columns.
+MIP Presolve added 4 rows and 0 columns.
+MIP Presolve modified 91 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 100 rows, 119 columns, and 418 nonzeros.
+Reduced MIP has 119 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.85 ticks)
+Probing time = 0.00 sec. (0.08 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 63 rows and 75 columns.
+Reduced MIP has 37 rows, 44 columns, and 157 nonzeros.
+Reduced MIP has 44 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.12 ticks)
+Probing time = 0.00 sec. (0.03 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 37 rows, 44 columns, and 157 nonzeros.
+Reduced MIP has 44 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.10 ticks)
+Probing time = 0.00 sec. (0.03 ticks)
+Clique table members: 6.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 12 threads.
+Root relaxation solution time = 0.00 sec. (0.04 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                       5.97501e+09   5.87603e+09             1.66%
+*     0+    0                       5.89648e+09   5.87603e+09             0.35%
+*     0     0      integral     0   5.89064e+09   5.89064e+09        4    0.00%
+Elapsed time = 0.06 sec. (3.84 ticks, tree = 0.00 MB, solutions = 4)
+
+Root node processing (before b&c):
+  Real time             =    0.08 sec. (3.86 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.08 sec. (3.86 ticks)
+
+Solution pool: 5 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  5.8906350000e+09
+Solution time =    0.08 sec.  Iterations = 4  Nodes = 0
+Deterministic time = 3.86 ticks  (49.53 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+All variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_1_1_1                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_2                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_1                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+s_0_2_0                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 2 times.
+MIP Presolve eliminated 70 rows and 142 columns.
+MIP Presolve added 4 rows and 0 columns.
+MIP Presolve modified 109 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 221 rows, 305 columns, and 1057 nonzeros.
+Reduced MIP has 305 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.70 ticks)
+Found incumbent of value 2.4594375e+12 after 0.02 sec. (2.64 ticks)
+Probing fixed 69 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.56 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 179 rows and 245 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.27 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (8.32 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (8.32 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  4.7768451000e+10
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 8.32 ticks  (176.97 ticks/sec)
+
+
+Incumbent solution
+All variables matching 'z*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+y_0_2_0                       1.000000
+y_1_1_1                       1.000000
+y_3_1_2                       1.000000
+y_5_0_1                       1.000000
+All other variables matching 'y*' are 0.
+
+Incumbent solution
+Variable Name           Solution Value
+s_0_2_1                       1.000000
+s_0_2_2                       1.000000
+s_0_2_3                       1.000000
+s_0_2_4                       1.000000
+s_1_1_2                       1.000000
+s_1_1_3                       1.000000
+s_1_1_4                       1.000000
+s_3_1_3                       1.000000
+s_3_1_4                       1.000000
+s_5_0_2                       1.000000
+s_5_0_3                       1.000000
+s_5_0_4                       1.000000
+All other variables matching 's*' are 0.
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 2 times.
+MIP Presolve eliminated 86 rows and 158 columns.
+MIP Presolve added 2 rows and 0 columns.
+MIP Presolve modified 91 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 205 rows, 283 columns, and 965 nonzeros.
+Reduced MIP has 283 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.51 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.37 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.37 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.37 ticks  (210.47 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 2 times.
+MIP Presolve eliminated 86 rows and 158 columns.
+MIP Presolve added 2 rows and 0 columns.
+MIP Presolve modified 91 coefficients.
+Aggregator did 2 substitutions.
+Reduced MIP has 205 rows, 283 columns, and 965 nonzeros.
+Reduced MIP has 283 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.51 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.37 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.37 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.37 ticks  (108.63 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 83 columns.
+MIP Presolve modified 65 coefficients.
+Reduced MIP has 265 rows, 367 columns, and 1271 nonzeros.
+Reduced MIP has 367 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.07 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.28 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.28 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.28 ticks  (218.74 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Found incumbent of value 0.000000 after 0.00 sec. (0.01 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.02 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.02 ticks)
+
+Solution pool: 1 solution saved.
+
+MIP - Integer optimal solution:  Objective =  0.0000000000e+00
+Solution time =    0.00 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.02 ticks  (21.00 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.03 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Found incumbent of value 0.000000 after 0.00 sec. (0.01 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.02 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.02 ticks)
+
+Solution pool: 1 solution saved.
+
+MIP - Integer optimal solution:  Objective =  0.0000000000e+00
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.02 ticks  (0.45 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 23 rows and 83 columns.
+MIP Presolve modified 65 coefficients.
+Reduced MIP has 265 rows, 367 columns, and 1271 nonzeros.
+Reduced MIP has 367 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.07 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.28 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.28 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.05 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.28 ticks  (69.81 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 22 rows and 83 columns.
+MIP Presolve modified 71 coefficients.
+Reduced MIP has 266 rows, 367 columns, and 1277 nonzeros.
+Reduced MIP has 367 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.43 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.43 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.43 ticks  (214.41 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 20 rows and 82 columns.
+MIP Presolve modified 81 coefficients.
+Reduced MIP has 268 rows, 368 columns, and 1288 nonzeros.
+Reduced MIP has 368 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (3.38 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (3.38 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.38 ticks  (211.55 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Found incumbent of value 0.000000 after 0.00 sec. (0.01 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.02 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.02 ticks)
+
+Solution pool: 1 solution saved.
+
+MIP - Integer optimal solution:  Objective =  0.0000000000e+00
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.02 ticks  (1.31 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 16 rows and 85 columns.
+MIP Presolve modified 80 coefficients.
+Reduced MIP has 266 rows, 365 columns, and 1273 nonzeros.
+Reduced MIP has 365 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.07 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (3.19 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (3.19 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.03 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 3.19 ticks  (103.00 ticks/sec)
+
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+
+MIP - Integer infeasible.
+Current MIP best bound is infinite.
+Solution time =    0.02 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 0.00 ticks  (0.06 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 11 rows and 85 columns.
+MIP Presolve modified 42 coefficients.
+Reduced MIP has 259 rows, 365 columns, and 1231 nonzeros.
+Reduced MIP has 365 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.02 ticks)
+Found incumbent of value 2.3945986e+12 after 0.02 sec. (2.10 ticks)
+Probing fixed 59 vars, tightened 0 bounds.
+Probing changed sense of 7 constraints.
+Probing time = 0.00 sec. (0.70 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 217 rows and 305 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.31 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (9.16 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (9.16 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.6928128000e+10
+Solution time =    0.06 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.16 ticks  (147.81 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.02 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 15 rows and 82 columns.
+MIP Presolve modified 48 coefficients.
+Reduced MIP has 262 rows, 368 columns, and 1252 nonzeros.
+Reduced MIP has 368 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (1.04 ticks)
+Found incumbent of value 2.3953109e+12 after 0.03 sec. (2.17 ticks)
+Probing fixed 81 vars, tightened 0 bounds.
+Probing changed sense of 7 constraints.
+Probing time = 0.00 sec. (0.63 ticks)
+Cover probing fixed 0 vars, tightened 6 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 220 rows and 308 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.31 ticks)
+Probing time = 0.00 sec. (0.12 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.09 sec. (9.14 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.09 sec. (9.14 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.6929778000e+10
+Solution time =    0.13 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.14 ticks  (73.10 ticks/sec)
+
+
+Problem 'facility_location_model_cplex.lp' read.
+Read time = 0.00 sec. (0.04 ticks)
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+Tried aggregator 1 time.
+MIP Presolve eliminated 18 rows and 82 columns.
+MIP Presolve modified 67 coefficients.
+Reduced MIP has 265 rows, 368 columns, and 1270 nonzeros.
+Reduced MIP has 368 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.07 ticks)
+Found incumbent of value 2.4011096e+12 after 0.02 sec. (2.20 ticks)
+Probing fixed 96 vars, tightened 0 bounds.
+Probing changed sense of 11 constraints.
+Probing time = 0.00 sec. (0.61 ticks)
+Cover probing fixed 0 vars, tightened 6 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 223 rows and 308 columns.
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.31 ticks)
+Probing time = 0.00 sec. (0.13 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 42 rows, 60 columns, and 198 nonzeros.
+Reduced MIP has 60 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.13 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (9.14 ticks)
+Parallel b&c, 12 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (9.14 ticks)
+
+Solution pool: 4 solutions saved.
+
+MIP - Integer optimal solution:  Objective =  3.7392575000e+10
+Solution time =    0.11 sec.  Iterations = 0  Nodes = 0 (1)
+Deterministic time = 9.14 ticks  (83.06 ticks/sec)
+
