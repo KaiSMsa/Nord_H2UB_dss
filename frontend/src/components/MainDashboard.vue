@@ -483,7 +483,6 @@ export default {
           if (error.status) {
             alert(`An error occurred while submitting data.\nError ${error.status}: ${error.statusText}`);
           } else {
-            console.error('Error submitting data:', error);
             alert('An unknown error occurred while submitting data.');
           }
         });
