@@ -1,8 +1,11 @@
 // server.js
 const { spawn } = require('child_process');
-
+const crypto = require('crypto'); // For generating random suffix
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
+
 const app = express();
 const port = 3000;
 
@@ -15,10 +18,10 @@ app.use(express.json());
 // Define a POST route to receive the data
 app.post('/submit', (req, res) => {
 
-  console.log(req.body);
+  // console.log(req.body);
   const data = JSON.stringify(req.body, 2);
   
-  const python = spawn('python', ['model.py']);         //`python model.py ${data.replace(/"/g, '\\""')}"`;
+  const python = spawn('python', ['model.py']);
 
   let output = '';
   let errorOutput = '';  
@@ -35,12 +38,35 @@ app.post('/submit', (req, res) => {
   python.on('close', (code) => {
     if (code === 0) {
       // Send the Python script's output back to the client
-      console.log(output);
+      // console.log(output);
       res.send(output);
     } else {
       console.error(`Python script exited with code ${code}`);
       console.error(`Error output: ${errorOutput}`);
-      res.status(500).send(errorOutput);
+
+      // Create logs folder
+      const logsFolder = path.join(__dirname, 'logs');
+      if (!fs.existsSync(logsFolder)) {
+        fs.mkdirSync(logsFolder);
+      }
+
+      // Generate filename with current datetime
+      const timestamp = new Date().toISOString().replace(/:/g, '-');
+      let logFilename = `log-${timestamp}.log`;
+      let logFilePath = path.join(logsFolder, logFilename);
+
+      // Check if file already exists, and add random suffix if needed
+      while (fs.existsSync(logFilePath)) {
+        const randomSuffix = crypto.randomBytes(4).toString('hex');
+        logFilename = `log-${timestamp}-${randomSuffix}.log`;
+        logFilePath = path.join(logsFolder, logFilename);
+      }
+
+      // Write error output to the log file
+      fs.writeFileSync(logFilePath, `Error code: ${code}\nError output:\n${errorOutput}\nData:\n${data}`);
+
+      // Respond to the client with an error message
+      res.status(500).send(`An error occurred. Details logged in ${logFilename}`);
     }
   });
 

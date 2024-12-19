@@ -448,10 +448,11 @@ export default {
     },
     submit() {
       // Process the data before sending it
+      const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
       const dataSubmit = this.processGlobalData(this.globalData);
 
       // Send 'dataSubmit' to the server
-      fetch('http://localhost:3000/submit', {
+      fetch(`${API_BASE}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -460,7 +461,7 @@ export default {
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error('Failed to submit data.');
+            throw { status: response.status, statusText: response.statusText };
           }
           // Parse the JSON response from the server
           return response.json();
@@ -479,8 +480,12 @@ export default {
           }
         })
         .catch((error) => {
-          console.error('Error submitting data:', error);
-          alert('An error occurred while submitting data.', error.message);
+          if (error.status) {
+            alert(`An error occurred while submitting data.\nError ${error.status}: ${error.statusText}`);
+          } else {
+            console.error('Error submitting data:', error);
+            alert('An unknown error occurred while submitting data.');
+          }
         });
     },
   },

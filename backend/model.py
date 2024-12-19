@@ -1,40 +1,3 @@
-# import json
-# from ortools.linear_solver import pywraplp
-
-# def solve():
-#     # Create solver
-#     solver = pywraplp.Solver.CreateSolver('SCIP')
-#     if not solver:
-#         return json.dumps({"error": "Solver not available!"})
-
-#     # Decision variables
-#     x = solver.IntVar(0, 10, 'x')
-#     y = solver.IntVar(0, 10, 'y')
-
-#     # Objective function
-#     solver.Maximize(3 * x + 4 * y)
-
-#     # Constraints
-#     solver.Add(2 * x + y <= 14)
-#     solver.Add(x + y <= 10)
-
-#     # Solve the problem
-#     status = solver.Solve()
-
-#     if status == pywraplp.Solver.OPTIMAL:
-#         result = {
-#             "x": x.solution_value(),
-#             "y": y.solution_value(),
-#             "objective": solver.Objective().Value()
-#         }
-#         return json.dumps(result)
-#     else:
-#         return json.dumps({"error": "No optimal solution found."})
-
-# if __name__ == "__main__":
-#     print(solve())
-
-
 import sys
 import json
 from ortools.linear_solver import pywraplp
@@ -258,11 +221,11 @@ def solve_facility_location(data):
 
 
 if __name__ == '__main__':
-    # input_text = sys.stdin.read()
+    input_text = sys.stdin.read()
     # Read input data from file
-    input_file = "input_data.txt"
-    with open(input_file, "r") as file:
-        input_text = file.read()
+    # input_file = "input_data.txt"
+    # with open(input_file, "r") as file:
+    #     input_text = file.read()
     input_data = json.loads(input_text)
     # with open("input_data.txt", "w") as lp_file:
     #     lp_file.write(input_text)
