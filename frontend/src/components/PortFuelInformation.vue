@@ -4,76 +4,43 @@
 
     <!-- Form with inputs for each fuel type, labels and inputs aligned horizontally -->
     <b-form>
-      <!-- MGO Input -->
-      <b-form-group label="Marine Gas Oil (MGO) [tonnes]" label-for="mgo-input" label-cols="6" label-align="left">
-        <b-form-input id="mgo-input" type="number" v-model.number="fuelAmounts.MGO" :min="0"
-          @input="calculateTotals"></b-form-input>
-      </b-form-group>
-
-      <!-- MDO Input -->
-      <b-form-group label="Marine Diesel Oil (MDO) [tonnes]" label-for="mdo-input" label-cols="6" label-align="left">
-        <b-form-input id="mdo-input" type="number" v-model.number="fuelAmounts.MDO" :min="0"
-          @input="calculateTotals"></b-form-input>
-      </b-form-group>
-
-      <!-- IFO Input -->
-      <b-form-group label="Intermediate Fuel Oil (IFO) [tonnes]" label-for="ifo-input" label-cols="6"
-        label-align="left">
-        <b-form-input id="ifo-input" type="number" v-model.number="fuelAmounts.IFO" :min="0"
-          @input="calculateTotals"></b-form-input>
-      </b-form-group>
-
-      <!-- VLSFO Input -->
-      <b-form-group label="Very Low Sulphur Fuel Oil (VLSFO) [tonnes]" label-for="vlsfo-input" label-cols="6"
-        label-align="left">
-        <b-form-input id="vlsfo-input" type="number" v-model.number="fuelAmounts.VLSFO" :min="0"
-          @input="calculateTotals"></b-form-input>
-      </b-form-group>
-
-      <!-- HFO Input -->
-      <b-form-group label="Heavy Fuel Oil (HFO) [tonnes]" label-for="hfo-input" label-cols="6" label-align="left">
-        <b-form-input id="hfo-input" type="number" v-model.number="fuelAmounts.HFO" :min="0"
+      <b-form-group v-for="(amount, fuel) in localData.portFuelInformation.fuelAmounts" :key="fuel"
+        :label="`${fuel} [tonnes]`" :label-for="`${fuel}-input`" label-cols="6" label-align="left">
+        <b-form-input :id="`${fuel}-input`" type="number"
+          v-model.number="localData.portFuelInformation.fuelAmounts[fuel]" :min="0"
           @input="calculateTotals"></b-form-input>
       </b-form-group>
     </b-form>
 
     <!-- Display total amounts -->
     <div class="totals">
-      <p><strong>Total amount in MGO-equivalent:</strong> {{ totalMGOEquivalent }} tonnes</p>
+      <p><strong>Total amount in MGO-equivalent:</strong> {{ this.localData.portFuelInformation.totalMGOEquivalent }}
+        tonnes</p>
       <p><strong>Total amount in MJ:</strong> {{ formatMJ(totalMJ) }}</p>
     </div>
   </div>
-  <!-- <pre class="mt-4">{{ globalData }}</pre> -->
 </template>
 
 <script>
 export default {
   name: 'PortFuelCapacity',
-  props: ['globalData'],
+  props: {
+    globalData: Object
+  },
   data() {
     return {
-      localData: JSON.parse(JSON.stringify(this.globalData)),
-      fuelAmounts: {
-        MGO: 0,
-        MDO: 0,
-        IFO: 0,
-        VLSFO: 0,
-        HFO: 0,
-      },
-      totalMGOEquivalent: 0,
+      localData: this.globalData,
       totalMJ: 0,
-      // Conversion factors to MGO-equivalent and MJ per tonne
       conversionFactors: {
-        MGO: { mgoEquivalent: 1.0, mjPerTon: 42900 }, // Assuming MGO is the base
+        MGO: { mgoEquivalent: 1.0, mjPerTon: 42900 },
         MDO: { mgoEquivalent: 0.98, mjPerTon: 42700 },
         IFO: { mgoEquivalent: 0.95, mjPerTon: 42400 },
         VLSFO: { mgoEquivalent: 0.97, mjPerTon: 42600 },
-        HFO: { mgoEquivalent: 0.93, mjPerTon: 42200 },
-      },
+        HFO: { mgoEquivalent: 0.93, mjPerTon: 42200 }
+      }
     };
   },
   watch: {
-    // Watch for changes in localPorts and emit updates to the parent
     localData: {
       handler(newVal) {
         this.$emit('update:globalData', newVal);
@@ -85,15 +52,35 @@ export default {
     calculateTotals() {
       let totalMGO = 0;
       let totalMJ = 0;
-      for (const fuel in this.fuelAmounts) {
-        const amount = this.fuelAmounts[fuel] || 0;
+      for (const fuel in this.localData.portFuelInformation.fuelAmounts) {
+        const amount = this.localData.portFuelInformation.fuelAmounts[fuel] || 0;
         const factors = this.conversionFactors[fuel];
         totalMGO += amount * factors.mgoEquivalent;
         totalMJ += amount * factors.mjPerTon;
       }
-      this.totalMGOEquivalent = Math.round(totalMGO); // Round to integer
+      totalMGO = Math.ceil(totalMGO / 100) * 100;
+      if (!this.localData.isStep1Initial && this.localData.portFuelInformation.totalMGOEquivalent != totalMGO) //the totalMGO has been changed, then reset Step 2
+        this.localData.isStep1Initial = true;
+
+      this.localData.portFuelInformation.totalMGOEquivalent = totalMGO;
       this.totalMJ = totalMJ;
-      this.localData.portFuelInformation.totalMGOEquivalent = this.totalMGOEquivalent;
+
+      if (this.localData.isStep1Initial) {
+        this.localData.fuelBarSelection.intervals.forEach((interval, index) => {
+          if (index > 2)  //apply a 10% increase for the last two time periods
+            totalMGO = Math.ceil(totalMGO * 1.1 / 100) * 100;
+
+          interval.totalAmount = totalMGO;
+          if (index == 0)
+            interval.fuelValues.MGO = totalMGO;
+          else if (index > 0) {
+            interval.fuelValues.MGO = Math.round((totalMGO * 0.6) / 100) * 100;
+            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.3) / 100) * 100;
+            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
+          }
+        });
+      }
+      this.$emit("update:globalData", this.localData);
     },
     formatMJ(value) {
       if (value >= 1e9) {
@@ -105,11 +92,12 @@ export default {
       } else {
         return value.toFixed(2) + ' MJ';
       }
-    },
+    }
   },
   mounted() {
-    this.calculateTotals();
-  },
+    //if (this.localData.isStep1Initial)
+      this.calculateTotals();
+  }
 };
 </script>
 

@@ -48,6 +48,11 @@
         </div>
       </div>
     </div>
+    <!-- Display globalData content -->
+    <!-- <div class="global-data-display">
+      <h3>Global Data</h3>
+      <pre>{{ JSON.stringify(globalData, null, 2) }}</pre>
+    </div> -->
 
     <!-- Step Footer -->
     <div class="step-footer" :class="{ 'align-right': currentStep === 0 }">
@@ -80,7 +85,7 @@ export default {
   },
   data() {
     return {
-      currentStep: 3,
+      currentStep: 0,
       resultData: [],
       resultCosts: [],
       steps: [
@@ -121,8 +126,16 @@ export default {
         },
       },
       globalData: {
+        isStep1Initial: true,
         portFuelInformation: {
           totalMGOEquivalent: 10000,
+          fuelAmounts: {
+            MGO: 10000,
+            MDO: 0,
+            IFO: 0,
+            VLSFO: 0,
+            HFO: 0,
+          },
         },
         fuelBarSelection: {
           intervals: [
@@ -140,50 +153,50 @@ export default {
             },
             {
               name: '2030-2035',
-              totalAmount: 12000,
+              totalAmount: 10000,
               fuelValues: {
-                MGO: 7000,
-                'Liquid Hydrogen': 4000,
+                MGO: 10000,
+                'Liquid Hydrogen': 0,
                 'Compressed Hydrogen': 0,
                 Ammonia: 0,
                 Methanol: 0,
-                LNG: 1000,
+                LNG: 0,
               }
             },
             {
               name: '2035-2040',
-              totalAmount: 12000,
+              totalAmount: 10000,
               fuelValues: {
-                MGO: 6000,
-                'Liquid Hydrogen': 4000,
+                MGO: 10000,
+                'Liquid Hydrogen': 0,
                 'Compressed Hydrogen': 0,
-                Ammonia: 1000,
+                Ammonia: 0,
                 Methanol: 0,
-                LNG: 1000,
+                LNG: 0,
               }
             },
             {
               name: '2040-2045',
-              totalAmount: 11000,
+              totalAmount: 10000,
               fuelValues: {
-                MGO: 3000,
-                'Liquid Hydrogen': 4000,
+                MGO: 10000,
+                'Liquid Hydrogen': 0,
                 'Compressed Hydrogen': 0,
-                Ammonia: 3000,
+                Ammonia: 0,
                 Methanol: 0,
-                LNG: 1000,
+                LNG: 0,
               }
             },
             {
               name: '2045-2050',
               totalAmount: 10000,
               fuelValues: {
-                MGO: 0,
-                'Liquid Hydrogen': 4000,
+                MGO: 10000,
+                'Liquid Hydrogen': 0,
                 'Compressed Hydrogen': 0,
-                Ammonia: 5000,
+                Ammonia: 0,
                 Methanol: 0,
-                LNG: 1000,
+                LNG: 0,
               }
             },
           ]

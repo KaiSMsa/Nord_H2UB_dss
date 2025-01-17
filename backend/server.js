@@ -64,7 +64,7 @@ app.post('/submit', (req, res) => {
 
       // Write error output to the log file
       fs.writeFileSync(logFilePath, `Error code: ${code}\nError output:\n${errorOutput}\nData:\n${data}`);
-
+      console.log(logFilePath);
       // Respond to the client with an error message
       res.status(500).send(`An error occurred. Details logged in ${logFilename}`);
     }
