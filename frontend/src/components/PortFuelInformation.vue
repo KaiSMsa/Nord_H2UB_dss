@@ -7,7 +7,7 @@
       <b-form-group v-for="(amount, fuel) in localData.portFuelInformation.fuelAmounts" :key="fuel"
         :label="`${fuel} [tonnes]`" :label-for="`${fuel}-input`" label-cols="6" label-align="left">
         <b-form-input :id="`${fuel}-input`" type="number"
-          v-model.number="localData.portFuelInformation.fuelAmounts[fuel]" :min="0"
+          v-model.number="localData.portFuelInformation.fuelAmounts[fuel]" :min="0" max="200000" step="100"
           @input="calculateTotals"></b-form-input>
       </b-form-group>
     </b-form>
@@ -73,9 +73,19 @@ export default {
           interval.totalAmount = totalMGO;
           if (index == 0)
             interval.fuelValues.MGO = totalMGO;
-          else if (index > 0) {
+          else if (index === 1) {
             interval.fuelValues.MGO = Math.round((totalMGO * 0.6) / 100) * 100;
             interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.3) / 100) * 100;
+            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
+          }
+          else if (index === 2) {
+            interval.fuelValues.MGO = Math.round((totalMGO * 0.3) / 100) * 100;
+            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.6) / 100) * 100;
+            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
+          }
+          else if (index > 2) {
+            interval.fuelValues.MGO = Math.round((totalMGO * 0.1) / 100) * 100;
+            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.8) / 100) * 100;
             interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
           }
         });

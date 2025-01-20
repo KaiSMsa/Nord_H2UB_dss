@@ -591,6 +591,9 @@ export default {
   margin-top: 2rem;
   min-height: 300px;
   height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Step footer styles */

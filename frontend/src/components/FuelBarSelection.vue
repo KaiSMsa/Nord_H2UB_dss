@@ -59,9 +59,33 @@
             <tr class="total-row">
               <td><strong>Total Amount (MGO-equivalent)</strong></td>
               <td v-for="interval in intervals" :key="'total-' + interval.name">
-                <span>{{ interval.totalAmount }}</span>
+                <span>{{ interval.totalAmount.toLocaleString('en-US') }}</span>
               </td>
             </tr>
+            <!-- CO₂ Equivalent Row -->
+            <tr class="total-row">
+              <td><strong>CO₂-equivalent (tonnes)</strong></td>
+              <td v-for="interval in intervals" :key="'total-' + interval.name">
+                <span>{{ calculateCO2Equivalent(interval).toLocaleString('en-US') }}</span>
+              </td>
+            </tr>
+            <!-- Emission Reduction Row -->
+            <tr class="total-row">
+              <td><strong>CO₂-eq Reduction from 2025</strong></td>
+              <td v-for="(interval, index) in intervals" :key="'change-' + interval.name">
+                <!-- Skip the first interval as it's the baseline -->
+                <span v-if="index === 0">-</span>
+                <span v-else>
+                  <span :class="{ 'text-danger': calculateCO2Reduction(interval) > 0, 'text-success': calculateCO2Reduction(interval) < 0 }">
+                    {{ Math.abs(calculateCO2Reduction(interval)) }}%
+                    <i
+                      :class="calculateCO2Reduction(interval) > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"
+                      :style="{color: calculateCO2Reduction(interval) > 0 ? 'red': 'green', marginLeft: '5px'}">
+                    </i>
+                  </span>
+                </span>
+              </td>
+            </tr>            
           </tbody>
         </table>
       </div>
@@ -88,6 +112,14 @@ export default {
         { name: 'Methanol', class: 'methanol-bar' },
         { name: 'LNG', class: 'lng-bar' },
       ],
+      emissionFactors: {
+        MGO: 3.17,               // CO2-eq per tonne for Marine Gas Oil
+        'Liquid Hydrogen': 0, // Example value
+        'Compressed Hydrogen': 0,
+        Ammonia: 0,
+        Methanol: 1.37,
+        LNG: 2.75,
+      },
       dragging: false,
       dragInfo: {
         interval: null,
@@ -207,8 +239,8 @@ export default {
       this.dragInfo.interval.fuelValues[fuelAbove.name] = newAmountAbove;
       this.dragInfo.interval.fuelValues[fuelBelow.name] = newAmountBelow;
 
-      this.dragInfo.interval.totalAmount = Object.values(this.dragInfo.interval.fuelValues)
-        .reduce((sum, val) => sum + val, 0);
+      //this.dragInfo.interval.totalAmount = Object.values(this.dragInfo.interval.fuelValues)
+      //  .reduce((sum, val) => sum + val, 0);
 
       // Now clamp if needed
       this.checkAndClampInterval(this.dragInfo.interval);
@@ -387,7 +419,20 @@ export default {
         //alert(maxAllowed);
       }
     },
-
+    calculateCO2Equivalent(interval) {
+      let totalCO2Eq = 0;
+      for (const [fuel, amount] of Object.entries(interval.fuelValues)) {
+        const factor = this.emissionFactors[fuel] || 0;
+        totalCO2Eq += amount * factor;
+      }
+      return totalCO2Eq; // Format with commas and 2 decimal places
+    },
+    calculateCO2Reduction(interval) {
+      const baseline = this.calculateCO2Equivalent(this.intervals[0]); // CO2 equivalent
+      const currentCO2 = this.calculateCO2Equivalent(interval);
+      if (baseline === 0) return 0; // Avoid division by zero
+      return  Math.round(((currentCO2 - baseline) / baseline) * 100); // Percentage change
+    },
   },
 };
 </script>
@@ -471,6 +516,15 @@ export default {
   margin-right: 8px;
   border: 1px solid black;
   vertical-align: middle;
+}
+
+.fuel-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 800px; /* Optional: Ensure a max-width */
 }
 
 /* Remove background colors for table rows */
