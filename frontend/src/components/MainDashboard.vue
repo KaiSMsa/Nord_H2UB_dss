@@ -19,7 +19,7 @@
     </div>
 
     <!-- Step Content -->
-    <div class="step-content">
+    <div class="step-content" :class="{ 'results-step': currentStep === steps.length - 1 }">
       <div v-if="currentStep === 0">
         <!-- Step 1: Port Fuel Capacity -->
         <PortFuelInformation v-model:globalData="globalData" />
@@ -32,15 +32,8 @@
         <!-- Step 3: Capacity Selection -->
         <FuelCapacitySelection v-model:globalData="globalData" />
       </div>
-      <div v-else-if="currentStep === 3">
-        <!-- Step 4: Review & Submit -->
-        <h3>Step 4: Review & Submit</h3>
-        <p>Review your information and submit the form.</p>
-      </div>
       <div v-if="currentStep === steps.length - 1">
-        <!-- <pre>{{ costChartData }}</pre> -->
         <div v-if="resultData">
-          <!-- Display the bar chart -->
           <ResultBarChart :chart-data="chartData" :chart-cost-data="costChartData" :chart-options="chartOptions" />
         </div>
         <div v-else>
@@ -63,7 +56,7 @@
         Next
       </b-button>
       <b-button v-if="currentStep === steps.length - 2" @click="submit" variant="success">
-        Submit
+        Plan
       </b-button>
     </div>
   </div>
@@ -92,7 +85,6 @@ export default {
         { label: 'Port Fuel Capacity' },
         { label: 'Fuel Selection' },
         { label: 'Capacity Selection' },
-        { label: 'Review & Submit' },
         { label: 'Results' },
       ],
       chartOptions: {
@@ -376,6 +368,8 @@ export default {
   methods: {
     nextStep() {
       if (this.currentStep < this.steps.length - 1) {
+        if (this.currentStep === 1) // fuel selection
+          this.adjustCapacities();
         this.currentStep++;
       }
     },
@@ -459,6 +453,34 @@ export default {
 
       return dataSubmit;
     },
+    adjustCapacities() {
+      const fuelTypes = Object.keys(this.globalData.fuelBarSelection.intervals[0].fuelValues);
+
+      fuelTypes.forEach((fuelType) => {
+        // Calculate the max fuel value across all intervals
+        const maxFuelValue = Math.max(
+          ...this.globalData.fuelBarSelection.intervals.map(
+            (interval) => interval.fuelValues[fuelType] || 0
+          )
+        );
+        const fuelEntry = this.globalData.fuelCapacitySelection.fuels.find((fuel) => fuel.name === fuelType);
+        if (!fuelEntry) return;
+
+        // Find the current max capacity in fuelCapacitySelection
+        const currentCapacities = fuelEntry.rows.map((row) => row.capacity);
+        const maxCapacity = Math.max(...currentCapacities);
+
+        // If maxFuelValue exceeds maxCapacity, add a new rounded capacity
+        if (maxFuelValue > maxCapacity) {
+          const newCapacity = Math.ceil(maxFuelValue / 1000) * 1000; // Round to upper thousand
+          fuelEntry.rows.push({
+              capacity: newCapacity,
+              storageVolume: 0,
+              cost: 0,
+            });
+        }
+      });
+    },    
     submit() {
       // Process the data before sending it
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
@@ -514,6 +536,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 2rem;
+  padding: 0 20px;
 }
 
 .step-container {
@@ -521,6 +544,7 @@ export default {
   align-items: center;
   position: relative;
   flex-grow: 1;
+  text-align: center;
 }
 
 /* New class for clickable steps */
@@ -552,6 +576,7 @@ export default {
   flex-shrink: 0;
   background-color: #fff;
   z-index: 2;
+  margin: 0 auto;
 }
 
 .step.active {
@@ -574,6 +599,8 @@ export default {
   margin-left: 10px;
   font-size: 1rem;
   color: #555;
+  max-width: 100px;
+  text-align: center;
 }
 
 .step-line {
@@ -595,6 +622,12 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
+.results-step {
+  display: block; /* Reset flex layout for ResultBarChart */
+  padding: 0; /* Optional: Adjust padding for consistent appearance */
+  justify-content: center;
+  align-items: center;}
 
 /* Step footer styles */
 .step-footer {
