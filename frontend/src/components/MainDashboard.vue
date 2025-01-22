@@ -34,7 +34,8 @@
       </div>
       <div v-if="currentStep === steps.length - 1">
         <div v-if="resultData">
-          <ResultBarChart :chart-data="chartData" :chart-cost-data="costChartData" :chart-options="chartOptions" />
+          <ResultBarChart :chart-data="chartData" :chart-cost-data="costChartData"
+            :cost-distribution-data="costDistributionData" :chart-options="chartOptions" />
         </div>
         <div v-else>
           <p>No results available.</p>
@@ -363,7 +364,47 @@ export default {
         datasets: datasets,
       };
     },
+    costDistributionData() {
+      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+      const years = ['2025', '2030', '2035', '2040', '2045'];
 
+      // Initialize totals
+      const totalCosts = {
+        opened: 0,
+        operating: 0,
+        closed: 0,
+      };
+
+      // Sum up costs across all fuels and years
+      fuels.forEach((fuel) => {
+        if (this.resultCosts[fuel]) {
+          years.forEach((year) => {
+            if (this.resultCosts[fuel][year]) {
+              Object.values(this.resultCosts[fuel][year]).forEach((costData) => {
+                totalCosts.opened += costData.opened || 0;
+                totalCosts.operating += costData.operating || 0;
+                totalCosts.closed += costData.closed || 0;
+              });
+            }
+          });
+        }
+      });
+
+      // Format for Chart.js bar or pie chart
+      return {
+        labels: ['Opening Costs', 'Maintenance Costs', 'Closing Costs'],
+        datasets: [
+          {
+            data: [
+              totalCosts.opened,
+              totalCosts.operating,
+              totalCosts.closed,
+            ],
+            backgroundColor: ['#007bff', '#28a745', '#dc3545'], // Colors for bars/slices
+          },
+        ],
+      };
+    },
   },
   methods: {
     nextStep() {
@@ -372,6 +413,8 @@ export default {
           this.adjustCapacities();
         this.currentStep++;
       }
+      else
+        console.log(this.costDistributionData);
     },
     previousStep() {
       if (this.currentStep > 0) {
@@ -474,13 +517,13 @@ export default {
         if (maxFuelValue > maxCapacity) {
           const newCapacity = Math.ceil(maxFuelValue / 1000) * 1000; // Round to upper thousand
           fuelEntry.rows.push({
-              capacity: newCapacity,
-              storageVolume: 0,
-              cost: 0,
-            });
+            capacity: newCapacity,
+            storageVolume: 0,
+            cost: 0,
+          });
         }
       });
-    },    
+    },
     submit() {
       // Process the data before sending it
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
@@ -624,10 +667,13 @@ export default {
 }
 
 .results-step {
-  display: block; /* Reset flex layout for ResultBarChart */
-  padding: 0; /* Optional: Adjust padding for consistent appearance */
+  display: block;
+  /* Reset flex layout for ResultBarChart */
+  padding: 0;
+  /* Optional: Adjust padding for consistent appearance */
   justify-content: center;
-  align-items: center;}
+  align-items: center;
+}
 
 /* Step footer styles */
 .step-footer {

@@ -1,0 +1,11 @@
+Error code: 1
+Error output:
+Traceback (most recent call last):
+  File "C:\Users\mohammkm\source\repos\dss-user-interfacte\backend\model.py", line 234, in <module>
+    solve_facility_location(input_data)
+  File "C:\Users\mohammkm\source\repos\dss-user-interfacte\backend\model.py", line 223, in solve_facility_location
+    lp_file.write(result_data)
+TypeError: write() argument must be str, not dict
+
+Data:
+{"T":["2025","2030","2035","2040","2045"],"Fuels":["MGO","Liquid Hydrogen","Compressed Hydrogen","Ammonia","Methanol","LNG"],"Capacities":{"MGO":[3000,5000,10000],"Liquid Hydrogen":[3000,5000,7000,10000],"Compressed Hydrogen":[3000,5000,7000],"Ammonia":[3000,5000,7000],"Methanol":[3000,5000,7000],"LNG":[3000,5000,7000]},"Costs":{"MGO":{"costs":[3529000,5882000,11765000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Liquid Hydrogen":{"costs":[54784000,91289600,127846400,182630400],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Compressed Hydrogen":{"costs":[642000000,1069800000,1498200000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Ammonia":{"costs":[20244000000,33740000000,47236000000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Methanol":{"costs":[8147000000,13578000000,19009000000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"LNG":{"costs":[11414000000,19022000000,26632000000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10}},"Demand":{"MGO":{"2025":10000,"2030":6000,"2035":3000,"2040":1100,"2045":1200},"Liquid Hydrogen":{"2025":0,"2030":3000,"2035":6000,"2040":8800,"2045":9800},"Compressed Hydrogen":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"Ammonia":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"Methanol":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"LNG":{"2025":0,"2030":1000,"2035":1000,"2040":1100,"2045":1200}}}

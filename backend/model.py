@@ -219,7 +219,9 @@ def solve_facility_location(data):
 
     print(json.dumps(result_data))  # Output the results in JSON format
 
-
+    with open("output_data.txt", "w") as lp_file:
+        lp_file.write(json.dumps(result_data))
+            
 if __name__ == '__main__':
     input_text = sys.stdin.read()
     # Read input data from file

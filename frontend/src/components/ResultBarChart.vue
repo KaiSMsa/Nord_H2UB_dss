@@ -11,12 +11,18 @@
       <h3>Fuel Costs by Year</h3>
       <BarChart :data="chartCostData" :options="chartOptionsCosts" />
     </div>
+
+    <!-- Pie chart for cost distribution -->
+    <div class="chart-container">
+      <h3>Cost Distribution</h3>
+      <PieChart :data="costDistributionData" :options="pieChartOptions" />
+    </div>  
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-import { Bar } from 'vue-chartjs';
+import { Bar, Pie } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -25,18 +31,21 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
+  ArcElement,
 } from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
 export default defineComponent({
   name: 'ResultBarChart',
   components: {
     BarChart: Bar,
+    PieChart: Pie,
   },
   props: {
     chartData: { type: Object, required: true },
     chartCostData: { type: Object, required: true },
+    costDistributionData: { type: Object, required: true },
   },
   data() {
     return {
@@ -82,6 +91,7 @@ export default defineComponent({
           },
           y: {
             beginAtZero: true,
+            type: 'logarithmic',
             title: { display: true, text: 'Fuel Costs (in $)' },
             ticks: {
               stepSize: this.calculateStepSize(this.chartCostData),
@@ -101,6 +111,30 @@ export default defineComponent({
           tooltip: {
             callbacks: {
               label: context => `${context.dataset.label}: $${context.raw.toLocaleString()}`,
+            },
+          },
+        },
+      },
+ 
+      pieChartOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 20,
+              padding: 10,
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.chart.data.labels[context.dataIndex];
+                const value = context.parsed;
+                return `${label}: $${value.toLocaleString()}`;
+              },
             },
           },
         },
@@ -130,9 +164,12 @@ export default defineComponent({
   height: 400px;
   width: 70%;
   margin: 20px auto;
+  aspect-ratio: false;
 }
 
 h3 {
+  margin-top: 50px;
+  /* margin-block: 50 px; */
   text-align: center;
 }
 </style>

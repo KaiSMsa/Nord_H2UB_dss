@@ -9,8 +9,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Import BootstrapVue 3 plugin
 import BootstrapVue3 from 'bootstrap-vue-3';
-import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
+import { Chart, registerables, ArcElement } from 'chart.js';
+Chart.register(...registerables, ArcElement);
 
 const app = createApp(App);
 
