@@ -229,6 +229,6 @@ if __name__ == '__main__':
     # with open(input_file, "r") as file:
     #     input_text = file.read()
     input_data = json.loads(input_text)
-    # with open("input_data.txt", "w") as lp_file:
-    #     lp_file.write(input_text)
+    with open("input_data.txt", "w") as lp_file:
+        lp_file.write(input_text)
     solve_facility_location(input_data)

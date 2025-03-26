@@ -21,7 +21,7 @@
                 <thead>
                   <tr>
                     <th>Capacity (tonnes)</th>
-                    <th >Storage Volume (m³)</th>
+                    <th>Storage Volume (m³)</th>
                     <th>Estimation Cost ($)</th>
                   </tr>
                 </thead>
@@ -33,7 +33,7 @@
                     </td>
 
                     <!-- Display storage volume for Liquid Hydrogen -->
-                    <td >{{ row.storageVolume.toFixed(0) }} m³</td>
+                    <td>{{ row.storageVolume.toFixed(0) }} m³</td>
 
                     <td>{{ formatCost(row.cost) }} $</td>
                     <td>
@@ -128,6 +128,14 @@ export default {
     },
     // Placeholder for cost calculation
     updateCalculations(fuel, row) {
+      const fixedCostPerTank = {
+        'MGO': 500000,
+        'Liquid Hydrogen': 2000000,
+        'Compressed Hydrogen': 20000000,
+        'Ammonia': 3000000,
+        'Methanol': 2500000,
+        'LNG': 500000
+      };
       if (fuel.name === 'MGO') {
         // Constants for Liquid Hydrogen calculations
         const density = 850; // kg/m³
@@ -138,7 +146,7 @@ export default {
 
         // Calculate costs
         const storageCost = row.storageVolume * storageCostPerM3;
-        row.cost = storageCost;
+        row.cost = fixedCostPerTank['MGO'] + storageCost;
       } else if (fuel.name === 'Liquid Hydrogen') {
         // Constants for Liquid Hydrogen calculations
         const energyContentPerKg = 120; // MJ/kg
@@ -154,9 +162,8 @@ export default {
         // Calculate costs
         const storageCost = lh2_tonnes * storageCostPerM3 * 1000;
         const liquefactionCost = lh2_tonnes * liquefactionCostPerM3 * 1000;
-        row.cost = storageCost + liquefactionCost;
-      } else if(fuel.name === 'Compressed Hydrogen')
-      {
+        row.cost = fixedCostPerTank['Liquid Hydrogen'] + storageCost + liquefactionCost;
+      } else if (fuel.name === 'Compressed Hydrogen') {
         const energyContentPerKg = 120; // MJ/kg
         const density = 70.8; // kg/m³
         const storageCostPerM3 = 600; // USD per m³
@@ -168,7 +175,7 @@ export default {
 
         // Calculate costs
         const storageCost = lh2_tonnes * storageCostPerM3 * 1000;
-        row.cost = storageCost;
+        row.cost = fixedCostPerTank['Compressed Hydrogen'] + storageCost;
       } else if (fuel.name === 'Ammonia') {
         // Constants for Liquid Hydrogen calculations
         const energyContentPerKg = 18.6; // MJ/kg
@@ -181,7 +188,7 @@ export default {
 
         // Calculate costs
         const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = storageCost;
+        row.cost = fixedCostPerTank['Ammonia'] + storageCost;
       } else if (fuel.name === 'Methanol') {
         // Constants for Liquid Hydrogen calculations
         const energyContentPerKg = 19.9; // MJ/kg
@@ -194,7 +201,7 @@ export default {
 
         // Calculate costs
         const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = storageCost;
+        row.cost = fixedCostPerTank['Methanol'] + storageCost;
       } else if (fuel.name === 'LNG') {
         // Constants for Liquid Hydrogen calculations
         const energyContentPerKg = 50; // MJ/kg
@@ -207,7 +214,7 @@ export default {
 
         // Calculate costs
         const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = storageCost;
+        row.cost = fixedCostPerTank['LNG'] + storageCost;
       } else {
         // Placeholder calculation for other fuels, replace as needed
         row.cost = Math.round(row.capacity * 100); // Example fallback cost calculation
@@ -327,7 +334,8 @@ export default {
 /* Set specific width for Storage Volume column */
 .storage-volume-header,
 .storage-volume-cell {
-  width: 100%; /* Adjust width as needed */
+  width: 100%;
+  /* Adjust width as needed */
   text-align: center;
 }
 

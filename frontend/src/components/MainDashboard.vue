@@ -34,8 +34,16 @@
       </div>
       <div v-if="currentStep === steps.length - 1">
         <div v-if="resultData">
-          <ResultBarChart :chart-data="chartData" :chart-cost-data="costChartData"
-            :cost-distribution-data="costDistributionData" :chart-options="chartOptions" />
+          <!-- <ResultBarChart
+            :chart-data="chartData"
+            :cost-chart-data="costChartData"
+            :cost-distribution-data="costDistributionData"
+            :chart-options="chartOptions" 
+          /> -->
+          <ResultBarChart
+            :chart-data="chartData"
+            :cost-chart-data="costChartData"
+          />
         </div>
         <div v-else>
           <p>No results available.</p>
@@ -274,7 +282,7 @@ export default {
     };
   },
   computed: {
-    chartData() {
+    /* chartData() {
       //if (!this.resultData || !this.resultData.solution) return null;
 
       // Define the years (x-axis) and fuels (categories)
@@ -320,8 +328,67 @@ export default {
         labels: years, // X-axis labels
         datasets, // Y-axis datasets
       };
+    },*/
+    chartData() {
+      // Define the x-axis labels and fuels in a specific order.
+      const years = ['2025', '2030', '2035', '2040', '2045'];
+      const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+      const fuelColors = {
+        'MGO': '#007bff',
+        'Liquid Hydrogen': '#28a745',
+        'Compressed Hydrogen': '#17a2b8',
+        'Ammonia': '#ffc107',
+        'Methanol': '#dc3545',
+        'LNG': '#6f42c1',
+      };
+
+      const datasets = [];
+
+      // For each fuel, process its tank data across the years.
+      fuelList.forEach(fuel => {
+        if (!this.resultData[fuel]) return; // skip if no data for the fuel
+
+        // Collect unique tank identifiers for this fuel across all years.
+        const tanks = new Set();
+        years.forEach(year => {
+          if (this.resultData[fuel][year]) {
+            Object.keys(this.resultData[fuel][year]).forEach(tankId => tanks.add(tankId));
+          }
+        });
+
+        // For each tank, build a dataset.
+        tanks.forEach(tankId => {
+          const data = years.map(year => {
+            let value = 0;
+            if (this.resultData[fuel][year] && this.resultData[fuel][year][tankId]) {
+              // The tank object has a single key representing capacity (e.g., "3000" or "5000")
+              const tankData = this.resultData[fuel][year][tankId];
+              Object.keys(tankData).forEach(capacityStr => {
+                const status = tankData[capacityStr];
+                // Only count capacity if "opened" or "operating" is truthy.
+                if (status.opened || status.operating) {
+                  value += parseInt(capacityStr, 10);
+                }
+              });
+            }
+            return value;
+          });
+
+          datasets.push({
+            label: `${fuel} - ${tankId}`,
+            data,
+            backgroundColor: fuelColors[fuel],
+            stack: fuel, // ensures that all tanks for the same fuel are stacked together
+          });
+        });
+      });
+
+      return {
+        labels: years,
+        datasets,
+      };
     },
-    costChartData() {
+    /* costChartData() {
       const years = ["2025", "2030", "2035", "2040", "2045"];
       const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
 
@@ -363,44 +430,128 @@ export default {
         labels: years,
         datasets: datasets,
       };
-    },
-    costDistributionData() {
-      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+    }, */
+    costChartData() {
       const years = ['2025', '2030', '2035', '2040', '2045'];
-
-      // Initialize totals
-      const totalCosts = {
-        opened: 0,
-        operating: 0,
-        closed: 0,
+      const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+      const fuelColors = {
+        'MGO': '#007bff',
+        'Liquid Hydrogen': '#28a745',
+        'Compressed Hydrogen': '#17a2b8',
+        'Ammonia': '#ffc107',
+        'Methanol': '#dc3545',
+        'LNG': '#6f42c1',
       };
 
-      // Sum up costs across all fuels and years
-      fuels.forEach((fuel) => {
-        if (this.resultCosts[fuel]) {
-          years.forEach((year) => {
-            if (this.resultCosts[fuel][year]) {
-              Object.values(this.resultCosts[fuel][year]).forEach((costData) => {
-                totalCosts.opened += costData.opened || 0;
-                totalCosts.operating += costData.operating || 0;
-                totalCosts.closed += costData.closed || 0;
+      const datasets = [];
+
+      fuelList.forEach(fuel => {
+        if (!this.resultCosts[fuel]) return;
+
+        // For each year, sum costs from all tanks for the current fuel.
+        const data = years.map(year => {
+          let totalCostForYear = 0;
+          if (this.resultCosts[fuel][year]) {
+            // Iterate over all tanks for that fuel in this year.
+            Object.values(this.resultCosts[fuel][year]).forEach(tankCostData => {
+              // Each tankCostData is an object where each key represents a capacity,
+              // and its value contains the cost breakdown.
+              Object.values(tankCostData).forEach(costValues => {
+                totalCostForYear += (costValues.opened || 0) +
+                  (costValues.operating || 0) +
+                  (costValues.closed || 0);
               });
-            }
-          });
-        }
+            });
+          }
+          return totalCostForYear;
+        });
+
+        datasets.push({
+          label: fuel,
+          data,
+          backgroundColor: fuelColors[fuel],
+          stack: fuel, // all series with the same fuel will stack together
+        });
       });
 
-      // Format for Chart.js bar or pie chart
+      return {
+        labels: years,
+        datasets,
+      };
+    },
+
+    /*  costDistributionData() {
+        const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+        const years = ['2025', '2030', '2035', '2040', '2045'];
+  
+        // Initialize totals
+        const totalCosts = {
+          opened: 0,
+          operating: 0,
+          closed: 0,
+        };
+  
+        // Sum up costs across all fuels and years
+        fuels.forEach((fuel) => {
+          if (this.resultCosts[fuel]) {
+            years.forEach((year) => {
+              if (this.resultCosts[fuel][year]) {
+                Object.values(this.resultCosts[fuel][year]).forEach((costData) => {
+                  totalCosts.opened += costData.opened || 0;
+                  totalCosts.operating += costData.operating || 0;
+                  totalCosts.closed += costData.closed || 0;
+                });
+              }
+            });
+          }
+        });
+  
+        // Format for Chart.js bar or pie chart
+        return {
+          labels: ['Opening Costs', 'Maintenance Costs', 'Closing Costs'],
+          datasets: [
+            {
+              data: [
+                totalCosts.opened,
+                totalCosts.operating,
+                totalCosts.closed,
+              ],
+              backgroundColor: ['#007bff', '#28a745', '#dc3545'], // Colors for bars/slices
+            },
+          ],
+        };
+      },
+    }, */
+    costDistributionData() {
+      // This computed property sums all costs over fuels, years, and tanks.
+      const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+      const years = ['2025', '2030', '2035', '2040', '2045'];
+
+      const totalCosts = { opened: 0, operating: 0, closed: 0 };
+
+      fuelList.forEach(fuel => {
+        if (!this.resultCosts[fuel]) return;
+        years.forEach(year => {
+          if (this.resultCosts[fuel][year]) {
+            Object.keys(this.resultCosts[fuel][year]).forEach(tankId => {
+              const tankCostData = this.resultCosts[fuel][year][tankId];
+              Object.keys(tankCostData).forEach(capacityStr => {
+                const costValues = tankCostData[capacityStr];
+                totalCosts.opened += costValues.opened || 0;
+                totalCosts.operating += costValues.operating || 0;
+                totalCosts.closed += costValues.closed || 0;
+              });
+            });
+          }
+        });
+      });
+
       return {
         labels: ['Opening Costs', 'Maintenance Costs', 'Closing Costs'],
         datasets: [
           {
-            data: [
-              totalCosts.opened,
-              totalCosts.operating,
-              totalCosts.closed,
-            ],
-            backgroundColor: ['#007bff', '#28a745', '#dc3545'], // Colors for bars/slices
+            data: [totalCosts.opened, totalCosts.operating, totalCosts.closed],
+            backgroundColor: ['#007bff', '#28a745', '#dc3545'],
           },
         ],
       };
@@ -525,11 +676,9 @@ export default {
       });
     },
     submit() {
-      // Process the data before sending it
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
       const dataSubmit = this.processGlobalData(this.globalData);
 
-      // Send 'dataSubmit' to the server
       fetch(`${API_BASE}/submit`, {
         method: 'POST',
         headers: {
@@ -537,32 +686,36 @@ export default {
         },
         body: JSON.stringify(dataSubmit),
       })
-        .then((response) => {
+        .then(response => {
           if (!response.ok) {
-            throw { status: response.status, statusText: response.statusText };
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
           }
-          // Parse the JSON response from the server
           return response.json();
         })
-        .then((data) => {
+        .then(data => {
+          // Log the returned JSON response in the console.
+          // console.log('Server Response:', data);
+          // Optionally, show the response in an alert.
+          // alert(JSON.stringify(data, null, 2));
+
           if (data.status === 0) {
-            //display the optimal solution
-            //alert(`Optimal solution:\n${JSON.stringify(data.solution, null, 2)}`);
+            // Display the optimal solution
             this.resultData = data.solution;
             this.resultCosts = data.costs;
+            console.log(JSON.stringify(this.resultData, null, 2));
+            console.log(JSON.stringify(this.resultCosts, null, 2));
+            console.log(JSON.stringify(this.costChartData, null, 2));
+
             // Navigate to the "Results" step
             this.currentStep = this.steps.length - 1;
           } else {
-            //Display non-optimal solution
-            alert(`Non-optimal solution:\nStatus: ${data.status}`)
+            // Display non-optimal solution
+            alert(`Non-optimal solution:\nStatus: ${data.status}`);
           }
         })
-        .catch((error) => {
-          if (error.status) {
-            alert(`An error occurred while submitting data.\nError ${error.status}: ${error.statusText}`);
-          } else {
-            alert('An unknown error occurred while submitting data.');
-          }
+        .catch(error => {
+          console.error('Submission Error:', error);
+          alert(`An error occurred while submitting data.\n${error}`);
         });
     },
   },

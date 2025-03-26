@@ -21,7 +21,7 @@ app.post('/submit', (req, res) => {
   // console.log(req.body);
   const data = JSON.stringify(req.body, 2);
   
-  const python = spawn('python', ['model.py']);
+  const python = spawn('python', ['model_tank_index.py']);
 
   let output = '';
   let errorOutput = '';  
@@ -38,7 +38,7 @@ app.post('/submit', (req, res) => {
   python.on('close', (code) => {
     if (code === 0) {
       // Send the Python script's output back to the client
-      // console.log(output);
+      //console.log(output);
       res.send(output);
     } else {
       console.error(`Python script exited with code ${code}`);
