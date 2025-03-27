@@ -40,7 +40,8 @@
             :cost-distribution-data="costDistributionData"
             :chart-options="chartOptions" 
           /> -->
-          <ResultBarChart :chart-data="chartData" :cost-chart-data="chartCostData" :cost-distribution-data="costDistributionData"/>
+          <ResultBarChart :chart-data="chartData" :cost-chart-data="chartCostData"
+            :cost-distribution-data="costDistributionData" />
         </div>
         <div v-else>
           <p>No results available.</p>
@@ -555,7 +556,7 @@ export default {
         datasets: [
           {
             data: [totalCosts.opened, totalCosts.operating, totalCosts.closed],
-           backgroundColor: ['#41B883', '#E46651', '#00D8FF'],
+            backgroundColor: ['#007bff', '#28a745', '#dc3545'],
           },
         ],
       };

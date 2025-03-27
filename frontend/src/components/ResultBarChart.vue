@@ -21,7 +21,7 @@
     <div class="chart-container pie-chart-container">
       <h3>Cost Distribution</h3>
       <div class="chart-wrapper">
-        <PieChart :data="costDistributionData" :options="pieChartOptions" />
+        <apexchart type="pie" height="400" :options="pieChartOptions" :series="pieChartSeries" />
       </div>
     </div>
   </div>
@@ -31,14 +31,12 @@
 import { defineComponent } from 'vue';
 import VueApexChart from 'vue3-apexcharts';
 import CostChart from './CostChart.vue';
-import { Pie } from 'vue-chartjs';
 
 export default defineComponent({
   name: 'ResultBarChart',
   components: {
     apexchart: VueApexChart,
     CostChart,
-    PieChart: Pie,
   },
   props: {
     chartData: {
@@ -190,6 +188,18 @@ export default defineComponent({
           },
         },
         plugins: {
+          datalabels: {
+            display: true,
+            color: '#fff', // Set the text color to white
+            formatter: (value) => {
+              // Custom formatting if needed
+              return value;
+            },
+            font: {
+              weight: 'bold',
+              size: 14,
+            },
+          },
           tooltip: {
             callbacks: {
               label: (context) => {
@@ -214,51 +224,54 @@ export default defineComponent({
         },
       };
     },
-    // Chart.js options for the pie chart
-    pieChartOptions: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: {
-        padding: {
-          top: 0,
-          right: 50, // add extra padding on the right so the legend appears there
-          bottom: 0,
-          left: 0,
+    /* -----------------------------------------------------------
+     * 3) Cost Distribution Pie Chart (ApexCharts Pie)
+     * ----------------------------------------------------------- */
+    // Transform the costDistributionData to ApexCharts format:
+    // ApexCharts pie requires series: [number, number, ...] and options.labels
+    pieChartSeries() {
+      // Use the first dataset's data array
+      return this.costDistributionData.datasets[0].data;
+    },
+    pieChartOptions() {
+      return {
+        chart: {
+          type: 'pie',
         },
-      },
-      elements: {
-        arc: {
-          borderWidth: 2,
-          // Uncomment the following line if your Chart.js version supports a minimum angle:
-          minAngle: 5,
-        },
-      },
-      plugins: {
+        labels: this.costDistributionData.labels,
+        colors: this.costDistributionData.datasets[0].backgroundColor,
         legend: {
           position: 'right',
-          align: 'center',
-          labels: {
-            boxWidth: 20,
-            padding: 10,
-            usePointStyle: true,
+          horizontalAlign: 'left',
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val, opts) {
+            const seriesIndex = opts.seriesIndex;
+            const value = opts.w.globals.series[seriesIndex];
+            return "$" + value.toLocaleString();
           },
         },
         tooltip: {
-          callbacks: {
-            label: (context) => {
-              const label = context.chart.data.labels[context.dataIndex];
-              const value = context.parsed;
-              return `${label}: $${value.toLocaleString()}`;
+          y: {
+            formatter: function (val) {
+              return "$" + val.toLocaleString();
             },
           },
         },
-      },
+      };
     },
   },
 });
 </script>
 
 <style scoped>
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .chart-container {
   width: 70%;
   margin: auto;
@@ -274,10 +287,7 @@ export default defineComponent({
 }
 
 /* Adjust pie chart container height to match the bar charts */
-.chart-wrapper canvas {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  height: 100%;
+.chart-wrapper .chart-wrapper {
+  height: 400px;
 }
 </style>
