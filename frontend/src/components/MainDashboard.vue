@@ -36,14 +36,11 @@
         <div v-if="resultData">
           <!-- <ResultBarChart
             :chart-data="chartData"
-            :cost-chart-data="costChartData"
+            :cost-chart-data="chartCostData"
             :cost-distribution-data="costDistributionData"
             :chart-options="chartOptions" 
           /> -->
-          <ResultBarChart
-            :chart-data="chartData"
-            :cost-chart-data="costChartData"
-          />
+          <ResultBarChart :chart-data="chartData" :cost-chart-data="chartCostData" :cost-distribution-data="costDistributionData"/>
         </div>
         <div v-else>
           <p>No results available.</p>
@@ -96,36 +93,36 @@ export default {
         { label: 'Capacity Selection' },
         { label: 'Results' },
       ],
-      chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-          },
-          title: {
-            display: true,
-            text: 'Total Capacity and Fuel Capacities per Year',
-          },
-        },
-        scales: {
-          x: {
-            stacked: true,
-            title: {
-              display: true,
-              text: 'Year',
-            },
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Capacity (Units)',
-            },
-          },
-        },
-      },
+      // chartOptions: {
+      //   responsive: true,
+      //   maintainAspectRatio: false,
+      //   plugins: {
+      //     legend: {
+      //       position: 'bottom',
+      //     },
+      //     title: {
+      //       display: true,
+      //       text: 'Total Capacity and Fuel Capacities per Year',
+      //     },
+      //   },
+      //   scales: {
+      //     x: {
+      //       stacked: true,
+      //       title: {
+      //         display: true,
+      //         text: 'Year',
+      //       },
+      //     },
+      //     y: {
+      //       stacked: true,
+      //       beginAtZero: true,
+      //       title: {
+      //         display: true,
+      //         text: 'Capacity (Units)',
+      //       },
+      //     },
+      //   },
+      // },
       globalData: {
         isStep1Initial: true,
         portFuelInformation: {
@@ -388,7 +385,7 @@ export default {
         datasets,
       };
     },
-    /* costChartData() {
+    /* chartCostData() {
       const years = ["2025", "2030", "2035", "2040", "2045"];
       const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
 
@@ -431,7 +428,7 @@ export default {
         datasets: datasets,
       };
     }, */
-    costChartData() {
+    chartCostData() {
       const years = ['2025', '2030', '2035', '2040', '2045'];
       const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
       const fuelColors = {
@@ -450,20 +447,27 @@ export default {
 
         // For each year, sum costs from all tanks for the current fuel.
         const data = years.map(year => {
-          let totalCostForYear = 0;
+          let opening = 0;
+          let operating = 0;
+          let decommissioning = 0;
           if (this.resultCosts[fuel][year]) {
             // Iterate over all tanks for that fuel in this year.
             Object.values(this.resultCosts[fuel][year]).forEach(tankCostData => {
               // Each tankCostData is an object where each key represents a capacity,
               // and its value contains the cost breakdown.
               Object.values(tankCostData).forEach(costValues => {
-                totalCostForYear += (costValues.opened || 0) +
-                  (costValues.operating || 0) +
-                  (costValues.closed || 0);
+                opening += (costValues.opened || 0);
+                operating += (costValues.operating || 0);
+                decommissioning += (costValues.closed || 0);
               });
             });
           }
-          return totalCostForYear;
+          return {
+            total: opening + operating + decommissioning,
+            opening,
+            operating,
+            decommissioning
+          };
         });
 
         datasets.push({
@@ -551,7 +555,7 @@ export default {
         datasets: [
           {
             data: [totalCosts.opened, totalCosts.operating, totalCosts.closed],
-            backgroundColor: ['#007bff', '#28a745', '#dc3545'],
+           backgroundColor: ['#41B883', '#E46651', '#00D8FF'],
           },
         ],
       };
@@ -564,8 +568,6 @@ export default {
           this.adjustCapacities();
         this.currentStep++;
       }
-      else
-        console.log(this.costDistributionData);
     },
     previousStep() {
       if (this.currentStep > 0) {
@@ -702,9 +704,9 @@ export default {
             // Display the optimal solution
             this.resultData = data.solution;
             this.resultCosts = data.costs;
-            console.log(JSON.stringify(this.resultData, null, 2));
-            console.log(JSON.stringify(this.resultCosts, null, 2));
-            console.log(JSON.stringify(this.costChartData, null, 2));
+            //console.log(JSON.stringify(this.resultData, null, 2));
+            //console.log(JSON.stringify(this.chartCostData, null, 2));
+            console.log(JSON.stringify(this.costDistributionData, null, 2));
 
             // Navigate to the "Results" step
             this.currentStep = this.steps.length - 1;
