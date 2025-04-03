@@ -15,7 +15,7 @@ def solve_facility_location(data):
     Costs = data['Costs']  # Costs per fuel
     Demand = data['Demand']  # Demand data
     
-    num_tanks = 3
+    num_tanks = 10
     # Initialize variables
     y, s, x, z = {}, {}, {}, {}
 
