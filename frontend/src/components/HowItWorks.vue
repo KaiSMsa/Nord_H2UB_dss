@@ -83,10 +83,10 @@
   
   /* Intro text for the top description */
   .intro-text {
-    margin-bottom: 30px;
+    margin-bottom: 100px;
+    font-size: 1.3rem;
     text-align: center;
     color: #555;
-    font-size: 1.1rem;
     line-height: 1.4;
   }
   
@@ -109,8 +109,8 @@
   
   /* Step icon */
   .step-icon {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     margin: 0 auto 10px;
   }
   

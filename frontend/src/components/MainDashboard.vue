@@ -95,8 +95,8 @@ export default {
       steps: [
         { label: 'Port Fuel Capacity' },
         { label: 'Fuel Selection' },
-        { label: 'Capacity Selection' },
-        { label: 'Results' },
+        { label: 'Tank Capacities' },
+        { label: 'Operational Schedule' },
       ],
       // chartOptions: {
       //   responsive: true,
