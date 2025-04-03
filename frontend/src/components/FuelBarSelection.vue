@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h3>Fuel Selection</h3>
+    <h3>Select fuels to offer in the future</h3>
 
     <!-- Container for bars and table using CSS grid -->
     <div class="bars-table-container">

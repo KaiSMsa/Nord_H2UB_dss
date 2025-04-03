@@ -1,5 +1,9 @@
 <template>
-  <div class="stepper-container">
+  <!-- Show HowItWorks first -->
+  <HowItWorks v-if="showHowItWorks" @started="onStarted" />
+
+  <!-- Main Dashboard -->
+  <div v-else class="stepper-container">
     <!-- Stepper Header -->
     <div class="stepper">
       <div v-for="(step, index) in steps" :key="index" class="step-container">
@@ -34,12 +38,6 @@
       </div>
       <div v-if="currentStep === steps.length - 1">
         <div v-if="resultData">
-          <!-- <ResultBarChart
-            :chart-data="chartData"
-            :cost-chart-data="chartCostData"
-            :cost-distribution-data="costDistributionData"
-            :chart-options="chartOptions" 
-          /> -->
           <ResultBarChart :chart-data="chartData" :cost-chart-data="chartCostData"
             :cost-distribution-data="costDistributionData" />
         </div>
@@ -65,19 +63,24 @@
       <b-button v-if="currentStep === steps.length - 2" @click="submit" variant="success">
         Plan
       </b-button>
+      <b-button v-if="currentStep === steps.length - 1" @click="startOver" variant="primary">
+        Start over
+      </b-button>
     </div>
   </div>
 </template>
 
 <script>
-import FuelBarSelection from './FuelBarSelection.vue';
+import HowItWorks from './HowItWorks.vue';
 import PortFuelInformation from './PortFuelInformation.vue';
 import FuelCapacitySelection from './FuelCapacitySelection.vue';
+import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
 
 export default {
   name: 'MainDashboard',
   components: {
+    HowItWorks,
     FuelBarSelection,
     PortFuelInformation,
     FuelCapacitySelection,
@@ -85,6 +88,7 @@ export default {
   },
   data() {
     return {
+      showHowItWorks: true, // Flag to control the visibility of the HowItWorks component
       currentStep: 0,
       resultData: [],
       resultCosts: [],
@@ -552,7 +556,7 @@ export default {
       });
 
       return {
-        labels: ['Opening Costs', 'Maintenance Costs', 'Closing Costs'],
+        labels: ['Opening Costs', 'Maintenance Costs', 'Decommissioning Costs'],
         datasets: [
           {
             data: [totalCosts.opened, totalCosts.operating, totalCosts.closed],
@@ -563,6 +567,19 @@ export default {
     },
   },
   methods: {
+    onStarted() {
+      // Hide the HowItWorks component and show the main dashboard.
+      this.showHowItWorks = false;
+    },
+    startOver() {
+      this.showHowItWorks = true;
+      this.currentStep = 0;
+      this.resultData = [];
+      this.resultCosts = [];
+    }
+    ,
+
+    // Navigation methods
     nextStep() {
       if (this.currentStep < this.steps.length - 1) {
         if (this.currentStep === 1) // fuel selection
@@ -843,5 +860,10 @@ export default {
 /* Align right only for the first step */
 .step-footer.align-right {
   justify-content: flex-end;
+}
+
+.start-over-container {
+  text-align: center;
+  margin-top: 30px;
 }
 </style>

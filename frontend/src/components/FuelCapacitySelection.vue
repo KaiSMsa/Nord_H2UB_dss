@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h3>Fuel Storage Capacity and Cost Estimation</h3>
+    <h3>Adjust possible fuel tank sizes</h3>
 
     <b-card no-body>
       <b-tabs card>

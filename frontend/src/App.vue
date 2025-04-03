@@ -5,9 +5,9 @@
     <b-navbar type="dark" variant="primary" class="py-3 justify-content-center">
       <b-navbar-brand href="#" class="w-100 text-center">
         <div>
-          <span class="display-6 d-block">Green Fuel Planner</span>
+            <span class="display-6 d-block" style="color: #90ff9f;">GREENPORT</span>
           <br />
-          <span class="text-muted small d-block">A decision support tool for planning and optimizing fuel investments for Ports</span>
+          <span class="text-light small d-block">GREENPORT is your decision support tool to optimize port fuel capacities and fuel investment strategies for a sustainable future.</span>
         </div>
       </b-navbar-brand>
     </b-navbar>
@@ -39,25 +39,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #2c502c;
   margin-top: 0;
 }
 </style>
-
-<!-- <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 20px;
-}
-.main-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Full viewport height */
-}
-
-</style> -->

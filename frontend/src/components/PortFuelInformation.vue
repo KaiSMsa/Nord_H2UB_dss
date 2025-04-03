@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h3>Enter the port fuel capacity</h3>
+    <h3>Set the fuel port capacity</h3>
 
     <!-- Form with inputs for each fuel type, labels and inputs aligned horizontally -->
     <b-form>
