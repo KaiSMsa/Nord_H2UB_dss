@@ -15,7 +15,12 @@ def solve_facility_location(data):
     Costs = data['Costs']  # Costs per fuel
     Demand = data['Demand']  # Demand data
     
-    num_tanks = 10
+    #num_tanks is an aray having the size of data['Fuels']
+    # num_tanks = [] * len(Fuels)
+    # for f_idx, fuel in enumerate(Fuels):
+    #     max_capacity = max(Capacities[fuel])
+    #     num_tanks[f_idx] = int(max_capacity / 1000)  # Assuming max capacity is in liters, convert to tanks
+    num_tanks = 3  # Assuming one tank for each fuel type for simplicity    
     # Initialize variables
     y, s, x, z = {}, {}, {}, {}
 

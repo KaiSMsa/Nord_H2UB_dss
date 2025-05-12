@@ -6,9 +6,14 @@
     <b-form>
       <b-form-group v-for="(amount, fuel) in localData.portFuelInformation.fuelAmounts" :key="fuel"
         :label="`${fuel} [tonnes]`" :label-for="`${fuel}-input`" label-cols="6" label-align="left">
-        <b-form-input :id="`${fuel}-input`" type="number"
-          v-model.number="localData.portFuelInformation.fuelAmounts[fuel]" :min="0" max="200000" step="100"
-          @input="calculateTotals"></b-form-input>
+        <b-form-input
+          :id="`${fuel}-input`"
+          type="number"
+          v-model.number="localData.portFuelInformation.fuelAmounts[fuel]"
+          :min="0" max="200000" step="100"
+          :disabled="locked"
+          @input="calculateTotals"
+        />
       </b-form-group>
     </b-form>
 
@@ -25,11 +30,12 @@
 export default {
   name: 'PortFuelCapacity',
   props: {
-    globalData: Object
+    scenarioData: {type: Object, required: true},
+    locked: {type: Boolean, default: false}
   },
   data() {
     return {
-      localData: this.globalData,
+      localData: this.scenarioData,
       totalMJ: 0,
       conversionFactors: {
         MGO: { mgoEquivalent: 1.0, mjPerTon: 42900 },
@@ -43,7 +49,7 @@ export default {
   watch: {
     localData: {
       handler(newVal) {
-        this.$emit('update:globalData', newVal);
+        this.$emit('update:scenarioData', newVal);
       },
       deep: true
     }
@@ -105,9 +111,8 @@ export default {
     }
   },
   mounted() {
-    //if (this.localData.isStep1Initial)
       this.calculateTotals();
-  }
+    }
 };
 </script>
 

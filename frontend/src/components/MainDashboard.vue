@@ -8,7 +8,8 @@
     <div class="stepper">
       <div v-for="(step, index) in steps" :key="index" class="step-container">
         <!-- Make step circle and label clickable -->
-        <div class="step-clickable" @click="goToStep(index)" :class="{ 'disabled-step': index > currentStep }">
+        <div class="step-clickable" @click="goToStep(index)"
+          :class="{ 'disabled-step': index > currentStep }">
           <!-- Step Circle -->
           <div class="step" :class="{ active: currentStep === index, completed: index < currentStep }">
             <span v-if="index >= currentStep">{{ index + 1 }}</span>
@@ -24,36 +25,43 @@
 
     <!-- Step Content -->
     <div class="step-content" :class="{ 'results-step': currentStep === steps.length - 1 }">
-      <div v-if="currentStep === 0">
-        <!-- Step 1: Port Fuel Capacity -->
-        <PortFuelInformation v-model:globalData="globalData" />
-      </div>
-      <div v-else-if="currentStep === 1">
-        <!-- Step 2: Fuel Selection -->
-        <FuelBarSelection v-model:globalData="globalData" />
-      </div>
-      <div v-else-if="currentStep === 2">
-        <!-- Step 3: Capacity Selection -->
-        <FuelCapacitySelection v-model:globalData="globalData" />
-      </div>
-      <div v-if="currentStep === steps.length - 1">
-        <div v-if="resultData">
-          <ResultBarChart :chart-data="chartData" :cost-chart-data="chartCostData"
-            :cost-distribution-data="costDistributionData" />
-        </div>
-        <div v-else>
-          <p>No results available.</p>
-        </div>
+      <!-- Step 1 -->
+      <PortFuelInformation
+        v-if="currentStep === 0"
+        v-model:scenarioData="activeData"
+        :locked="scenarios.length > 1"
+        
+      />
+      <!-- Step 2 -->
+      <FuelBarSelection
+        v-else-if="currentStep === 1"
+        :scenarios="scenarios"
+        @update-scenario="updateFuelSelection"
+      />
+      <!-- Step 3 -->
+      <FuelCapacitySelection
+        v-else-if="currentStep === 2"
+        v-model:scenarios="scenarios"
+        @update-scenario="updateCapacitySelection"
+      />
+      <!-- Step 4 (results) -->
+      <div v-else>
+        <!-- Each scenario’s charts will live in its own tab (child comp to be added) -->
+        <!-- <ResultBarChart v-if="activeScenario.resultData" :chart-data="chartData" :cost-chart-data="chartCostData"
+          :cost-distribution-data="costDistributionData" />
+        <p v-else>No results available.</p> -->
+        <ResultBarChart v-if="currentStep === steps.length - 1" :scenarios="scenarios" />
+        <p v-else>No results available.</p>
       </div>
     </div>
     <!-- Display globalData content -->
     <!-- <div class="global-data-display">
       <h3>Global Data</h3>
-      <pre>{{ JSON.stringify(globalData, null, 2) }}</pre>
+      <pre>{{ JSON.stringify(scenarios, null, 2) }}</pre>
     </div> -->
 
     <!-- Step Footer -->
-    <div class="step-footer" :class="{ 'align-right': currentStep === 0 }">
+    <div class="step-footer" :class="{ 'align-right': currentStep === 0}">
       <b-button v-if="currentStep > 0" @click="previousStep" variant="secondary">
         Previous
       </b-button>
@@ -63,19 +71,63 @@
       <b-button v-if="currentStep === steps.length - 2" @click="submit" variant="success">
         Plan
       </b-button>
-      <b-button v-if="currentStep === steps.length - 1" @click="startOver" variant="primary">
-        Start over
-      </b-button>
+      <div v-if="currentStep === steps.length - 1" class="step-footer results-footer">
+        <b-button v-if="currentStep === steps.length - 1" :disabled="scenarios.length >= MAX_SCENARIOS"
+          @click="createNewScenario" variant="primary"
+          class="mr-2"
+          >
+          New scenario
+        </b-button>
+        <span style="width: 10px; display: inline-block;"></span>
+        <b-button v-if="currentStep === steps.length - 1" @click="startOver" variant="primary">
+          Start over
+        </b-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import cloneDeep from 'lodash.clonedeep';
 import HowItWorks from './HowItWorks.vue';
 import PortFuelInformation from './PortFuelInformation.vue';
 import FuelCapacitySelection from './FuelCapacitySelection.vue';
 import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
+import {
+  buildChartData,
+  buildCostChartData,
+  buildCostDistData
+} from '@/utils/chartUtils.js';
+
+function initialGlobalData() {
+  return {
+    isStep1Initial: true,
+    portFuelInformation: {
+      totalMGOEquivalent: 10000,
+      fuelAmounts: { MGO: 10000, MDO: 0, IFO: 0, VLSFO: 0, HFO: 0 }
+    },
+    fuelBarSelection: {
+      intervals: [
+        { name: '2025', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
+        { name: '2030-2035', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
+        { name: '2035-2040', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
+        { name: '2040-2045', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
+        { name: '2045-2050', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } }
+      ]
+    },
+    fuelCapacitySelection: {
+      fuels: [
+        { name: 'MGO', class: 'mgo-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Liquid Hydrogen', class: 'lh2-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'LNG', class: 'lng-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 }
+      ]
+    }
+  };
+}
 
 export default {
   name: 'MainDashboard',
@@ -88,250 +140,45 @@ export default {
   },
   data() {
     return {
-      showHowItWorks: true, // Flag to control the visibility of the HowItWorks component
-      currentStep: 0,
-      resultData: [],
-      resultCosts: [],
+      MAX_SCENARIOS: 3,         // upper limit
+      showHowItWorks: true,     // whether intro page is shown
+      currentScenarioIndex: 0,  // which scenario is active
+      currentStep: 0,           // 0..3 in the stepper
+
+      /* stepper labels */
       steps: [
         { label: 'Port Fuel Capacity' },
         { label: 'Fuel Selection' },
         { label: 'Tank Capacities' },
-        { label: 'Operational Schedule' },
+        { label: 'Operational Schedule' }
       ],
-      // chartOptions: {
-      //   responsive: true,
-      //   maintainAspectRatio: false,
-      //   plugins: {
-      //     legend: {
-      //       position: 'bottom',
-      //     },
-      //     title: {
-      //       display: true,
-      //       text: 'Total Capacity and Fuel Capacities per Year',
-      //     },
-      //   },
-      //   scales: {
-      //     x: {
-      //       stacked: true,
-      //       title: {
-      //         display: true,
-      //         text: 'Year',
-      //       },
-      //     },
-      //     y: {
-      //       stacked: true,
-      //       beginAtZero: true,
-      //       title: {
-      //         display: true,
-      //         text: 'Capacity (Units)',
-      //       },
-      //     },
-      //   },
-      // },
-      globalData: {
-        isStep1Initial: true,
-        portFuelInformation: {
-          totalMGOEquivalent: 10000,
-          fuelAmounts: {
-            MGO: 10000,
-            MDO: 0,
-            IFO: 0,
-            VLSFO: 0,
-            HFO: 0,
-          },
-        },
-        fuelBarSelection: {
-          intervals: [
-            {
-              name: '2025',
-              totalAmount: 10000,
-              fuelValues: {
-                MGO: 10000,
-                'Liquid Hydrogen': 0,
-                'Compressed Hydrogen': 0,
-                Ammonia: 0,
-                Methanol: 0,
-                LNG: 0,
-              }
-            },
-            {
-              name: '2030-2035',
-              totalAmount: 10000,
-              fuelValues: {
-                MGO: 10000,
-                'Liquid Hydrogen': 0,
-                'Compressed Hydrogen': 0,
-                Ammonia: 0,
-                Methanol: 0,
-                LNG: 0,
-              }
-            },
-            {
-              name: '2035-2040',
-              totalAmount: 10000,
-              fuelValues: {
-                MGO: 10000,
-                'Liquid Hydrogen': 0,
-                'Compressed Hydrogen': 0,
-                Ammonia: 0,
-                Methanol: 0,
-                LNG: 0,
-              }
-            },
-            {
-              name: '2040-2045',
-              totalAmount: 10000,
-              fuelValues: {
-                MGO: 10000,
-                'Liquid Hydrogen': 0,
-                'Compressed Hydrogen': 0,
-                Ammonia: 0,
-                Methanol: 0,
-                LNG: 0,
-              }
-            },
-            {
-              name: '2045-2050',
-              totalAmount: 10000,
-              fuelValues: {
-                MGO: 10000,
-                'Liquid Hydrogen': 0,
-                'Compressed Hydrogen': 0,
-                Ammonia: 0,
-                Methanol: 0,
-                LNG: 0,
-              }
-            },
-          ]
-        },
-        fuelCapacitySelection: {
-          fuels: [
-            {
-              name: 'MGO',
-              class: 'mgo-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 10000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-            {
-              name: 'Liquid Hydrogen',
-              class: 'lh2-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-            {
-              name: 'Compressed Hydrogen',
-              class: 'ch2-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-            {
-              name: 'Ammonia',
-              class: 'ammonia-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-            {
-              name: 'Methanol',
-              class: 'methanol-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-            {
-              name: 'LNG',
-              class: 'lng-bar',
-              rows: [
-                { capacity: 3000, storageVolume: 0, cost: 0 },
-                { capacity: 5000, storageVolume: 0, cost: 0 },
-                { capacity: 7000, storageVolume: 0, cost: 0 },
-              ],
-              changeRate: -2,
-              maintenanceCost: 4,
-              decommissioningCost: 10
-            },
-          ]
+
+      /* array of scenario objects */
+      scenarios: [
+        {
+          id: 1,
+          name: 'Scenario 1',
+          editable: true,
+          data: initialGlobalData(),
+          resultData: null,
+          resultCosts: null,
+          /* chart cache */
+          cachedChartData: null,
+          cachedCostChart: null,
+          cachedCostDist: null,
+          viewerReady: false
         }
-      },
+      ]
     };
   },
   computed: {
-    /* chartData() {
-      //if (!this.resultData || !this.resultData.solution) return null;
-
-      // Define the years (x-axis) and fuels (categories)
-      const years = ['2025', '2030', '2035', '2040', '2045'];
-      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
-
-      // Define colors for each fuel
-      const fuelColors = {
-        'MGO': '#007bff',
-        'Liquid Hydrogen': '#28a745',
-        'Compressed Hydrogen': '#17a2b8',
-        'Ammonia': '#ffc107',
-        'Methanol': '#dc3545',
-        'LNG': '#6f42c1',
-      };
-
-      // Initialize datasets for each fuel
-      const datasets = fuels.map((fuel) => {
-        return {
-          label: fuel,
-          data: years.map((year) => {
-            // Check if the fuel has data for the year
-            if (this.resultData[fuel] && this.resultData[fuel][year]) {
-              // Extract the capacities for the current fuel and year
-              const capacitiesForYear = this.resultData[fuel][year];
-
-              // Calculate the total capacity for 'opened' or 'operating'
-              return Object.keys(capacitiesForYear)
-                .filter((capacity) => {
-                  const status = capacitiesForYear[capacity];
-                  return status.opened || status.operating;
-                })
-                .reduce((sum, capacity) => sum + parseInt(capacity, 10), 0);
-            }
-            return 0; // Default to 0 if no data for the year
-          }),
-          backgroundColor: fuelColors[fuel],
-        };
-      });
-
-      // Return the Chart.js data format
-      return {
-        labels: years, // X-axis labels
-        datasets, // Y-axis datasets
-      };
-    },*/
+    activeScenario() { return this.scenarios[this.currentScenarioIndex]; },
+    activeData() { return this.activeScenario.data; },
     chartData() {
+      //display a messagbox for activeScenario index
+      alert(`Active Scenario Index: ${this.currentScenarioIndex}`);
+      const res = this.activeScenario.resultData;
+      if (!res) return { labels: [], datasets: [] };
       // Define the x-axis labels and fuels in a specific order.
       const years = ['2025', '2030', '2035', '2040', '2045'];
       const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
@@ -348,13 +195,13 @@ export default {
 
       // For each fuel, process its tank data across the years.
       fuelList.forEach(fuel => {
-        if (!this.resultData[fuel]) return; // skip if no data for the fuel
+        if (!res[fuel]) return; // skip if no data for the fuel
 
         // Collect unique tank identifiers for this fuel across all years.
         const tanks = new Set();
         years.forEach(year => {
-          if (this.resultData[fuel][year]) {
-            Object.keys(this.resultData[fuel][year]).forEach(tankId => tanks.add(tankId));
+          if (res[fuel][year]) {
+            Object.keys(res[fuel][year]).forEach(tankId => tanks.add(tankId));
           }
         });
 
@@ -362,9 +209,9 @@ export default {
         tanks.forEach(tankId => {
           const data = years.map(year => {
             let value = 0;
-            if (this.resultData[fuel][year] && this.resultData[fuel][year][tankId]) {
+            if (res[fuel][year] && res[fuel][year][tankId]) {
               // The tank object has a single key representing capacity (e.g., "3000" or "5000")
-              const tankData = this.resultData[fuel][year][tankId];
+              const tankData = res[fuel][year][tankId];
               Object.keys(tankData).forEach(capacityStr => {
                 const status = tankData[capacityStr];
                 // Only count capacity if "opened" or "operating" is truthy.
@@ -390,167 +237,54 @@ export default {
         datasets,
       };
     },
-    /* chartCostData() {
-      const years = ["2025", "2030", "2035", "2040", "2045"];
-      const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
-
-      const fuelColors = {
-        MGO: "#007bff",
-        "Liquid Hydrogen": "#28a745",
-        "Compressed Hydrogen": "#17a2b8",
-        Ammonia: "#ffc107",
-        Methanol: "#dc3545",
-        LNG: "#6f42c1",
-      };
-
-      const datasets = fuels.map((fuel) => {
-        return {
-          label: fuel,
-          backgroundColor: fuelColors[fuel],
-          data: years.map((year) => {
-            // Check if the fuel has data for the year
-            if (this.resultCosts[fuel] && this.resultCosts[fuel][year]) {
-              // Extract the costs for the current fuel and year
-              const costForYear = this.resultCosts[fuel][year];
-
-              // Calculate the total capacity for 'opened' or 'operating'
-              return Object.keys(costForYear).reduce((totalCost, capacity) => {
-                const costData = costForYear[capacity];
-                const openedCost = costData.opened || 0;
-                const operatingCost = costData.operating || 0;
-                const closedCost = costData.closed || 0;
-                return totalCost + openedCost + operatingCost + closedCost;
-              }, 0);
-            }
-            // If no data for this fuel/year, return 0
-            return 0;
-          }),
-        };
-      });
-
-      return {
-        labels: years,
-        datasets: datasets,
-      };
-    }, */
     chartCostData() {
+      const costs = this.activeScenario.resultCosts;
+      if (!costs) return { labels: [], datasets: [] };
+
       const years = ['2025', '2030', '2035', '2040', '2045'];
       const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
       const fuelColors = {
-        'MGO': '#007bff',
-        'Liquid Hydrogen': '#28a745',
-        'Compressed Hydrogen': '#17a2b8',
-        'Ammonia': '#ffc107',
-        'Methanol': '#dc3545',
-        'LNG': '#6f42c1',
+        MGO: '#007bff', 'Liquid Hydrogen': '#28a745', 'Compressed Hydrogen': '#17a2b8',
+        Ammonia: '#ffc107', Methanol: '#dc3545', LNG: '#6f42c1'
       };
-
       const datasets = [];
 
       fuelList.forEach(fuel => {
-        if (!this.resultCosts[fuel]) return;
-
-        // For each year, sum costs from all tanks for the current fuel.
-        const data = years.map(year => {
-          let opening = 0;
-          let operating = 0;
-          let decommissioning = 0;
-          if (this.resultCosts[fuel][year]) {
-            // Iterate over all tanks for that fuel in this year.
-            Object.values(this.resultCosts[fuel][year]).forEach(tankCostData => {
-              // Each tankCostData is an object where each key represents a capacity,
-              // and its value contains the cost breakdown.
-              Object.values(tankCostData).forEach(costValues => {
-                opening += (costValues.opened || 0);
-                operating += (costValues.operating || 0);
-                decommissioning += (costValues.closed || 0);
-              });
-            });
+        if (!costs[fuel]) return;
+        const data = years.map(y => {
+          let open = 0, op = 0, dec = 0;
+          if (costs[fuel][y]) {
+            Object.values(costs[fuel][y]).forEach(tank =>
+              Object.values(tank).forEach(c => {
+                open += c.opened || 0; op += c.operating || 0; dec += c.closed || 0;
+              })
+            );
           }
-          return {
-            total: opening + operating + decommissioning,
-            opening,
-            operating,
-            decommissioning
-          };
+          return { total: open + op + dec, opening: open, operating: op, decommissioning: dec };
         });
-
-        datasets.push({
-          label: fuel,
-          data,
-          backgroundColor: fuelColors[fuel],
-          stack: fuel, // all series with the same fuel will stack together
-        });
+        datasets.push({ label: fuel, data, backgroundColor: fuelColors[fuel], stack: fuel });
       });
 
-      return {
-        labels: years,
-        datasets,
-      };
+      return { labels: years, datasets };
     },
-
-    /*  costDistributionData() {
-        const fuels = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
-        const years = ['2025', '2030', '2035', '2040', '2045'];
-  
-        // Initialize totals
-        const totalCosts = {
-          opened: 0,
-          operating: 0,
-          closed: 0,
-        };
-  
-        // Sum up costs across all fuels and years
-        fuels.forEach((fuel) => {
-          if (this.resultCosts[fuel]) {
-            years.forEach((year) => {
-              if (this.resultCosts[fuel][year]) {
-                Object.values(this.resultCosts[fuel][year]).forEach((costData) => {
-                  totalCosts.opened += costData.opened || 0;
-                  totalCosts.operating += costData.operating || 0;
-                  totalCosts.closed += costData.closed || 0;
-                });
-              }
-            });
-          }
-        });
-  
-        // Format for Chart.js bar or pie chart
-        return {
-          labels: ['Opening Costs', 'Maintenance Costs', 'Closing Costs'],
-          datasets: [
-            {
-              data: [
-                totalCosts.opened,
-                totalCosts.operating,
-                totalCosts.closed,
-              ],
-              backgroundColor: ['#007bff', '#28a745', '#dc3545'], // Colors for bars/slices
-            },
-          ],
-        };
-      },
-    }, */
     costDistributionData() {
-      // This computed property sums all costs over fuels, years, and tanks.
-      const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
+      const costs = this.activeScenario.resultCosts;
+      if (!costs) return { labels: [], datasets: [] };
+
+      const fuels = Object.keys(costs);
       const years = ['2025', '2030', '2035', '2040', '2045'];
+      const total = { opened: 0, operating: 0, closed: 0 };
 
-      const totalCosts = { opened: 0, operating: 0, closed: 0 };
-
-      fuelList.forEach(fuel => {
-        if (!this.resultCosts[fuel]) return;
-        years.forEach(year => {
-          if (this.resultCosts[fuel][year]) {
-            Object.keys(this.resultCosts[fuel][year]).forEach(tankId => {
-              const tankCostData = this.resultCosts[fuel][year][tankId];
-              Object.keys(tankCostData).forEach(capacityStr => {
-                const costValues = tankCostData[capacityStr];
-                totalCosts.opened += costValues.opened || 0;
-                totalCosts.operating += costValues.operating || 0;
-                totalCosts.closed += costValues.closed || 0;
-              });
-            });
+      fuels.forEach(f => {
+        years.forEach(y => {
+          if (costs[f][y]) {
+            Object.values(costs[f][y]).forEach(tank =>
+              Object.values(tank).forEach(c => {
+                total.opened += c.opened || 0;
+                total.operating += c.operating || 0;
+                total.closed += c.closed || 0;
+              })
+            );
           }
         });
       });
@@ -559,12 +293,12 @@ export default {
         labels: ['Opening Costs', 'Maintenance Costs', 'Decommissioning Costs'],
         datasets: [
           {
-            data: [totalCosts.opened, totalCosts.operating, totalCosts.closed],
-            backgroundColor: ['#007bff', '#28a745', '#dc3545'],
-          },
-        ],
+            data: [total.opened, total.operating, total.closed],
+            backgroundColor: ['#007bff', '#28a745', '#dc3545']
+          }
+        ]
       };
-    },
+    }
   },
   methods: {
     onStarted() {
@@ -572,12 +306,12 @@ export default {
       this.showHowItWorks = false;
     },
     startOver() {
-      this.showHowItWorks = true;
+      // keep only Scenario 1 and reset to intro
+      this.scenarios = [this.scenarios[0]];
+      this.currentScenarioIndex = 0;
       this.currentStep = 0;
-      this.resultData = [];
-      this.resultCosts = [];
-    }
-    ,
+      this.showHowItWorks = true;
+    },
 
     // Navigation methods
     nextStep() {
@@ -592,19 +326,65 @@ export default {
         this.currentStep--;
       }
     },
-    goToStep(index) {
-      // Allow navigation to previous steps or the current step
-      if (index <= this.currentStep) {
-        this.currentStep = index;
-      }
+    goToStep(idx) {
+      // prevent jumping into locked Step 1 when on Scenario 2/3
+      if (idx <= this.currentStep) this.currentStep = idx;
+    },
+    createNewScenario() {
+      if (this.scenarios.length >= this.MAX_SCENARIOS) return;
+
+      const base = this.scenarios[0];
+      this.scenarios.push({
+        id: this.scenarios.length,
+        name: `Scenario ${this.scenarios.length + 1}`,
+        editable: true,
+        data: cloneDeep(base.data),   // start from the initial scenario
+        resultData: null,
+        resultCosts: null,
+
+        cachedChartData: null,
+        cachedCostChart: null,
+        cachedCostDist:  null,
+        viewerReady: false
+      });
+      this.currentScenarioIndex = this.scenarios.length - 1;
+      this.currentStep = 1;         // jump straight to Step 2
+    },
+    adjustCapacities() {
+      /* ensures tank-size table always includes a row ≥ max demand */
+      // const fuelTypes = Object.keys(this.activeData.fuelBarSelection.intervals[0].fuelValues);
+
+      // fuelTypes.forEach(ft => {
+      //   const maxDemand = Math.max(
+      //     ...this.activeData.fuelBarSelection.intervals.map(i => i.fuelValues[ft] || 0)
+      //   );
+
+      //   const fuel = this.activeData.fuelCapacitySelection.fuels.find(f => f.name === ft);
+      //   if (!fuel) return;
+
+      //   const currentMax = Math.max(...fuel.rows.map(r => r.capacity));
+      //   if (maxDemand > currentMax) {
+      //     fuel.rows.push({
+      //       capacity: Math.ceil(maxDemand / 1000) * 1000,
+      //       storageVolume: 0,
+      //       cost: 0
+      //     });
+      //   }
+      // });
+    },
+    updateFuelSelection({ index, value }) {
+      this.scenarios[index].data.fuelBarSelection = value;
+    },
+    updateCapacitySelection({ index, value }) {
+      this.scenarios[index].data.fuelCapacitySelection = value;
     },
     // Implement the processGlobalData function
-    processGlobalData(globalData) {
+    processGlobalData(sData) {
       // Initialize the dataSubmit object
       const dataSubmit = {};
 
       // 1. Extract Time Intervals (T)
-      const T = globalData.fuelBarSelection.intervals.map((interval) => {
+      const T = sData.fuelBarSelection.intervals.map((interval) => {
         // Extract the starting year from interval names (e.g., "2025", "2030-2035")
         const match = interval.name.match(/^\d{4}/);
         return match ? match[0] : interval.name;
@@ -612,14 +392,14 @@ export default {
       dataSubmit.T = T;
 
       // 2. Extract List of Fuels
-      const fuels = globalData.fuelCapacitySelection.fuels.map((fuel) => fuel.name);
+      const fuels = sData.fuelCapacitySelection.fuels.map((fuel) => fuel.name);
       dataSubmit.Fuels = fuels;
 
       // 3. Extract Capacities and Costs
       dataSubmit.Capacities = {};
       dataSubmit.Costs = {};
 
-      globalData.fuelCapacitySelection.fuels.forEach((fuel) => {
+      sData.fuelCapacitySelection.fuels.forEach((fuel) => {
         const fuelName = fuel.name;
 
         // Capacities
@@ -650,7 +430,7 @@ export default {
         dataSubmit.Demand[fuelName] = {};
       });
 
-      globalData.fuelBarSelection.intervals.forEach((interval) => {
+      sData.fuelBarSelection.intervals.forEach((interval) => {
         const intervalName = interval.name;
         // Extract the starting year for consistent keys
         const match = intervalName.match(/^\d{4}/);
@@ -667,37 +447,9 @@ export default {
 
       return dataSubmit;
     },
-    adjustCapacities() {
-      const fuelTypes = Object.keys(this.globalData.fuelBarSelection.intervals[0].fuelValues);
-
-      fuelTypes.forEach((fuelType) => {
-        // Calculate the max fuel value across all intervals
-        const maxFuelValue = Math.max(
-          ...this.globalData.fuelBarSelection.intervals.map(
-            (interval) => interval.fuelValues[fuelType] || 0
-          )
-        );
-        const fuelEntry = this.globalData.fuelCapacitySelection.fuels.find((fuel) => fuel.name === fuelType);
-        if (!fuelEntry) return;
-
-        // Find the current max capacity in fuelCapacitySelection
-        const currentCapacities = fuelEntry.rows.map((row) => row.capacity);
-        const maxCapacity = Math.max(...currentCapacities);
-
-        // If maxFuelValue exceeds maxCapacity, add a new rounded capacity
-        if (maxFuelValue > maxCapacity) {
-          const newCapacity = Math.ceil(maxFuelValue / 1000) * 1000; // Round to upper thousand
-          fuelEntry.rows.push({
-            capacity: newCapacity,
-            storageVolume: 0,
-            cost: 0,
-          });
-        }
-      });
-    },
     submit() {
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
-      const dataSubmit = this.processGlobalData(this.globalData);
+      const dataSubmit = this.processGlobalData(this.activeData);
 
       fetch(`${API_BASE}/submit`, {
         method: 'POST',
@@ -719,12 +471,20 @@ export default {
           // alert(JSON.stringify(data, null, 2));
 
           if (data.status === 0) {
+            // save reults in the active scenario
+            this.activeScenario.resultData = data.solution;
+            this.activeScenario.resultCosts = data.costs;
+            this.activeScenario.cachedChartData = buildChartData(this.activeScenario);
+            this.activeScenario.cachedCostChart = buildCostChartData(this.activeScenario);
+            this.activeScenario.cachedCostDist = buildCostDistData(this.activeScenario)
+            this.activeScenario.editable = false; // lock the scenario
+            this.activeScenario.viewerReady = true;
             // Display the optimal solution
-            this.resultData = data.solution;
-            this.resultCosts = data.costs;
+            // this.resultData = data.solution;
+            // this.resultCosts = data.costs;
             //console.log(JSON.stringify(this.resultData, null, 2));
             //console.log(JSON.stringify(this.chartCostData, null, 2));
-            console.log(JSON.stringify(this.costDistributionData, null, 2));
+            // console.log(JSON.stringify(this.costDistributionData, null, 2));
 
             // Navigate to the "Results" step
             this.currentStep = this.steps.length - 1;
@@ -855,6 +615,10 @@ export default {
   align-items: center;
   margin-top: 2rem;
   padding: 1rem 0;
+}
+
+.step-footer.results-footer {
+  justify-content: flex-start;   /* could also use flex-end */
 }
 
 /* Align right only for the first step */
