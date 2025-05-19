@@ -1,5 +1,6 @@
 import sys
 import json
+import math
 from ortools.linear_solver import pywraplp
 
 def solve_facility_location(data):
@@ -15,16 +16,19 @@ def solve_facility_location(data):
     Costs = data['Costs']  # Costs per fuel
     Demand = data['Demand']  # Demand data
     
-    #num_tanks is an aray having the size of data['Fuels']
-    # num_tanks = [] * len(Fuels)
-    # for f_idx, fuel in enumerate(Fuels):
-    #     max_capacity = max(Capacities[fuel])
-    #     num_tanks[f_idx] = int(max_capacity / 1000)  # Assuming max capacity is in liters, convert to tanks
-    num_tanks = 3  # Assuming one tank for each fuel type for simplicity    
+    # Automatically compute how many tanks each fuel might need
+    num_tanks_dict = [0] * len(Fuels)
+    for f_idx, fuel in enumerate(Fuels):
+        min_capacity = min(Capacities[fuel])
+        max_demand = max(Demand[fuel][year] for year in T)
+        num_tanks_dict[f_idx] = math.ceil(max_demand / min_capacity)  # Round up to ensure sufficient tanks
+    
+    # num_tanks = 3  # Assuming one tank for each fuel type for simplicity    
     # Initialize variables
     y, s, x, z = {}, {}, {}, {}
 
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]  # Number of tanks for this fuel
         for i in range(num_tanks):
             for k_idx, capacity in enumerate(Capacities[fuel]):
                 for t_idx, year in enumerate(T):
@@ -57,6 +61,7 @@ def solve_facility_location(data):
             maintenance_cost = round(initial_costs[k_idx] * (maintenance_rate / 100.0), -3)
             decommissioning_cost = round(initial_costs[k_idx] * (decommissioning_rate / 100.0), -3)
             
+            num_tanks = num_tanks_dict[f_idx]  # Number of tanks for this fuel
             for i in range(num_tanks):
                 for t_idx in range(len(T)):
                     # At t=0 for MGO, force opening but count only maintenance cost
@@ -90,6 +95,7 @@ def solve_facility_location(data):
     # Demand satisfaction: total capacity (from opened and operating tanks) must meet or exceed demand
     for t_idx, year in enumerate(T):
         for f_idx, fuel in enumerate(Fuels):
+            num_tanks = num_tanks_dict[f_idx]
             demand = Demand[fuel][year]
             total_output = solver.Sum(
                 Capacities[fuel][k_idx] * (y[f_idx, i, k_idx, t_idx] + s[f_idx, i, k_idx, t_idx])
@@ -100,6 +106,7 @@ def solve_facility_location(data):
     
     # Operation logic: For each tank, operating status is determined by cumulative openings minus closings
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         for i in range(num_tanks):
             for t_idx in range(1, len(T)):
                 for k_idx in range(len(Capacities[fuel])):
@@ -113,6 +120,7 @@ def solve_facility_location(data):
     
     # Facility opening constraint: Each fuel can have at most 'num_tanks' openings in total.
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         total_y = solver.Sum(
             y[f_idx, i, k_idx, t_idx]
             for i in range(num_tanks)
@@ -123,6 +131,7 @@ def solve_facility_location(data):
     
     # Single capacity operation per tank: a tank can operate in only one capacity option at a given time.
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         for i in range(num_tanks):
             for t_idx in range(len(T)):
                 total_s = solver.Sum(
@@ -132,6 +141,7 @@ def solve_facility_location(data):
     
     # Capacity transition constraints: track transitions for each tank separately
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         for i in range(num_tanks):
             for t_idx in range(1, len(T)):
                 for k_idx in range(len(Capacities[fuel])):
@@ -155,6 +165,7 @@ def solve_facility_location(data):
     
     # Enforce closing if demand drops from positive to zero: for each fuel, if demand goes to zero, the combined operation must cease.
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         last_t = -1
         for t_idx in range(1, len(T)):
             if Demand[fuel][T[t_idx - 1]] > 0 and Demand[fuel][T[t_idx]] == 0:
@@ -170,6 +181,7 @@ def solve_facility_location(data):
     # Mandatory opening of an MGO tank at t = 0 (for model purposes, no maintenance or closing is allowed). This is to make the model feasible.
     if "MGO" in Fuels:
         mgo_f_idx = Fuels.index("MGO")
+        num_tanks = num_tanks_dict[mgo_f_idx]
         open_MGO = solver.Sum(
             y[mgo_f_idx, i, k_idx, 0] for i in range(num_tanks) for k_idx in range(len(Capacities["MGO"]))
         )
@@ -187,6 +199,7 @@ def solve_facility_location(data):
     
     # Sequential opening constraint: tank i must be open before tank i+1
     for f_idx, fuel in enumerate(Fuels):
+        num_tanks = num_tanks_dict[f_idx]
         for t_idx in range(len(T)):
             for i in range(num_tanks - 1): 
                 # Enforce that tank i must be open if tank i+1 is open.
@@ -217,6 +230,7 @@ def solve_facility_location(data):
 
     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
         for f_idx, fuel in enumerate(Fuels):
+            num_tanks = num_tanks_dict[f_idx]
             fuel_data = {}
             for t_idx, year in enumerate(T):
                 year_fuel = {}
@@ -240,6 +254,7 @@ def solve_facility_location(data):
 
         # Compute cost details for the solution
         for f_idx, fuel in enumerate(Fuels):
+            num_tanks = num_tanks_dict[f_idx]
             cost_data = {}
             maintenance_rate = Costs[fuel]['maintenanceCost']
             decommissioning_rate = Costs[fuel]['decommissioningCost']
