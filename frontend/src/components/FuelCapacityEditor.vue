@@ -28,8 +28,8 @@
                 <tbody>
                   <tr v-for="(row, rowIndex) in fuel.rows" :key="rowIndex">
                     <td>
-                      <input type="number" v-model.number="row.capacity" placeholder="Tonnes" min="0" step="100" :disabled="disabled || trueCondition"
-                        @input="updateCalculations(fuel, row)" />
+                      <input type="number" v-model.number="row.capacity" placeholder="Tonnes" min="0" step="100"
+                        :disabled="disabled || trueCondition" @input="updateCalculations(fuel, row)" />
                     </td>
 
                     <!-- Display storage volume for Liquid Hydrogen -->
@@ -37,7 +37,8 @@
 
                     <td>{{ formatCost(row.cost) }} $</td>
                     <td>
-                      <b-button size="sm" variant="danger" :disabled="disabled || trueCondition" @click="removeRow(fuel, rowIndex)">
+                      <b-button size="sm" variant="danger" :disabled="disabled || trueCondition"
+                        @click="removeRow(fuel, rowIndex)">
                         Remove
                       </b-button>
                     </td>
@@ -47,7 +48,8 @@
             </div>
 
             <!-- Add Row Button -->
-            <b-button size="sm" variant="success" class="mt-2" :disabled="disabled || trueCondition" @click="addRow(fuel)">
+            <b-button size="sm" variant="success" class="mt-2" :disabled="disabled || trueCondition"
+              @click="addRow(fuel)">
               New tanker capacity
             </b-button>
 
@@ -55,15 +57,18 @@
             <div class="cost-inputs">
               <div class="change-rate">
                 <label>Change Rate (%):</label>
-                <input type="number" v-model.number="fuel.changeRate" placeholder="Percentage" min="-100" max="100" :disabled="disabled || trueCondition" />
+                <input type="number" v-model.number="fuel.changeRate" placeholder="Percentage" min="-100" max="100"
+                  :disabled="disabled || trueCondition" />
               </div>
               <div class="change-rate">
                 <label>Maintenance cost (%):</label>
-                <input type="number" v-model.number="fuel.maintenanceCost" placeholder="4" min="0" max="10" :disabled="disabled || trueCondition" />
+                <input type="number" v-model.number="fuel.maintenanceCost" placeholder="4" min="0" max="10"
+                  :disabled="disabled || trueCondition" />
               </div>
               <div class="change-rate">
                 <label>Decommissioning cost (%):</label>
-                <input type="number" v-model.number="fuel.decommissioningCost" placeholder="10" min="0" max="10" :disabled="disabled || trueCondition" />
+                <input type="number" v-model.number="fuel.decommissioningCost" placeholder="10" min="0" max="10"
+                  :disabled="disabled || trueCondition" />
               </div>
             </div>
           </div>
@@ -78,11 +83,11 @@
 
 <script>
 export default {
-    name: 'FuelCapacityEditor',
-      props: {
-            capacitySelection: { type: Object, required: true },
-            disabled:          { type: Boolean, default: false }
-        },
+  name: 'FuelCapacityEditor',
+  props: {
+    capacitySelection: { type: Object, required: true },
+    disabled: { type: Boolean, default: false }
+  },
   data() {
     return {
       localData: JSON.parse(JSON.stringify(this.capacitySelection)),
@@ -130,6 +135,13 @@ export default {
       fuel.rows.splice(index, 1);
     },
     // Placeholder for cost calculation
+    scaledShellCost(storageVolumeM3, baseUSDperM3, alpha = 0.65) {
+      const V_REF = 1000;                                // m³
+      const k = baseUSDperM3 * Math.pow(V_REF, 1 - alpha); // keeps cost equal at V_REF
+      return k * Math.pow(storageVolumeM3, alpha);
+    },
+
+    /* --- main calculation ------------------------------------------------- */
     updateCalculations(fuel, row) {
       const fixedCostPerTank = {
         'MGO': 500000,
@@ -139,93 +151,53 @@ export default {
         'Methanol': 2500000,
         'LNG': 500000
       };
-      if (fuel.name === 'MGO') {
-        // Constants for Liquid Hydrogen calculations
-        const density = 850; // kg/m³
-        const storageCostPerM3 = 1000; // USD per m³
 
-        // Calculate storage volume in m³
-        row.storageVolume = Math.round(row.capacity * 1000 / density);
+      /* per-fuel constants -------------------------------------------------- */
+      const FUEL_PROPS = {
+        'MGO': { ρ: 850, EC: 42.8, cShell: 1000 },
+        'Liquid Hydrogen': { ρ: 70.8, EC: 120, cShell: 50, cLiquef: 1.2 },
+        'Compressed Hydrogen': { ρ: 70.8, EC: 120, cShell: 600 },
+        'Ammonia': { ρ: 682, EC: 18.6, cShell: 2000 },
+        'Methanol': { ρ: 792, EC: 19.9, cShell: 1000 },
+        'LNG': { ρ: 450, EC: 50, cShell: 2000 }
+      };
 
-        // Calculate costs
-        const storageCost = row.storageVolume * storageCostPerM3;
-        row.cost = fixedCostPerTank['MGO'] + storageCost;
-      } else if (fuel.name === 'Liquid Hydrogen') {
-        // Constants for Liquid Hydrogen calculations
-        const energyContentPerKg = 120; // MJ/kg
-        const density = 70.8; // kg/m³
-        const storageCostPerM3 = 50; // USD per m³
-        const liquefactionCostPerM3 = 1.2; // USD per m³
-        const capacityMJ = row.capacity * 42.8 * 1000; // capacity in MJ
-
-        // Calculate storage volume in m³
-        const lh2_tonnes = Math.round(capacityMJ / energyContentPerKg / 1000);
-        row.storageVolume = Math.round(((lh2_tonnes) * 1000) / density);
-
-        // Calculate costs
-        const storageCost = lh2_tonnes * storageCostPerM3 * 1000;
-        const liquefactionCost = lh2_tonnes * liquefactionCostPerM3 * 1000;
-        row.cost = fixedCostPerTank['Liquid Hydrogen'] + storageCost + liquefactionCost;
-      } else if (fuel.name === 'Compressed Hydrogen') {
-        const energyContentPerKg = 120; // MJ/kg
-        const density = 70.8; // kg/m³
-        const storageCostPerM3 = 600; // USD per m³
-        const capacityMJ = row.capacity * 42.8 * 1000; // capacity in MJ
-
-        // Calculate storage volume in m³
-        const lh2_tonnes = Math.round(capacityMJ / energyContentPerKg / 1000);
-        row.storageVolume = Math.round(((lh2_tonnes) * 1000) / density);
-
-        // Calculate costs
-        const storageCost = lh2_tonnes * storageCostPerM3 * 1000;
-        row.cost = fixedCostPerTank['Compressed Hydrogen'] + storageCost;
-      } else if (fuel.name === 'Ammonia') {
-        // Constants for Liquid Hydrogen calculations
-        const energyContentPerKg = 18.6; // MJ/kg
-        const density = 682; // kg/m³
-        const storageCostPerM3 = 2000; // USD per m³
-        const capacityMJ = row.capacity * 42.8 * 1000; // capacity in MJ
-
-        // Calculate storage volume in m³
-        row.storageVolume = Math.round(((capacityMJ / energyContentPerKg / 1000) * 1000) / density);
-
-        // Calculate costs
-        const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = fixedCostPerTank['Ammonia'] + storageCost;
-      } else if (fuel.name === 'Methanol') {
-        // Constants for Liquid Hydrogen calculations
-        const energyContentPerKg = 19.9; // MJ/kg
-        const density = 792; // kg/m³
-        const storageCostPerM3 = 1000; // USD per m³
-        const capacityMJ = row.capacity * 42.8 * 1000; // capacity in MJ
-
-        // Calculate storage volume in m³
-        row.storageVolume = Math.round(((capacityMJ / energyContentPerKg / 1000) * 1000) / density);
-
-        // Calculate costs
-        const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = fixedCostPerTank['Methanol'] + storageCost;
-      } else if (fuel.name === 'LNG') {
-        // Constants for Liquid Hydrogen calculations
-        const energyContentPerKg = 50; // MJ/kg
-        const density = 450; // kg/m³
-        const storageCostPerM3 = 2000; // USD per m³
-        const capacityMJ = row.capacity * 42.8 * 1000; // capacity in MJ
-
-        // Calculate storage volume in m³
-        row.storageVolume = Math.round(((capacityMJ / energyContentPerKg / 1000) * 1000) / density);
-
-        // Calculate costs
-        const storageCost = row.storageVolume * storageCostPerM3 * 1000;
-        row.cost = fixedCostPerTank['LNG'] + storageCost;
-      } else {
-        // Placeholder calculation for other fuels, replace as needed
-        row.cost = Math.round(row.capacity * 100); // Example fallback cost calculation
+      /* shortcut for unspecified fuels ------------------------------------- */
+      if (!FUEL_PROPS[fuel.name]) {
+        row.cost = Math.round(row.capacity * 100);
+        return;
       }
+
+      const { ρ, EC, cShell, cLiquef } = FUEL_PROPS[fuel.name];
+      const capacityMJ = row.capacity * 42.8 * 1000;           // diesel-eq energy (MJ)
+
+      /* derive storage volume ---------------------------------------------- */
+      if (fuel.name === 'MGO') {
+        row.storageVolume = Math.round((row.capacity * 1000) / ρ);
+      } else {
+        const tonnesAlt = Math.round(capacityMJ / EC / 1000);  // t of alt fuel
+        row.storageVolume = Math.round((tonnesAlt * 1000) / ρ);
+      }
+
+      /* variable shell cost with economies-of-scale ------------------------ */
+      const shellCost = this.scaledShellCost(row.storageVolume, cShell);
+
+      /* extra linear part for Liquid H₂ ------------------------------------ */
+      const liquefactionCost =
+        fuel.name === 'Liquid Hydrogen'
+          ? (capacityMJ / EC) * cLiquef       // kg × USD/kg  (MJ/EC = kg)
+          : 0;
+
+      /* total -------------------------------------------------------------- */
+      row.cost =
+        fixedCostPerTank[fuel.name] +
+        shellCost +
+        liquefactionCost;
     },
+
     formatCost(value) {
       return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
-    },
+    }
   },
 };
 

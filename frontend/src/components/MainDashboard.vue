@@ -308,6 +308,7 @@ export default {
     startOver() {
       // keep only Scenario 1 and reset to intro
       this.scenarios = [this.scenarios[0]];
+      this.scenarios[0].editable = true;
       this.currentScenarioIndex = 0;
       this.currentStep = 0;
       this.showHowItWorks = true;

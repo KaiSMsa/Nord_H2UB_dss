@@ -12,7 +12,7 @@
         v-if="idx === lastIndex"
         v-model:fuelSelection="sc.data.fuelBarSelection"
         @update:fuelSelection="v => pushUpdate(idx, v)"
-        :disabled="false"
+        :disabled="!sc.editable"
       />
       <!-- earlier scenarios = read-only -->
       <FuelBarEditor
