@@ -23,13 +23,17 @@
     </b-tab>
   </b-tabs>
   
-  <!-- ─────── Single-scenario view (only Scenario 1) ─────── -->
-  <FuelBarEditor
-    v-else
-    v-model:fuelSelection="localScenarios[0].data.fuelBarSelection"
-    @update:fuelSelection="v => pushUpdate(0, v)"
-    :disabled="!localScenarios[0].editable"
-  />
+  <!-- ─────────────── Single-scenario view ─────────────── -->
+  <div v-else class="tab-content mt-3">
+    <!-- replicate <b-tab>’s inner .tab-pane so the same CSS applies -->
+    <div class="tab-pane fade show active">
+      <FuelBarEditor
+        v-model:fuelSelection="localScenarios[0].data.fuelBarSelection"
+        @update:fuelSelection="v => pushUpdate(0, v)"
+        :disabled="!localScenarios[0].editable"
+      />
+    </div>
+  </div>
       <!-- <div class="global-data-display">
       <h3>Global Data</h3>
       <pre>{{ JSON.stringify(scenarios, null, 2) }}</pre>
