@@ -8,8 +8,7 @@
     <div class="stepper">
       <div v-for="(step, index) in steps" :key="index" class="step-container">
         <!-- Make step circle and label clickable -->
-        <div class="step-clickable" @click="goToStep(index)"
-          :class="{ 'disabled-step': index > currentStep }">
+        <div class="step-clickable" @click="goToStep(index)" :class="{ 'disabled-step': index > currentStep }">
           <!-- Step Circle -->
           <div class="step" :class="{ active: currentStep === index, completed: index < currentStep }">
             <span v-if="index >= currentStep">{{ index + 1 }}</span>
@@ -26,24 +25,12 @@
     <!-- Step Content -->
     <div class="step-content" :class="{ 'results-step': currentStep === steps.length - 1 }">
       <!-- Step 1 -->
-      <PortFuelInformation
-        v-if="currentStep === 0"
-        v-model:scenarioData="activeData"
-        :locked="scenarios.length > 1"
-        
-      />
+      <PortFuelInformation v-if="currentStep === 0" v-model:scenarioData="activeData" :locked="scenarios.length > 1" />
       <!-- Step 2 -->
-      <FuelBarSelection
-        v-else-if="currentStep === 1"
-        :scenarios="scenarios"
-        @update-scenario="updateFuelSelection"
-      />
+      <FuelBarSelection v-else-if="currentStep === 1" :scenarios="scenarios" @update-scenario="updateFuelSelection" />
       <!-- Step 3 -->
-      <FuelCapacitySelection
-        v-else-if="currentStep === 2"
-        v-model:scenarios="scenarios"
-        @update-scenario="updateCapacitySelection"
-      />
+      <FuelCapacitySelection v-else-if="currentStep === 2" v-model:scenarios="scenarios"
+        @update-scenario="updateCapacitySelection" />
       <!-- Step 4 (results) -->
       <div v-else>
         <!-- Each scenario’s charts will live in its own tab (child comp to be added) -->
@@ -61,7 +48,7 @@
     </div> -->
 
     <!-- Step Footer -->
-    <div class="step-footer" :class="{ 'align-right': currentStep === 0}">
+    <div class="step-footer" :class="{ 'align-right': currentStep === 0 }">
       <b-button v-if="currentStep > 0" @click="previousStep" variant="secondary">
         Previous
       </b-button>
@@ -73,9 +60,7 @@
       </b-button>
       <div v-if="currentStep === steps.length - 1" class="step-footer results-footer">
         <b-button v-if="currentStep === steps.length - 1" :disabled="scenarios.length >= MAX_SCENARIOS"
-          @click="createNewScenario" variant="primary"
-          class="mr-2"
-          >
+          @click="createNewScenario" variant="primary" class="mr-2">
           New scenario
         </b-button>
         <span style="width: 10px; display: inline-block;"></span>
@@ -119,10 +104,10 @@ function initialGlobalData() {
     fuelCapacitySelection: {
       fuels: [
         { name: 'MGO', class: 'mgo-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Liquid Hydrogen', class: 'lh2-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Liquid Hydrogen', class: 'lh2-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 4000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 6000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 500, storageVolume: 0, cost: 0 }, { capacity: 1000, storageVolume: 0, cost: 0 }, { capacity: 2000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 4000, storageVolume: 0, cost: 0 }, { capacity: 8000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
         { name: 'LNG', class: 'lng-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 }
       ]
     }
@@ -156,7 +141,7 @@ export default {
       /* array of scenario objects */
       scenarios: [
         {
-          id: 1,
+          id: 0,
           name: 'Scenario 1',
           editable: true,
           data: initialGlobalData(),
@@ -307,8 +292,23 @@ export default {
     },
     startOver() {
       // keep only Scenario 1 and reset to intro
-      this.scenarios = [this.scenarios[0]];
-      this.scenarios[0].editable = true;
+      this.scenarios =
+        [
+          {
+            id: 0,
+            name: 'Scenario 1',
+            editable: true,
+            data: initialGlobalData(),
+            resultData: null,
+            resultCosts: null,
+            /* chart cache */
+            cachedChartData: null,
+            cachedCostChart: null,
+            cachedCostDist: null,
+            viewerReady: false
+          }
+        ];
+
       this.currentScenarioIndex = 0;
       this.currentStep = 0;
       this.showHowItWorks = true;
@@ -345,7 +345,7 @@ export default {
 
         cachedChartData: null,
         cachedCostChart: null,
-        cachedCostDist:  null,
+        cachedCostDist: null,
         viewerReady: false
       });
       this.currentScenarioIndex = this.scenarios.length - 1;
@@ -619,7 +619,8 @@ export default {
 }
 
 .step-footer.results-footer {
-  justify-content: flex-start;   /* could also use flex-end */
+  justify-content: flex-start;
+  /* could also use flex-end */
 }
 
 /* Align right only for the first step */

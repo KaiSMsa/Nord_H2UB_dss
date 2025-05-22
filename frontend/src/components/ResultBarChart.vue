@@ -141,7 +141,7 @@ export default {
 
       /* ───────────────── workbook / sheet ───────────────── */
       const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('Scenario data');
+      const ws = wb.addWorksheet(`Scenario_${sc.id + 1}_data`);
 
       /* 1) Fuel-capacity block ─ header row + first column shaded */
       const titleCapRow = ws.addRow(["Port capacity in 2025"]);
@@ -205,7 +205,7 @@ export default {
       });
 
       /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@ 2nd sheet: Results @@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-      const wsCap = wb.addWorksheet('Scenario results');
+      const wsCap = wb.addWorksheet(`Scenario_${sc.id + 1}_capacity_results`);
 
       /* years come straight from the bar-chart labels */
       const years = sc.cachedChartData.labels.map(String);  // make sure they’re strings
@@ -264,7 +264,7 @@ export default {
 
 
       /* ────────────────── ③ Cost-results sheet ─────────────────── */
-      const wsCost = wb.addWorksheet('Cost results');
+      const wsCost = wb.addWorksheet(`Scenario_${sc.id + 1}_cost_results`);
       const costYears = sc.cachedCostChart.labels.map(String);
       //cosnt fuels = sc.data.fuelCapacitySelection.fuels.map(f => f.name);
 
@@ -311,7 +311,7 @@ export default {
       });
       /* ───────────────── save file ───────────────── */
       const buf = await wb.xlsx.writeBuffer();
-      saveAs(new Blob([buf]), `Scenario_${sc.id}_export.xlsx`);
+      saveAs(new Blob([buf]), `Scenario_${sc.id + 1}_export.xlsx`);
     }
 
   }

@@ -1,7 +1,19 @@
 <template>
   <div class="container">
-    <h3>Select fuels to offer in the future</h3>
-
+    <h3>Select fuels to offer in the future
+      <span class="info-tooltip">
+        <i class="bi bi-info-circle-fill"></i>
+        <span class="tooltip-content">
+          <ul class="mb-0">
+            <li>Enter the amount of each fuel you intend to supply for future years.</li>
+            <li>All figures are in tonnes of MGO-equivalent.</li>
+            <li>Adjust values by typing in the table or by dragging the bars.</li>
+            <li>The total amount per year is capped at <strong>300 % of the 2025 value</strong>.</li>
+            <li>Values are rounded to the <strong>nearest 100 tonnes</strong>.</li>
+          </ul>
+        </span>
+      </span>
+    </h3>
     <!-- Container for bars and table using CSS grid -->
     <div class="bars-table-container">
       <!-- Bars Section -->
@@ -50,14 +62,26 @@
                 <span class="fuel-square" :class="fuel.class"></span>
                 {{ fuel.name }}
               </td>
-                <td v-for="interval in intervals" :key="interval.name + '-' + fuel.name">
-                <input type="number" v-model.number="interval.fuelValues[fuel.name]"
-                  :disabled="interval.name === '2025' || disabled" @input="onFuelInput(interval, fuel.name)" min="0" step="100" />
-                </td>
+              <td v-for="interval in intervals" :key="interval.name + '-' + fuel.name" class="position-relative">
+                <input type="number" v-model.number="inputDrafts[interval.name][fuel.name]"
+                  :disabled="interval.name === '2025' || disabled" @input="onFuelInput(interval, fuel.name, $event)"
+                   @change="commitImmediate(interval, fuel.name)"
+                  min="0" step="100" :class="{ 'is-invalid': isError(interval.name, fuel.name) }" />
+
+                <transition name="fade">
+                  <div v-if="isMessageVisible(interval.name, fuel.name)"
+                    :class="isError(interval.name, fuel.name) ? 'error-box' : 'info-box'">
+                    {{ getMessage(interval.name, fuel.name) }}
+                  </div>
+                  <!-- <div v-if="isInvalid(interval.name, fuel.name)" class="error-box">
+                    {{ getError(interval.name, fuel.name) }}
+                  </div> -->
+                </transition>
+              </td>
             </tr>
             <!-- Total Amount Row -->
             <tr class="total-row">
-              <td><strong>Total Amount (MGO-equivalent)</strong></td>
+              <td><strong>Total Amount (tonnes of MGO-e)</strong></td>
               <td v-for="interval in intervals" :key="'total-' + interval.name">
                 <span>{{ interval.totalAmount.toLocaleString('en-US') }}</span>
               </td>
@@ -76,16 +100,16 @@
                 <!-- Skip the first interval as it's the baseline -->
                 <span v-if="index === 0">-</span>
                 <span v-else>
-                  <span :class="{ 'text-danger': calculateCO2Reduction(interval) > 0, 'text-success': calculateCO2Reduction(interval) < 0 }">
+                  <span
+                    :class="{ 'text-danger': calculateCO2Reduction(interval) > 0, 'text-success': calculateCO2Reduction(interval) < 0 }">
                     {{ Math.abs(calculateCO2Reduction(interval)) }}%
-                    <i
-                      :class="calculateCO2Reduction(interval) > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"
-                      :style="{color: calculateCO2Reduction(interval) > 0 ? 'red': 'green', marginLeft: '5px'}">
+                    <i :class="calculateCO2Reduction(interval) > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"
+                      :style="{ color: calculateCO2Reduction(interval) > 0 ? 'red' : 'green', marginLeft: '5px' }">
                     </i>
                   </span>
                 </span>
               </td>
-            </tr>            
+            </tr>
           </tbody>
         </table>
       </div>
@@ -101,11 +125,11 @@ import cloneDeep from 'lodash.clonedeep'
 export default {
   name: 'FuelBarEditor',
   props: {
-  fuelSelection: {
-    type: Object,
-    required: true
-  },
-  disabled: {type:Boolean, default: false},
+    fuelSelection: {
+      type: Object,
+      required: true
+    },
+    disabled: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -136,14 +160,27 @@ export default {
         initialMouseY: 0,
         initialFuelValues: {},
       },
+      lastValidFuelValues: {},
+      inputDrafts: {},
+      messageStates: {},
+      typingTimers: {},
+      errorBorders: {},
+      globalMessage: { visible: false, type: 'info', message: '' },
     };
+  },
+  created() {
+    // make sure inputDrafts and lastValidFuelValues exist from the start
+    this.syncDraftsFromData();      // builds inputDrafts = { 2025:{MGO:…},2026:{…}, … }
+    this.updateLastValidValues();   // builds lastValidFuelValues = same structure
   },
   mounted() {
     // log the *original* prop
     // console.log('fuelSelection prop →', this.fuelSelection);
 
     // log the local deep-cloned copy
-    console.log('localData (in FuelBarEditor) →', this.localData);
+    // console.log('localData (in FuelBarEditor) →', this.localData);
+    this.updateLastValidValues();
+    this.syncDraftsFromData();
   },
   computed: {
     intervals() {
@@ -162,6 +199,67 @@ export default {
     }
   },
   methods: {
+    keyFor(intervalName, fuelName) {
+      return `${intervalName}-${fuelName}`
+    },
+    hasErrorBorder(i, f) { return this.errorBorders[this.keyFor(i, f)] || false },
+    syncDraftsFromData() {
+      // create a parallel structure for inputDrafts from live data
+      this.inputDrafts = {}
+      this.intervals.forEach((iv) => {
+        this.inputDrafts[iv.name] = { ...iv.fuelValues }
+      })
+    },
+    updateLastValidValues() {
+      this.lastValidFuelValues = {}
+      this.intervals.forEach((iv) => {
+        this.lastValidFuelValues[iv.name] = { ...iv.fuelValues }
+      })
+    },
+
+    /* ------------- global message ------------- */
+    showGlobal(msg, type = 'info') {
+      this.globalMessage = { visible: true, type, message: msg }
+      setTimeout(() => (this.globalMessage.visible = false), 2000)
+    },
+
+    // isInvalid(intervalName, fuelName) {
+    //   const k = this.keyFor(intervalName, fuelName)
+    //   return this.errorStates[k]?.visible || false
+    // },
+    isMessageVisible(i, f) { return this.messageStates[this.keyFor(i, f)]?.visible || false },
+    isError(i, f) { return this.messageStates[this.keyFor(i, f)]?.type === 'error' },
+    getMessage(i, f) { return this.messageStates[this.keyFor(i, f)]?.message || '' },
+    // getError(intervalName, fuelName) {
+    //   const k = this.keyFor(intervalName, fuelName)
+    //   return this.errorStates[k]?.message || ''
+    // },
+    showMessage(interval, fuelName, msg, type = 'info', rollbackValue = null) { // ★ NEW
+      const k = this.keyFor(interval.name, fuelName)
+      this.messageStates[k] = { visible: true, type, message: msg }
+
+      if (type === 'error' && rollbackValue !== null) {
+        interval.fuelValues[fuelName] = rollbackValue // revert only that cell
+      }
+
+      // hide after 2s
+      setTimeout(() => {
+        if (this.messageStates[k]) this.messageStates[k].visible = false
+      }, 2000)
+    },
+    // showError(interval, fuelName, message, previousValue) {
+    //   const k = this.keyFor(interval.name, fuelName)
+    //   this.errorStates[k] = { visible: true, message }
+
+    //   // rollback to previously accepted value **without** updating totals of other fuels
+    //   interval.fuelValues[fuelName] = previousValue
+
+    //   // ensure error disappears after 2 seconds & reset invalid style
+    //   setTimeout(() => {
+    //     if (this.errorStates[k]) this.errorStates[k].visible = false
+    //   }, 2000)
+    // },
+
     hasTopHandle(interval) {
       return this.getFuelsForInterval(interval).length > 0;
     },
@@ -345,6 +443,7 @@ export default {
       window.removeEventListener('mousemove', this.onDragTopBar);
       window.removeEventListener('mouseup', this.stopDragHandle);
 
+      this.syncDraftFromInterval(this.dragInfo.interval);
       // Reset the cursor back to default
       document.body.style.cursor = 'default';
     },
@@ -356,26 +455,84 @@ export default {
       const fuelHeightPercentage = this.getFuelHeight(interval, fuel);
       return (fuelHeightPercentage / 100) * totalBarHeight;
     },
-    onFuelInput(interval, changedFuelName) {
-      if (this.localData.isStep1Initial) {
-        this.localData.isStep1Initial = false; // Prevent Step 1 from recalculating in the future
-      }
-      if (interval.fuelValues[changedFuelName] < 0) {
-        interval.fuelValues[changedFuelName] = 0;
-      }
+    // onFuelInput(interval, changedFuelName) {
+    //   if (this.localData.isStep1Initial) this.localData.isStep1Initial = false
 
-      interval.fuelValues[changedFuelName] = this.roundToStep(
-        interval.fuelValues[changedFuelName],
-        this.stepSize
-      );
+    //   const prevAccepted =
+    //     this.lastValidFuelValues?.[interval.name]?.[changedFuelName] ?? 0
 
-      interval.totalAmount = Object.values(interval.fuelValues).reduce(
-        (sum, val) => sum + val,
-        0
-      );
-      // Enforce the 300% cap here
-      this.checkAndClampInterval(interval);
-    },
+    //   // ensure non‑negative & round *before* any validations
+    //   let newValue = interval.fuelValues[changedFuelName]
+    //   if (newValue < 0) newValue = 0
+    //   if (newValue >= this.stepSize)
+    //     newValue = this.roundToStep(newValue, this.stepSize)
+    //   interval.fuelValues[changedFuelName] = newValue
+
+    //   // compute the would‑be new total for the interval
+    //   const newTotal = Object.values(interval.fuelValues).reduce((s, v) => s + v, 0)
+    //   const total2025 = this.intervals[0].totalAmount || 0
+    //   const maxAllowed = this.roundToStep(total2025 * this.MAX_FACTOR, this.stepSize)
+
+    //   if (total2025 && newTotal > maxAllowed) {
+    //     // exceeded → do **NOT** modify other fuels, just show error and rollback
+    //     const msg = `Value too high – total would exceed the 300% cap (${maxAllowed.toLocaleString('en-US')} t)`
+    //     this.showError(interval, changedFuelName, msg, prevAccepted)
+    //     return // early exit, keep previous totals intact
+    //   }
+
+    //   // within limit – accept & persist as last valid, update totals
+    //   interval.totalAmount = newTotal
+    //   if (!this.lastValidFuelValues[interval.name])
+    //     this.lastValidFuelValues[interval.name] = {}
+    //   this.lastValidFuelValues[interval.name][changedFuelName] = newValue
+    // },
+    /* --------------------------- typing logic ------------------------ */
+    commitCell(interval, fuelName) {
+    const prev = this.lastValidFuelValues?.[interval.name]?.[fuelName] ?? 0;
+    let val    = this.inputDrafts[interval.name][fuelName];
+    val        = Math.max(0, val);                       // floor 0
+    const rnd  = this.roundToStep(val, this.stepSize);
+
+    if (rnd !== val) {
+      this.inputDrafts[interval.name][fuelName] = rnd;
+      this.showMessage(interval, fuelName,
+        `Rounded to nearest ${this.stepSize.toLocaleString()} t`, 'info');
+    }
+
+    /* validate against 300 % cap */
+    const newTotal =
+      Object.values({ ...interval.fuelValues, [fuelName]: rnd })
+            .reduce((s, v) => s + v, 0);
+    const maxAllowed =
+      this.roundToStep(this.intervals[0].totalAmount * this.MAX_FACTOR,
+                       this.stepSize);
+
+    if (newTotal > maxAllowed) {
+      /* rollback draft, leave bars unchanged */
+      this.inputDrafts[interval.name][fuelName] = prev;
+      this.showMessage(interval, fuelName,
+        `Value too high – total would exceed 300 % (${maxAllowed.toLocaleString('en-US')} t)`,
+        'error');
+      return;
+    }
+
+    /* accept -> update bars + totals */
+    interval.fuelValues[fuelName]              = rnd;
+    interval.totalAmount                       = newTotal;
+    (this.lastValidFuelValues[interval.name] ||= {})[fuelName] = rnd;
+  },
+    commitImmediate(interval, fuelName) {
+    this.commitCell(interval, fuelName);
+  },
+    onFuelInput(interval, fuelName) {
+    const key = this.keyFor(interval.name, fuelName);
+    clearTimeout(this.typingTimers[key]);
+    this.typingTimers[key] =
+      setTimeout(() => this.commitCell(interval, fuelName), 1200);
+  },
+  syncDraftFromInterval(interval) {                       // NEW helper
+    this.inputDrafts[interval.name] = { ...interval.fuelValues };
+  },
     getBarHeight(interval) {
       const totalAmount2025 = this.intervals[0].totalAmount;
       if (totalAmount2025 === 0) return 0;
@@ -449,7 +606,7 @@ export default {
       const baseline = this.calculateCO2Equivalent(this.intervals[0]); // CO2 equivalent
       const currentCO2 = this.calculateCO2Equivalent(interval);
       if (baseline === 0) return 0; // Avoid division by zero
-      return  Math.round(((currentCO2 - baseline) / baseline) * 100); // Percentage change
+      return Math.round(((currentCO2 - baseline) / baseline) * 100); // Percentage change
     },
   },
 };
@@ -457,8 +614,66 @@ export default {
 
 
 <style scoped>
-.container {
-  margin-top: 20px;
+.error-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  z-index: 2;
+}
+
+.info-box {
+  /* ★ NEW */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  z-index: 2;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.heading-with-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tooltip wrapper */
+.info-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
 }
 
 /* Main Container for Grid Alignment */
@@ -468,6 +683,30 @@ export default {
   gap: 5px;
 }
 
+/* Tooltip box */
+.tooltip-content {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px 14px;
+  width: 320px;
+  z-index: 1000;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-align: left;
+}
+
+/* Show tooltip on hover or focus */
+.info-tooltip:hover .tooltip-content,
+.info-tooltip:focus-within .tooltip-content {
+  display: block;
+}
 
 /* Bars Row (to align with table columns) */
 .bars-row {
@@ -542,7 +781,8 @@ export default {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  max-width: 800px; /* Optional: Ensure a max-width */
+  max-width: 800px;
+  /* Optional: Ensure a max-width */
 }
 
 /* Remove background colors for table rows */
