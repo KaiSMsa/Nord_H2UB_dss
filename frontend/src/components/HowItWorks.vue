@@ -15,7 +15,7 @@
           <div class="step-icon">
             <img src="@/assets/tank_capacity.svg" alt="Tank Capacity" />
           </div>
-          <div class="step-header">Step 1: Set the fuel port capacity</div>
+          <div class="step-header">Step 1: Set the port fuel storage capacity</div>
           <p>Define your available port capacity to serve as the basis for planning.</p>
         </div>
   

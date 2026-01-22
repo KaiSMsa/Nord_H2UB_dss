@@ -43,6 +43,7 @@
 <script>
 import cloneDeep from 'lodash.clonedeep'
 import FuelBarEditor from './FuelBarEditor.vue'
+// import { PLANNING_YEARS } from '@/constants/planningYears.js';
 
 export default {
   name: 'FuelBarSelection',

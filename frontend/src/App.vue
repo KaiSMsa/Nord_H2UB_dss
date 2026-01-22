@@ -7,7 +7,7 @@
         <div>
             <span class="display-6 d-block" style="color: #90ff9f;">GREENPORT</span>
           <br />
-          <span class="text-light small d-block">GREENPORT is your decision support tool to optimize port fuel capacities and fuel investment strategies for a sustainable future.</span>
+          <span class="text-light small d-block">GREENPORT is a decision support tool to optimize port fuel storage capacities and fuel investment strategies for a sustainable future.</span>
         </div>
       </b-navbar-brand>
     </b-navbar>

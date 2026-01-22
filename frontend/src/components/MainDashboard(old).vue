@@ -57,8 +57,8 @@
 
 <script>
 import PortInformation from './PortInformation.vue';
-import FuelSelection from './FuelSelection.vue';
-import CapacitySelection from './CapacitySelection.vue';
+import FuelSelection from './FuelSelection(old).vue';
+import CapacitySelection from './CapacitySelection (old).vue';
 import CostEstimation from './CostEstimation.vue'
 
 export default {

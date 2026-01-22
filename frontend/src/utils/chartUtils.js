@@ -2,8 +2,9 @@
 // -------------------------------------------------------------
 //  Shared chart-building helpers (no Vue dependency)
 // -------------------------------------------------------------
+import { PLANNING_YEARS } from '@/constants/planningYears.js';
 
-const YEARS      = ['2025', '2030', '2035', '2040', '2045'];
+const YEARS      = PLANNING_YEARS;
 const FUEL_LIST  = [
   'MGO',
   'Liquid Hydrogen',

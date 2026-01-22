@@ -15,7 +15,7 @@
       </span>
     </h3>
     <!-- Container for bars and table using CSS grid -->
-    <div class="bars-table-container">
+    <div class="bars-table-container" :style="gridStyle">
       <!-- Bars Section -->
       <div class="bars-row">
         <!-- Invisible div to align with 'Fuel Type' column -->
@@ -61,12 +61,22 @@
               <td>
                 <span class="fuel-square" :class="fuel.class"></span>
                 {{ fuel.name }}
+                <!-- Info tooltip only for Ammonia -->
+                <span v-if="fuel.name === 'Ammonia'" class="info-tooltip ms-1">
+                  <i class="bi bi-info-circle-fill"></i>
+                  <span class="tooltip-content">
+                    <ul class="mb-0">
+                      Ammonia is modelled as <strong>liquid anhydrous ammonia (NH₃)</strong>.
+                      Stored under refrigerated, near-atmospheric conditions. Energy content and density correspond to bulk industrial NH₃.
+                    </ul>
+                  </span>
+                </span>
               </td>
               <td v-for="interval in intervals" :key="interval.name + '-' + fuel.name" class="position-relative">
                 <input type="number" v-model.number="inputDrafts[interval.name][fuel.name]"
                   :disabled="interval.name === '2025' || disabled" @input="onFuelInput(interval, fuel.name, $event)"
-                   @change="commitImmediate(interval, fuel.name)"
-                  min="0" step="100" :class="{ 'is-invalid': isError(interval.name, fuel.name) }" />
+                  @change="commitImmediate(interval, fuel.name)" min="0" step="100"
+                  :class="{ 'is-invalid': isError(interval.name, fuel.name) }" />
 
                 <transition name="fade">
                   <div v-if="isMessageVisible(interval.name, fuel.name)"
@@ -113,6 +123,15 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Note Section -->
+      <div class="note-section">
+        <strong>Note:</strong>
+        Fuel capacities are indicative and subject to implementation delays due to
+        regulatory approval, investment decisions, and construction timelines.
+        This DSS supports strategic assessment of future investment costs and
+        greenhouse gas reduction pathways.
+      </div>
     </div>
   </div>
   <!-- <pre class="mt-4">{{ localData }}</pre> -->
@@ -121,6 +140,49 @@
 <script>
 import cloneDeep from 'lodash.clonedeep'
 // import FuelBarEditor from './FuelBarEditor.vue';
+import { PLANNING_YEARS } from '@/constants/planningYears.js';
+
+function buildDefaultFuelValues() {
+  return {
+    MGO: 0,
+    'Liquid Hydrogen': 0,
+    'Compressed Hydrogen': 0,
+    Ammonia: 0,
+    Methanol: 0,
+    LNG: 0,
+  }
+}
+
+function normalizeFuelSelection(sel) {
+  const defaults = buildDefaultFuelValues();
+
+  const existing = (sel?.intervals || []).reduce((acc, iv) => {
+    acc[String(iv.name)] = iv;
+    return acc;
+  }, {});
+
+  const intervals = PLANNING_YEARS.map((year, idx) => {
+    const iv = existing[year];
+
+    // Keep whatever came from Step 1 (or user edits).
+    // Only fill missing fuels with 0 so we always have complete keys.
+    const fuelValues = {
+      ...defaults,
+      ...(iv?.fuelValues || (idx === 0 ? { ...defaults, MGO: 10000 } : defaults))
+    };
+
+    // Always recompute totalAmount from fuelValues so bars can scale/drag.
+    const totalAmount = Object.values(fuelValues).reduce((s, v) => s + (v || 0), 0);
+
+    return {
+      name: year,
+      fuelValues,
+      totalAmount
+    };
+  });
+
+  return { ...sel, intervals };
+}
 
 export default {
   name: 'FuelBarEditor',
@@ -132,8 +194,10 @@ export default {
     disabled: { type: Boolean, default: false },
   },
   data() {
+    const normalized = normalizeFuelSelection(this.fuelSelection)
+
     return {
-      localData: cloneDeep(this.fuelSelection),
+      localData: cloneDeep(normalized),
       maxBarHeight: 600, // Maximum height for the bar representing 100%
       stepSize: 100, // Step size for inputs
       MAX_FACTOR: 3,
@@ -170,13 +234,13 @@ export default {
   },
   created() {
     // make sure inputDrafts and lastValidFuelValues exist from the start
+    this.localData = cloneDeep(normalizeFuelSelection(this.localData))
     this.syncDraftsFromData();      // builds inputDrafts = { 2025:{MGO:…},2026:{…}, … }
     this.updateLastValidValues();   // builds lastValidFuelValues = same structure
   },
   mounted() {
     // log the *original* prop
     // console.log('fuelSelection prop →', this.fuelSelection);
-
     // log the local deep-cloned copy
     // console.log('localData (in FuelBarEditor) →', this.localData);
     this.updateLastValidValues();
@@ -186,17 +250,26 @@ export default {
     intervals() {
       return this.localData.intervals;
     },
+    // make grid columns match PLANNING_YEARS length
+    gridStyle() {
+      return {
+        gridTemplateColumns: `300px repeat(${PLANNING_YEARS.length}, 120px)`
+      }
+    },
   },
   watch: {
-    // Watch for changes in localPorts and emit updates to the parent
-    localData: {
+    // if parent updates fuelSelection (switch scenario tab etc), re-normalize
+    fuelSelection: {
       handler(newVal) {
-        //this.$emit('update:globalData', newVal);
-        console.log('localData changed:', newVal);
-        this.$emit('update:fuelSelection', newVal);
+        if (this.dragging) return;
+        // normalize incoming, but don't blow away local edits if it's the same object content
+        const normalized = normalizeFuelSelection(newVal);
+        this.localData = cloneDeep(normalized);
+        this.syncDraftsFromData();
+        this.updateLastValidValues();
       },
-      deep: true
-    }
+      immediate: true
+    },
   },
   methods: {
     keyFor(intervalName, fuelName) {
@@ -216,6 +289,9 @@ export default {
         this.lastValidFuelValues[iv.name] = { ...iv.fuelValues }
       })
     },
+    emitUpdate() {
+      this.$emit('update:fuelSelection', cloneDeep(this.localData));
+    },
 
     /* ------------- global message ------------- */
     showGlobal(msg, type = 'info') {
@@ -223,17 +299,10 @@ export default {
       setTimeout(() => (this.globalMessage.visible = false), 2000)
     },
 
-    // isInvalid(intervalName, fuelName) {
-    //   const k = this.keyFor(intervalName, fuelName)
-    //   return this.errorStates[k]?.visible || false
-    // },
     isMessageVisible(i, f) { return this.messageStates[this.keyFor(i, f)]?.visible || false },
     isError(i, f) { return this.messageStates[this.keyFor(i, f)]?.type === 'error' },
     getMessage(i, f) { return this.messageStates[this.keyFor(i, f)]?.message || '' },
-    // getError(intervalName, fuelName) {
-    //   const k = this.keyFor(intervalName, fuelName)
-    //   return this.errorStates[k]?.message || ''
-    // },
+
     showMessage(interval, fuelName, msg, type = 'info', rollbackValue = null) { // ★ NEW
       const k = this.keyFor(interval.name, fuelName)
       this.messageStates[k] = { visible: true, type, message: msg }
@@ -247,18 +316,6 @@ export default {
         if (this.messageStates[k]) this.messageStates[k].visible = false
       }, 2000)
     },
-    // showError(interval, fuelName, message, previousValue) {
-    //   const k = this.keyFor(interval.name, fuelName)
-    //   this.errorStates[k] = { visible: true, message }
-
-    //   // rollback to previously accepted value **without** updating totals of other fuels
-    //   interval.fuelValues[fuelName] = previousValue
-
-    //   // ensure error disappears after 2 seconds & reset invalid style
-    //   setTimeout(() => {
-    //     if (this.errorStates[k]) this.errorStates[k].visible = false
-    //   }, 2000)
-    // },
 
     hasTopHandle(interval) {
       return this.getFuelsForInterval(interval).length > 0;
@@ -355,11 +412,11 @@ export default {
       this.dragInfo.interval.fuelValues[fuelAbove.name] = newAmountAbove;
       this.dragInfo.interval.fuelValues[fuelBelow.name] = newAmountBelow;
 
-      //this.dragInfo.interval.totalAmount = Object.values(this.dragInfo.interval.fuelValues)
-      //  .reduce((sum, val) => sum + val, 0);
-
+      // Recalculate total amount
+      this.recalcIntervalTotal(this.dragInfo.interval);
       // Now clamp if needed
       this.checkAndClampInterval(this.dragInfo.interval);
+      // this.emitUpdate();
     },
     startDragTopBar(interval, event) {
       this.dragging = true;
@@ -436,6 +493,7 @@ export default {
 
       // Enforce the 300% cap
       this.checkAndClampInterval(this.dragInfo.interval);
+      // this.emitUpdate();
     },
     stopDragHandle() {
       this.dragging = false;
@@ -446,6 +504,7 @@ export default {
       this.syncDraftFromInterval(this.dragInfo.interval);
       // Reset the cursor back to default
       document.body.style.cursor = 'default';
+      this.emitUpdate();
     },
     roundToStep(value, step) {
       return Math.round(value / step) * step;
@@ -455,84 +514,57 @@ export default {
       const fuelHeightPercentage = this.getFuelHeight(interval, fuel);
       return (fuelHeightPercentage / 100) * totalBarHeight;
     },
-    // onFuelInput(interval, changedFuelName) {
-    //   if (this.localData.isStep1Initial) this.localData.isStep1Initial = false
-
-    //   const prevAccepted =
-    //     this.lastValidFuelValues?.[interval.name]?.[changedFuelName] ?? 0
-
-    //   // ensure non‑negative & round *before* any validations
-    //   let newValue = interval.fuelValues[changedFuelName]
-    //   if (newValue < 0) newValue = 0
-    //   if (newValue >= this.stepSize)
-    //     newValue = this.roundToStep(newValue, this.stepSize)
-    //   interval.fuelValues[changedFuelName] = newValue
-
-    //   // compute the would‑be new total for the interval
-    //   const newTotal = Object.values(interval.fuelValues).reduce((s, v) => s + v, 0)
-    //   const total2025 = this.intervals[0].totalAmount || 0
-    //   const maxAllowed = this.roundToStep(total2025 * this.MAX_FACTOR, this.stepSize)
-
-    //   if (total2025 && newTotal > maxAllowed) {
-    //     // exceeded → do **NOT** modify other fuels, just show error and rollback
-    //     const msg = `Value too high – total would exceed the 300% cap (${maxAllowed.toLocaleString('en-US')} t)`
-    //     this.showError(interval, changedFuelName, msg, prevAccepted)
-    //     return // early exit, keep previous totals intact
-    //   }
-
-    //   // within limit – accept & persist as last valid, update totals
-    //   interval.totalAmount = newTotal
-    //   if (!this.lastValidFuelValues[interval.name])
-    //     this.lastValidFuelValues[interval.name] = {}
-    //   this.lastValidFuelValues[interval.name][changedFuelName] = newValue
-    // },
     /* --------------------------- typing logic ------------------------ */
     commitCell(interval, fuelName) {
-    const prev = this.lastValidFuelValues?.[interval.name]?.[fuelName] ?? 0;
-    let val    = this.inputDrafts[interval.name][fuelName];
-    val        = Math.max(0, val);                       // floor 0
-    const rnd  = this.roundToStep(val, this.stepSize);
+      const prev = this.lastValidFuelValues?.[interval.name]?.[fuelName] ?? 0;
+      let val = this.inputDrafts[interval.name][fuelName];
+      val = Math.max(0, val);                       // floor 0
+      const rnd = this.roundToStep(val, this.stepSize);
 
-    if (rnd !== val) {
-      this.inputDrafts[interval.name][fuelName] = rnd;
-      this.showMessage(interval, fuelName,
-        `Rounded to nearest ${this.stepSize.toLocaleString()} t`, 'info');
-    }
+      if (rnd !== val) {
+        this.inputDrafts[interval.name][fuelName] = rnd;
+        this.showMessage(interval, fuelName,
+          `Rounded to nearest ${this.stepSize.toLocaleString()} t`, 'info');
+      }
 
-    /* validate against 300 % cap */
-    const newTotal =
-      Object.values({ ...interval.fuelValues, [fuelName]: rnd })
-            .reduce((s, v) => s + v, 0);
-    const maxAllowed =
-      this.roundToStep(this.intervals[0].totalAmount * this.MAX_FACTOR,
-                       this.stepSize);
+      /* validate against 300 % cap */
+      const newTotal =
+        Object.values({ ...interval.fuelValues, [fuelName]: rnd })
+          .reduce((s, v) => s + v, 0);
+      const maxAllowed =
+        this.roundToStep(this.intervals[0].totalAmount * this.MAX_FACTOR,
+          this.stepSize);
 
-    if (newTotal > maxAllowed) {
-      /* rollback draft, leave bars unchanged */
-      this.inputDrafts[interval.name][fuelName] = prev;
-      this.showMessage(interval, fuelName,
-        `Value too high – total would exceed 300 % (${maxAllowed.toLocaleString('en-US')} t)`,
-        'error');
-      return;
-    }
+      if (newTotal > maxAllowed) {
+        /* rollback draft, leave bars unchanged */
+        this.inputDrafts[interval.name][fuelName] = prev;
+        this.showMessage(interval, fuelName,
+          `Value too high – total would exceed 300 % (${maxAllowed.toLocaleString('en-US')} t)`,
+          'error');
+        return;
+      }
 
-    /* accept -> update bars + totals */
-    interval.fuelValues[fuelName]              = rnd;
-    interval.totalAmount                       = newTotal;
-    (this.lastValidFuelValues[interval.name] ||= {})[fuelName] = rnd;
-  },
+      /* accept -> update bars + totals */
+      interval.fuelValues[fuelName] = rnd;
+      interval.totalAmount = newTotal;
+      (this.lastValidFuelValues[interval.name] ||= {})[fuelName] = rnd;
+      this.emitUpdate()
+    },
     commitImmediate(interval, fuelName) {
-    this.commitCell(interval, fuelName);
-  },
+      this.commitCell(interval, fuelName);
+    },
     onFuelInput(interval, fuelName) {
-    const key = this.keyFor(interval.name, fuelName);
-    clearTimeout(this.typingTimers[key]);
-    this.typingTimers[key] =
-      setTimeout(() => this.commitCell(interval, fuelName), 1200);
-  },
-  syncDraftFromInterval(interval) {                       // NEW helper
-    this.inputDrafts[interval.name] = { ...interval.fuelValues };
-  },
+      const key = this.keyFor(interval.name, fuelName);
+      clearTimeout(this.typingTimers[key]);
+      this.typingTimers[key] =
+        setTimeout(() => this.commitCell(interval, fuelName), 1200);
+    },
+    syncDraftFromInterval(interval) {                       // NEW helper
+      this.inputDrafts[interval.name] = { ...interval.fuelValues };
+    },
+    recalcIntervalTotal(interval) {
+      interval.totalAmount = Object.values(interval.fuelValues).reduce((s, v) => s + (v || 0), 0);
+    },
     getBarHeight(interval) {
       const totalAmount2025 = this.intervals[0].totalAmount;
       if (totalAmount2025 === 0) return 0;
@@ -573,7 +605,7 @@ export default {
 
       // If the total exceeds the maximum allowed, clamp & show a message
       if (interval.totalAmount > maxAllowed) {
-        this.stopDragHandle();
+        // this.stopDragHandle();
         // Find the difference
         //const exceededAmount = interval.totalAmount - maxAllowed;
         // Subtract from one or more fuels (simple approach: from the last changed one)
@@ -588,7 +620,7 @@ export default {
         // Recalculate total
         interval.totalAmount = Object.values(interval.fuelValues)
           .reduce((sum, val) => sum + val, 0);
-
+        // this.emitUpdate();
         // Provide user-friendly feedback
         //alert(`Exceeding the maximum allowed (300% of 2025). Values were clamped.`);
         //alert(maxAllowed);
@@ -676,10 +708,13 @@ export default {
   cursor: pointer;
 }
 
+.info-tooltip .tooltip-content {
+  font-weight: normal;
+}
+
 /* Main Container for Grid Alignment */
 .bars-table-container {
   display: grid;
-  grid-template-columns: 300px repeat(5, 120px);
   gap: 5px;
 }
 
@@ -803,7 +838,7 @@ export default {
 
 /* Table Section */
 .table-section {
-  grid-column: 1 / span 6;
+  grid-column: 1 / -1;
 }
 
 .table {
@@ -859,4 +894,5 @@ export default {
 .fuel-square.lng-bar {
   background-color: #6f42c1;
 }
+
 </style>

@@ -5,6 +5,13 @@
       <ResultChartViewer v-if="sc.viewerReady" :chartData="sc.cachedChartData" :costChartData="sc.cachedCostChart"
         :costDistributionData="sc.cachedCostDist" />
       <p v-else>No results available.</p>
+      <div class="note-section">
+        <strong>Note:</strong>
+        Fuel capacities are indicative and subject to implementation delays due to
+        regulatory approval, investment decisions, and construction timelines.
+        This DSS supports strategic assessment of future investment costs and
+        greenhouse gas reduction pathways.
+      </div>
       <!-- ▸▸ Export button (only if we have data) -->
       <div v-if="sc.viewerReady" class="d-flex justify-content-end mt-3">
         <b-button variant="success" @click="exportScenarioExcelJS(sc)">
@@ -194,11 +201,11 @@ export default {
       sc.data.fuelCapacitySelection.fuels.forEach(f => {
         if (ws.rowCount) ws.addRow([]);
         /* ── ❶ title line ───────────────────────────────────────────── */
-        const titleRowIdx = ws.rowCount + 1; 
+        const titleRowIdx = ws.rowCount + 1;
         ws.addRow([`Tank sizes – ${f.name}`]);
         ws.mergeCells(titleRowIdx, 1, titleRowIdx, 3);       // merge A…C of that row
         ws.getCell(titleRowIdx, 1).font = { bold: true };    // bold face
-        /* ── ❷ write the table ─────────────────────────────────────────── */ 
+        /* ── ❷ write the table ─────────────────────────────────────────── */
         const subHdr = [['Capacity (t)', 'Storage Vol (m³)', 'Cost (USD)']]; // shaded
         const body = f.rows.map(r => [r.capacity, r.storageVolume, r.cost]);
         addBlock(ws, [...subHdr, ...body], { headerRow: 0, shadeCol1: false });
@@ -317,3 +324,17 @@ export default {
   }
 }
 </script>
+<style scoped>
+/* Note Section */
+.note-section {
+  grid-column: 1 / -1;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-align: left;
+}
+</style>

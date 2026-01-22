@@ -46,7 +46,10 @@
       <h3>Global Data</h3>
       <pre>{{ JSON.stringify(scenarios, null, 2) }}</pre>
     </div> -->
-
+    <!-- <div class="global-data-display">
+      <h3>Years</h3>
+      <pre>{{planningYears}}</pre>
+    </div> -->
     <!-- Step Footer -->
     <div class="step-footer" :class="{ 'align-right': currentStep === 0 }">
       <b-button v-if="currentStep > 0" @click="previousStep" variant="secondary">
@@ -79,6 +82,8 @@ import PortFuelInformation from './PortFuelInformation.vue';
 import FuelCapacitySelection from './FuelCapacitySelection.vue';
 import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
+import { PLANNING_YEARS } from '@/constants/planningYears.js';
+
 import {
   buildChartData,
   buildCostChartData,
@@ -93,13 +98,18 @@ function initialGlobalData() {
       fuelAmounts: { MGO: 10000, MDO: 0, IFO: 0, VLSFO: 0, HFO: 0 }
     },
     fuelBarSelection: {
-      intervals: [
-        { name: '2025', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
-        { name: '2030-2035', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
-        { name: '2035-2040', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
-        { name: '2040-2045', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } },
-        { name: '2045-2050', totalAmount: 10000, fuelValues: { MGO: 10000, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 0, LNG: 0 } }
-      ]
+      intervals: PLANNING_YEARS.map(year => ({
+        name: year,
+        totalAmount: 10000,
+        fuelValues: {
+          MGO: 10000,
+          'Liquid Hydrogen': 0,
+          'Compressed Hydrogen': 0,
+          Ammonia: 0,
+          Methanol: 0,
+          LNG: 0
+        }
+      }))
     },
     fuelCapacitySelection: {
       fuels: [
@@ -153,7 +163,8 @@ export default {
           cachedCostDist: null,
           viewerReady: false
         }
-      ]
+      ],
+      planningYears: PLANNING_YEARS
     };
   },
   computed: {
@@ -165,7 +176,7 @@ export default {
       const res = this.activeScenario.resultData;
       if (!res) return { labels: [], datasets: [] };
       // Define the x-axis labels and fuels in a specific order.
-      const years = ['2025', '2030', '2035', '2040', '2045'];
+      const years = PLANNING_YEARS;
       const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
       const fuelColors = {
         'MGO': '#007bff',
@@ -226,7 +237,7 @@ export default {
       const costs = this.activeScenario.resultCosts;
       if (!costs) return { labels: [], datasets: [] };
 
-      const years = ['2025', '2030', '2035', '2040', '2045'];
+      const years = PLANNING_YEARS;
       const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
       const fuelColors = {
         MGO: '#007bff', 'Liquid Hydrogen': '#28a745', 'Compressed Hydrogen': '#17a2b8',
@@ -257,7 +268,7 @@ export default {
       if (!costs) return { labels: [], datasets: [] };
 
       const fuels = Object.keys(costs);
-      const years = ['2025', '2030', '2035', '2040', '2045'];
+      const years = PLANNING_YEARS;
       const total = { opened: 0, operating: 0, closed: 0 };
 
       fuels.forEach(f => {
@@ -289,6 +300,8 @@ export default {
     onStarted() {
       // Hide the HowItWorks component and show the main dashboard.
       this.showHowItWorks = false;
+      console.log('PLANNING_YEARS:', PLANNING_YEARS);
+
     },
     startOver() {
       // keep only Scenario 1 and reset to intro
@@ -385,12 +398,7 @@ export default {
       const dataSubmit = {};
 
       // 1. Extract Time Intervals (T)
-      const T = sData.fuelBarSelection.intervals.map((interval) => {
-        // Extract the starting year from interval names (e.g., "2025", "2030-2035")
-        const match = interval.name.match(/^\d{4}/);
-        return match ? match[0] : interval.name;
-      });
-      dataSubmit.T = T;
+      dataSubmit.T = PLANNING_YEARS.slice();
 
       // 2. Extract List of Fuels
       const fuels = sData.fuelCapacitySelection.fuels.map((fuel) => fuel.name);
@@ -432,16 +440,12 @@ export default {
       });
 
       sData.fuelBarSelection.intervals.forEach((interval) => {
-        const intervalName = interval.name;
-        // Extract the starting year for consistent keys
-        const match = intervalName.match(/^\d{4}/);
-        const intervalYear = match ? match[0] : intervalName;
-
+        const year = interval.name; 
         const fuelValues = interval.fuelValues;
 
         Object.keys(fuelValues).forEach((fuelName) => {
           if (fuels.includes(fuelName)) {
-            dataSubmit.Demand[fuelName][intervalYear] = fuelValues[fuelName];
+            dataSubmit.Demand[fuelName][year] = fuelValues[fuelName];
           }
         });
       });
