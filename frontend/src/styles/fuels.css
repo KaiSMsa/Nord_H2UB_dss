@@ -1,0 +1,27 @@
+:root{
+  --fuel-mgo: #007bff;
+  --fuel-lh2: #28a745;
+  --fuel-ch2: #17a2b8;
+  --fuel-ammonia: #ffc107;
+  --fuel-methanol: #dc3545;
+  --fuel-lng: #6f42c1;
+}
+
+.fuel-color-mgo{ background-color: var(--fuel-mgo); }
+.fuel-color-lh2{ background-color: var(--fuel-lh2); }
+.fuel-color-ch2{ background-color: var(--fuel-ch2); }
+.fuel-color-ammonia{ background-color: var(--fuel-ammonia); }
+.fuel-color-methanol{ background-color: var(--fuel-methanol); }
+.fuel-color-lng{ background-color: var(--fuel-lng); }
+
+.note-section {
+  grid-column: 1 / -1;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-align: left;
+}

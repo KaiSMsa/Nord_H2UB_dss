@@ -1,0 +1,12 @@
+Error code: 1
+Error output:
+Traceback (most recent call last):
+  File "C:\Users\mohammkm\source\repos\dss-user-interfacte\backend\model_tank_index.py", line 305, in <module>
+    solve_facility_location(input_data)
+  File "C:\Users\mohammkm\source\repos\dss-user-interfacte\backend\model_tank_index.py", line 22, in solve_facility_location
+    min_capacity = min(Capacities[fuel])
+                   ^^^^^^^^^^^^^^^^^^^^^
+ValueError: min() iterable argument is empty
+
+Data:
+{"T":["2025","2030","2035","2040","2045"],"Fuels":["MGO","Liquid Hydrogen","Compressed Hydrogen","Ammonia","Methanol","LNG"],"Capacities":{"MGO":[],"Liquid Hydrogen":[3000,5000,7000],"Compressed Hydrogen":[3000,5000,7000],"Ammonia":[3000,5000,7000],"Methanol":[3000,5000,7000],"LNG":[3000,5000,7000]},"Costs":{"MGO":{"costs":[],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Liquid Hydrogen":{"costs":[56784000,93289600,129846400],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Compressed Hydrogen":{"costs":[662000000,1089800000,1518200000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Ammonia":{"costs":[20247000000,33743000000,47239000000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"Methanol":{"costs":[8149500000,13580500000,19011500000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10},"LNG":{"costs":[11414500000,19022500000,26632500000],"changeRate":-2,"maintenanceCost":4,"decommissioningCost":10}},"Demand":{"MGO":{"2025":10000,"2030":6000,"2035":3000,"2040":1100,"2045":1200},"Liquid Hydrogen":{"2025":0,"2030":3000,"2035":6000,"2040":8800,"2045":9800},"Compressed Hydrogen":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"Ammonia":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"Methanol":{"2025":0,"2030":0,"2035":0,"2040":0,"2045":0},"LNG":{"2025":0,"2030":1000,"2035":1000,"2040":1100,"2045":1200}}}

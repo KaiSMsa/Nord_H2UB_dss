@@ -1,0 +1,4 @@
+
+npm uninstall bootstrap-vue
+npm install @vue/cli-service@latest --save-dev
+npm list @vue/cli-service
