@@ -159,7 +159,7 @@ const MJ_PER_KG_MGO = 42.8;
 // Local-only model (kept here since you said it’s only used here)
 const FUEL_MODEL = {
   MGO: {
-    limits: { min: 200, max: 10000 },
+    limits: { min: 2000, max: 10000 },
     fixed: 500000,
     props: { rho: 850, EC: 42.8, cShell: 1000 },
   },
@@ -169,22 +169,22 @@ const FUEL_MODEL = {
     props: { rho: 70.8, EC: 120, cShell: 50, cLiquef: 1.2 },
   },
   "Compressed Hydrogen": {
-    limits: { min: 4000, max: 6000 },
+    limits: { min: 3000, max: 6000 },
     fixed: 20000000,
     props: { rho: 70.8, EC: 120, cShell: 600 },
   },
   Ammonia: {
-    limits: { min: 500, max: 2000 },
+    limits: { min: 1000, max: 7000 },
     fixed: 3000000,
     props: { rho: 682, EC: 18.6, cShell: 2000 },
   },
   Methanol: {
-    limits: { min: 500, max: 8000 },
+    limits: { min: 1000, max: 10000 },
     fixed: 2500000,
     props: { rho: 792, EC: 19.9, cShell: 1000 },
   },
   LNG: {
-    limits: { min: 500, max: 10000 },
+    limits: { min: 1000, max: 10000 },
     fixed: 500000,
     props: { rho: 450, EC: 50, cShell: 2000 },
   },

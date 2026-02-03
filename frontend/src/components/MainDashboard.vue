@@ -113,12 +113,12 @@ function initialGlobalData() {
     },
     fuelCapacitySelection: {
       fuels: [
-        { name: 'MGO', class: 'mgo-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'MGO', class: 'mgo-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
         { name: 'Liquid Hydrogen', class: 'lh2-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 4000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 6000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 500, storageVolume: 0, cost: 0 }, { capacity: 1000, storageVolume: 0, cost: 0 }, { capacity: 2000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 4000, storageVolume: 0, cost: 0 }, { capacity: 8000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'LNG', class: 'lng-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 }
+        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 6000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
+        { name: 'LNG', class: 'lng-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 }
       ]
     }
   };
