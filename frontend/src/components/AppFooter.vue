@@ -1,7 +1,9 @@
 <template>
   <footer class="app-footer">
     <span>
-      © {{ year }} — {{ projectName }}
+      © {{ year }} NTNU — {{ projectName }}
+      &nbsp;|&nbsp;
+      MIT License
       &nbsp;|&nbsp;
       Version {{ version }}
       &nbsp;|&nbsp;

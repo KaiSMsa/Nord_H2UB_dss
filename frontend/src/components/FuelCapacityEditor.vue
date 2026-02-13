@@ -4,12 +4,8 @@
 
     <b-card no-body>
       <b-tabs card>
-        <b-tab
-          v-for="fuel in fuels"
-          :key="fuel.name"
-          :title="fuel.name"
-          :title-item-class="'d-flex align-items-center'"
-        >
+        <b-tab v-for="fuel in localData.fuels" :key="fuel.name" :title="fuel.name"
+          :title-item-class="'d-flex align-items-center'">
           <template #title>
             <span class="fuel-square" :class="fuel.class"></span>
             {{ fuel.name }}
@@ -30,17 +26,9 @@
                 <tbody>
                   <tr v-for="(row, rowIndex) in fuel.rows" :key="rowIndex">
                     <td class="input-cell">
-                      <input
-                        type="number"
-                        v-model.number="row.capacity"
-                        placeholder="Tonnes"
-                        :class="{ 'is-invalid': row.isInvalid }"
-                        min="0"
-                        :step="stepSize"
-                        :disabled="isDisabled"
-                        @input="onCapacityInput(fuel, row)"
-                        @blur="onCapacityBlur(fuel)"
-                      />
+                      <input type="number" v-model.number="row.capacity" placeholder="Tonnes"
+                        :class="{ 'is-invalid': row.isInvalid }" min="0" :step="stepSize" :disabled="isDisabled"
+                        @input="onCapacityInput(fuel, row)" @blur="onCapacityBlur(fuel)" />
                       <transition name="fade">
                         <div v-if="row.isInvalid" class="error-box">
                           {{ row.error }}
@@ -52,12 +40,8 @@
                     <td>{{ fmtUSD(row.cost) }} $</td>
 
                     <td>
-                      <b-button
-                        size="sm"
-                        variant="danger"
-                        :disabled="isDisabled || fuel.rows.length === 1"
-                        @click="removeRow(fuel, rowIndex)"
-                      >
+                      <b-button size="sm" variant="danger" :disabled="isDisabled || fuel.rows.length === 1"
+                        @click="removeRow(fuel, rowIndex)">
                         Remove
                       </b-button>
                     </td>
@@ -66,76 +50,44 @@
               </table>
             </div>
 
-            <b-button
-              size="sm"
-              variant="success"
-              class="mt-2"
-              :disabled="isDisabled"
-              @click="addRow(fuel)"
-            >
+            <b-button size="sm" variant="success" class="mt-2" :disabled="isDisabled" @click="addRow(fuel)">
               New tanker capacity
             </b-button>
 
             <div class="cost-inputs">
               <div class="change-rate">
                 <label>Change Rate (%):</label>
-                <input
-                  type="number"
-                  v-model.number="fuel.changeRate"
-                  placeholder="Percentage"
-                  min="-100"
-                  max="100"
-                  :disabled="isDisabled"
-                  @change="emitCleanData()"
-                />
+                <input type="number" v-model.number="fuel.changeRate" placeholder="Percentage" min="-100" max="100"
+                  :disabled="isDisabled" 
+                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'changeRate', 0); emitCleanData()"
+                  />
               </div>
 
               <div class="change-rate">
                 <label>Maintenance cost (%):</label>
-                <input
-                  type="number"
-                  v-model.number="fuel.maintenanceCost"
-                  placeholder="4"
-                  min="0"
-                  max="10"
+                <input type="number" v-model.number="fuel.maintenanceCost" placeholder="4" min="0" max="10"
                   :disabled="isDisabled"
-                  @change="emitCleanData()"
+                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceCost', 0); emitCleanData()"
                 />
               </div>
 
               <div class="change-rate">
                 <label>Decommissioning cost (%):</label>
-                <input
-                  type="number"
-                  v-model.number="fuel.decommissioningCost"
-                  placeholder="10"
-                  min="0"
-                  max="10"
+                <input type="number" v-model.number="fuel.decommissioningCost" placeholder="10" min="0" max="10"
                   :disabled="isDisabled"
-                  @change="emitCleanData()"
+                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningCost', 0); emitCleanData()"
                 />
               </div>
             </div>
 
             <!-- Cost estimation steps hover popover -->
             <div class="cost-steps mt-3">
-              <span
-                class="cost-steps-trigger"
-                :id="stepsLinkId(fuel.name)"
-                tabindex="0"
-                role="button"
-              >
+              <span class="cost-steps-trigger" :id="stepsLinkId(fuel.name)" tabindex="0" role="button">
                 <span class="cost-steps-link">Cost estimation steps</span>
               </span>
 
-              <b-popover
-                :target="stepsLinkId(fuel.name)"
-                triggers="hover focus"
-                placement="bottom"
-                container="body"
-                boundary="window"
-                custom-class="steps-popover"
-              >
+              <b-popover :target="stepsLinkId(fuel.name)" triggers="hover focus" placement="bottom" container="body"
+                boundary="window" custom-class="steps-popover">
                 <div class="steps-popover-body">
                   <ul class="mb-0" v-html="fuelTooltipHtml(fuel.name)"></ul>
                 </div>
@@ -150,6 +102,7 @@
 
 <script>
 import { FUELS, FUEL_BY_NAME } from "@/constants/fuels.js";
+import cloneDeep from "lodash.clonedeep";
 
 const STEP_SIZE = 100;
 const ALPHA = 0.65;
@@ -211,12 +164,18 @@ export default {
 
     // Always render tabs in FUELS order, but keep the underlying data in localData.fuels
     fuels() {
-      const byName = new Map((this.localData?.fuels || []).map((f) => [f.name, f]));
-      return FUELS.map((def) => {
+      const byName = new Map((this.localData?.fuels || []).map(f => [f.name, f]));
+      return FUELS.map(def => {
         const existing = byName.get(def.name);
-        return existing
-          ? { ...existing, class: def.class } // ensure class follows shared constants
-          : this.createFuelState(def.name, def.class);
+        if (existing) {
+          // mutate existing to keep same reference
+          existing.class = def.class;
+          return existing;
+        }
+        // IMPORTANT: ensure it's actually stored, not just returned
+        const created = this.createFuelState(def.name, def.class);
+        this.localData.fuels.push(created);
+        return created;
       });
     },
   },
@@ -243,7 +202,7 @@ export default {
      * Data integrity / sync
      * --------------------------- */
     clone(obj) {
-      return JSON.parse(JSON.stringify(obj));
+      return cloneDeep(obj);
     },
     signature(obj) {
       try {
@@ -279,11 +238,23 @@ export default {
       const clean = this.clone(this.localData);
 
       (clean.fuels || []).forEach((fuel) => {
+        // Strip invalid capacity rows only
         fuel.rows = (fuel.rows || []).filter((r) => !r.isInvalid);
 
         if (fuel.rows.length === 0) {
           fuel.rows.push({ capacity: null, cost: 0, storageVolume: 0 });
         }
+
+        // Preserve numeric fields (avoid parent resetting to defaults)
+        // If user temporarily clears the input, v-model.number can become null/NaN.
+        const normalizeNum = (v, fallback = 0) => {
+          const n = Number(v);
+          return Number.isFinite(n) ? n : fallback;
+        };
+
+        fuel.changeRate = normalizeNum(fuel.changeRate, 0);
+        fuel.maintenanceCost = normalizeNum(fuel.maintenanceCost, 0);
+        fuel.decommissioningCost = normalizeNum(fuel.decommissioningCost, 0);
 
         // Ensure class remains consistent with FUELS
         const def = FUEL_BY_NAME[fuel.name];
@@ -296,6 +267,7 @@ export default {
 
       this.$emit("update:capacitySelection", clean);
     },
+
 
     /* ---------------------------
      * Init rows
@@ -323,7 +295,10 @@ export default {
     sortRows(fuel) {
       fuel.rows.sort((a, b) => Number(a.capacity || 0) - Number(b.capacity || 0));
     },
-
+    normalizeNumberField(obj, key, fallback = 0) {
+      const v = Number(obj[key]);
+      obj[key] = Number.isFinite(v) ? v : fallback;
+    },
     /* ---------------------------
      * Row actions
      * --------------------------- */
@@ -498,8 +473,7 @@ export default {
       }
 
       lines.push(
-        `<li><strong>Total investment (per tank):</strong> C = fixed + C<sub>shell</sub>${
-          fuelName === "Liquid Hydrogen" ? " + liquefaction" : ""
+        `<li><strong>Total investment (per tank):</strong> C = fixed + C<sub>shell</sub>${fuelName === "Liquid Hydrogen" ? " + liquefaction" : ""
         }.</li>`
       );
 
