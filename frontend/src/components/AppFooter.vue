@@ -23,10 +23,10 @@ export default {
       return "GREENPORT Decision Support System (DSS)";
     },
     version() {
-      return "1.0.0"; // ← update when you release
+      return "1.0.1"; // ← update when you release
     },
     lastUpdate() {
-      return "Jan 2026"; // ← manual but explicit and controlled
+      return "Feb 2026"; // Update this manually when you update the app, or automate it with a build script if you like!
     },
   },
 };
