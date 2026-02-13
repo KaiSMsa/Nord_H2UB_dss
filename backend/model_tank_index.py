@@ -129,6 +129,15 @@ def solve_facility_location(data):
         )
         solver.Add(total_y <= num_tanks)
     
+    # Fuels other than MGO cannot be opened at t=0 (for model purposes, no maintenance or closing is allowed at t=0 for any fuel). This is to make the model realistic.
+    for f_idx, fuel in enumerate(Fuels):
+        if fuel != "MGO":
+            num_tanks = num_tanks_dict[f_idx]
+            total_y_at_t0 = solver.Sum(
+                y[f_idx, i, k_idx, 0] for i in range(num_tanks) for k_idx in range(len(Capacities[fuel]))
+            )
+            solver.Add(total_y_at_t0 == 0)
+    
     # Single capacity operation per tank: a tank can operate in only one capacity option at a given time.
     for f_idx, fuel in enumerate(Fuels):
         num_tanks = num_tanks_dict[f_idx]
