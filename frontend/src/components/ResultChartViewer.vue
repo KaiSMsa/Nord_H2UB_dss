@@ -31,6 +31,7 @@
 import { defineComponent } from 'vue';
 import VueApexChart from 'vue3-apexcharts';
 import CostChart from './CostChart.vue';
+import { formatUSDToNearestThousand } from '@/utils/currencyFormatting.js';
 
 export default defineComponent({
   name: 'ResultBarChartViewer',
@@ -186,6 +187,9 @@ export default defineComponent({
             stacked: true,
             type: 'logarithmic',
             min: 1,
+            ticks: {
+              callback: value => `$${formatUSDToNearestThousand(value)}`,
+            },
           },
         },
         plugins: {
@@ -193,8 +197,7 @@ export default defineComponent({
             display: true,
             color: '#fff', // Set the text color to white
             formatter: (value) => {
-              // Custom formatting if needed
-              return value;
+              return `$${formatUSDToNearestThousand(value)}`;
             },
             font: {
               weight: 'bold',
@@ -209,13 +212,13 @@ export default defineComponent({
                 const detail = dataset.details ? dataset.details[index] : null;
                 if (detail) {
                   return [
-                    `${dataset.label}: $${detail.total}`,
-                    `Opening: $${detail.opening}`,
-                    `Maintenance: $${detail.operating}`,
-                    `Decommissioning: $${detail.decommissioning}`
+                    `${dataset.label}: $${formatUSDToNearestThousand(detail.total)}`,
+                    `Opening: $${formatUSDToNearestThousand(detail.opening)}`,
+                    `Maintenance: $${formatUSDToNearestThousand(detail.operating)}`,
+                    `Decommissioning: $${formatUSDToNearestThousand(detail.decommissioning)}`
                   ];
                 }
-                return `${dataset.label}: $${context.raw}`;
+                return `${dataset.label}: $${formatUSDToNearestThousand(context.raw)}`;
               },
             },
           },
@@ -250,13 +253,13 @@ export default defineComponent({
           formatter: function (val, opts) {
             const seriesIndex = opts.seriesIndex;
             const value = opts.w.globals.series[seriesIndex];
-            return "$" + value.toLocaleString();
+            return "$" + formatUSDToNearestThousand(value);
           },
         },
         tooltip: {
           y: {
             formatter: function (val) {
-              return "$" + val.toLocaleString();
+              return "$" + formatUSDToNearestThousand(val);
             },
           },
         },

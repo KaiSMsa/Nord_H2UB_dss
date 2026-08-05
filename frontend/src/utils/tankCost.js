@@ -95,26 +95,35 @@ function calculateBaseInvestmentCost(
   );
 }
 
-function calculateMaintenanceCost(baseInvestmentCostUSD, maintenanceRate) {
+function calculateMaintenanceCost(
+  baseInvestmentCostUSD,
+  maintenanceRatePerPlanningPeriod
+) {
   return (
     requireFiniteNumber(baseInvestmentCostUSD, "baseInvestmentCostUSD") *
-    requireFiniteNumber(maintenanceRate, "maintenanceRate")
+    requireFiniteNumber(
+      maintenanceRatePerPlanningPeriod,
+      "maintenanceRatePerPlanningPeriod"
+    )
   );
 }
 
 function calculateDecommissioningCost(
   baseInvestmentCostUSD,
-  decommissioningRate
+  decommissioningRateAtClosure
 ) {
   return (
     requireFiniteNumber(baseInvestmentCostUSD, "baseInvestmentCostUSD") *
-    requireFiniteNumber(decommissioningRate, "decommissioningRate")
+    requireFiniteNumber(
+      decommissioningRateAtClosure,
+      "decommissioningRateAtClosure"
+    )
   );
 }
 
 function calculateTimeAdjustedInvestmentCost(
   baseInvestmentCostUSD,
-  fuelCostAdjustmentRatePerPeriod,
+  technologyCostAdjustmentRatePerPlanningPeriod,
   periodIndex
 ) {
   const baseCost = requireFiniteNumber(
@@ -122,19 +131,27 @@ function calculateTimeAdjustedInvestmentCost(
     "baseInvestmentCostUSD"
   );
   const rate = requireFiniteNumber(
-    fuelCostAdjustmentRatePerPeriod,
-    "fuelCostAdjustmentRatePerPeriod"
+    technologyCostAdjustmentRatePerPlanningPeriod,
+    "technologyCostAdjustmentRatePerPlanningPeriod"
   );
   const period = requireFiniteNumber(periodIndex, "periodIndex");
   return baseCost * Math.pow(1 + rate, period);
 }
 
-function calculateDiscountFactor(discountRatePerPeriod, periodIndex) {
+function calculateDiscountFactor(discountRatePerPlanningPeriod, periodIndex) {
   const rate = requireFiniteNumber(
-    discountRatePerPeriod,
-    "discountRatePerPeriod"
+    discountRatePerPlanningPeriod,
+    "discountRatePerPlanningPeriod"
   );
   const period = requireFiniteNumber(periodIndex, "periodIndex");
+  if (rate <= -1) {
+    throw new RangeError(
+      "discountRatePerPlanningPeriod must be greater than -1"
+    );
+  }
+  if (period < 0) {
+    throw new RangeError("periodIndex must be greater than or equal to zero");
+  }
   return 1 / Math.pow(1 + rate, period);
 }
 

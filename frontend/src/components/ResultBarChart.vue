@@ -29,6 +29,7 @@ import ResultChartViewer from './ResultChartViewer.vue'
 import { utils, writeFile } from 'xlsx';          // SheetJS
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';              // tiny helper  
+import { roundUSDToNearestThousand } from '@/utils/currencyFormatting.js';
 
 export default {
   name: 'ResultBarChart',
@@ -84,7 +85,11 @@ export default {
       const tankAOAs = sc.data.fuelCapacitySelection.fuels.map(f => {
         const hdr = [`Tank Sizes – ${f.name}`, '', ''];
         const subHdr = ['Capacity (t)', 'Storage Vol (m³)', 'Cost (USD)'];
-        const body = f.rows.map(r => [r.capacity, r.storageVolume, r.cost]);
+        const body = f.rows.map(r => [
+          r.capacity,
+          r.storageVolume,
+          roundUSDToNearestThousand(r.cost)
+        ]);
         return [hdr, subHdr, ...body];
       });
 
@@ -207,7 +212,11 @@ export default {
         ws.getCell(titleRowIdx, 1).font = { bold: true };    // bold face
         /* ── ❷ write the table ─────────────────────────────────────────── */
         const subHdr = [['Capacity (t)', 'Storage Vol (m³)', 'Cost (USD)']]; // shaded
-        const body = f.rows.map(r => [r.capacity, r.storageVolume, r.cost]);
+        const body = f.rows.map(r => [
+          r.capacity,
+          r.storageVolume,
+          roundUSDToNearestThousand(r.cost)
+        ]);
         addBlock(ws, [...subHdr, ...body], { headerRow: 0, shadeCol1: false });
       });
 
@@ -301,7 +310,7 @@ export default {
           const r = [f];
           costYears.forEach((yr, idx) => {
             const v = costMap[f]?.[idx]?.[ct.key] ?? 0;
-            r.push(v);
+            r.push(roundUSDToNearestThousand(v));
           });
           return r;
         });
@@ -311,7 +320,7 @@ export default {
         costYears.forEach((yr, idx) => {
           let s = 0;
           fuels.forEach(f => { s += costMap[f]?.[idx]?.[ct.key] ?? 0; });
-          totRow.push(s);
+          totRow.push(roundUSDToNearestThousand(s));
         });
 
         addBlock(wsCost, [hdr, ...rows, totRow]);     // highlight header + col 1

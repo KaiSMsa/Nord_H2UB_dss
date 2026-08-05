@@ -54,29 +54,49 @@
               New tanker capacity
             </b-button>
 
-            <div class="cost-inputs">
-              <div class="change-rate">
-                <label>Cost adjustment per planning period (%):</label>
-                <input type="number" v-model.number="fuel.changeRate" placeholder="Percentage" min="-100" max="100"
-                  :disabled="isDisabled" 
-                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'changeRate', 0); emitCleanData()"
-                  />
+            <div class="financial-assumptions">
+              <div class="assumption-row">
+                <div class="assumption-field">
+                  <label
+                    title="Converts costs incurred in future planning periods into present-value terms. The neutral 0% default requires author approval before production use."
+                  >Discount rate per planning period (%)</label>
+                  <input type="number" v-model.number="fuel.discountRatePercent" placeholder="0" min="-99.99" step="0.1" required
+                    :class="{ 'is-invalid': isDiscountRateInvalid(fuel) }" :disabled="isDisabled"
+                    @input="emitCleanData"
+                    @blur="normalizeNumberField(fuel, 'discountRatePercent', defaultDiscountRatePercent); emitCleanData()" />
+                  <small v-if="isDiscountRateInvalid(fuel)" class="assumption-error">
+                    Discount rate must be greater than -100%.
+                  </small>
+                </div>
+
+                <div class="assumption-field">
+                  <label
+                    title="Represents the expected change in the fuel-specific technology cost between planning periods. Negative values represent cost reductions."
+                  >Cost adjustment per planning period (%)</label>
+                  <input type="number" v-model.number="fuel.technologyCostAdjustmentRatePercent" placeholder="-2" min="-99.99" required
+                    :disabled="isDisabled"
+                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRatePercent', 0); emitCleanData()" />
+                </div>
               </div>
 
-              <div class="change-rate">
-                <label>Maintenance per planning period (%):</label>
-                <input type="number" v-model.number="fuel.maintenanceCost" placeholder="4" min="0" max="10"
-                  :disabled="isDisabled"
-                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceCost', 0); emitCleanData()"
-                />
-              </div>
+              <div class="assumption-row">
+                <div class="assumption-field">
+                  <label
+                    title="Applied to the base investment cost in each planning period in which maintenance is charged."
+                  >Maintenance rate per planning period (%)</label>
+                  <input type="number" v-model.number="fuel.maintenanceRatePercent" placeholder="4" min="0" required
+                    :disabled="isDisabled"
+                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRatePercent', 0); emitCleanData()" />
+                </div>
 
-              <div class="change-rate">
-                <label>Decommissioning at closure (%):</label>
-                <input type="number" v-model.number="fuel.decommissioningCost" placeholder="10" min="0" max="10"
-                  :disabled="isDisabled"
-                  @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningCost', 0); emitCleanData()"
-                />
+                <div class="assumption-field">
+                  <label
+                    title="Applied once to the base investment cost when the storage asset is decommissioned."
+                  >Decommissioning rate at closure (%)</label>
+                  <input type="number" v-model.number="fuel.decommissioningRateAtClosurePercent" placeholder="10" min="0" required
+                    :disabled="isDisabled"
+                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningRateAtClosurePercent', 0); emitCleanData()" />
+                </div>
               </div>
             </div>
 
@@ -103,10 +123,14 @@
 <script>
 import { FUELS, FUEL_BY_NAME } from "@/constants/fuels.js";
 import {
+  calculateDiscountFactor,
+  calculatePresentValueCost,
+  calculateTimeAdjustedInvestmentCost,
   estimateTankOption,
   fuelParameterCatalog,
   getFuelParameters,
 } from "@/utils/tankCost.js";
+import { formatUSDToNearestThousand } from "@/utils/currencyFormatting.js";
 import cloneDeep from "lodash.clonedeep";
 
 const STEP_SIZE = 100;
@@ -122,6 +146,8 @@ export default {
     return {
       localData: this.clone(this.capacitySelection),
       stepSize: STEP_SIZE,
+      defaultDiscountRatePercent:
+        fuelParameterCatalog.common.defaultDiscountRatePerPlanningPeriod * 100,
       lastEmittedSignature: "",
     };
   },
@@ -186,9 +212,47 @@ export default {
       const existing = new Map(this.localData.fuels.map((f) => [f.name, f]));
       const merged = FUELS.map((def) => {
         const f = existing.get(def.name);
-        return f
-          ? { ...f, id: def.id, class: def.class }
-          : this.createFuelState(def.name, def.class);
+        if (!f) return this.createFuelState(def.name, def.class);
+
+        const rateValue = (currentValue, legacyValue, fallback) => {
+          const candidate = currentValue ?? legacyValue;
+          const number = Number(candidate);
+          return candidate !== "" && Number.isFinite(number) ? number : fallback;
+        };
+        const {
+          discountRate,
+          changeRate,
+          maintenanceCost,
+          decommissioningCost,
+          ...currentState
+        } = f;
+
+        return {
+          ...currentState,
+          id: def.id,
+          class: def.class,
+          discountRatePercent: rateValue(
+            f.discountRatePercent,
+            discountRate,
+            this.defaultDiscountRatePercent
+          ),
+          technologyCostAdjustmentRatePercent: rateValue(
+            f.technologyCostAdjustmentRatePercent,
+            changeRate,
+            fuelParameterCatalog.common
+              .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100
+          ),
+          maintenanceRatePercent: rateValue(
+            f.maintenanceRatePercent,
+            maintenanceCost,
+            fuelParameterCatalog.common.maintenanceRatePerPlanningPeriod * 100
+          ),
+          decommissioningRateAtClosurePercent: rateValue(
+            f.decommissioningRateAtClosurePercent,
+            decommissioningCost,
+            fuelParameterCatalog.common.decommissioningRateAtClosure * 100
+          ),
+        };
       });
 
       this.localData.fuels = merged;
@@ -199,11 +263,14 @@ export default {
         name,
         class: cssClass,
         rows: [],
-        changeRate:
-          fuelParameterCatalog.common.defaultFuelCostAdjustmentRatePerPeriod * 100,
-        maintenanceCost: fuelParameterCatalog.common.maintenanceRate * 100,
-        decommissioningCost:
-          fuelParameterCatalog.common.decommissioningRate * 100,
+        discountRatePercent: this.defaultDiscountRatePercent,
+        technologyCostAdjustmentRatePercent:
+          fuelParameterCatalog.common
+            .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100,
+        maintenanceRatePercent:
+          fuelParameterCatalog.common.maintenanceRatePerPlanningPeriod * 100,
+        decommissioningRateAtClosurePercent:
+          fuelParameterCatalog.common.decommissioningRateAtClosure * 100,
       };
     },
 
@@ -217,17 +284,6 @@ export default {
         if (fuel.rows.length === 0) {
           fuel.rows.push({ capacity: null, cost: 0, storageVolume: 0 });
         }
-
-        // Preserve numeric fields (avoid parent resetting to defaults)
-        // If user temporarily clears the input, v-model.number can become null/NaN.
-        const normalizeNum = (v, fallback = 0) => {
-          const n = Number(v);
-          return Number.isFinite(n) ? n : fallback;
-        };
-
-        fuel.changeRate = normalizeNum(fuel.changeRate, 0);
-        fuel.maintenanceCost = normalizeNum(fuel.maintenanceCost, 0);
-        fuel.decommissioningCost = normalizeNum(fuel.decommissioningCost, 0);
 
         // Ensure class remains consistent with FUELS
         const def = FUEL_BY_NAME[fuel.name];
@@ -269,8 +325,18 @@ export default {
       fuel.rows.sort((a, b) => Number(a.capacity || 0) - Number(b.capacity || 0));
     },
     normalizeNumberField(obj, key, fallback = 0) {
+      if (obj[key] === "" || obj[key] === null || obj[key] === undefined) return;
       const v = Number(obj[key]);
       obj[key] = Number.isFinite(v) ? v : fallback;
+    },
+    isDiscountRateInvalid(fuel) {
+      if (
+        fuel.discountRatePercent === "" ||
+        fuel.discountRatePercent === null ||
+        fuel.discountRatePercent === undefined
+      ) return true;
+      const ratePercent = Number(fuel.discountRatePercent);
+      return !Number.isFinite(ratePercent) || ratePercent <= -100;
     },
     /* ---------------------------
      * Row actions
@@ -362,9 +428,12 @@ export default {
      * UI helpers
      * --------------------------- */
     fmtUSD(x) {
-      return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
-        Number(x || 0)
-      );
+      return formatUSDToNearestThousand(x);
+    },
+    fmtNumber(x) {
+      return new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 6,
+      }).format(Number(x || 0));
     },
     slugify(name) {
       return String(name).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
@@ -380,13 +449,49 @@ export default {
         Number(firstValidRow?.capacity) ||
         parameters.minimumCapacityMgoEquivalentTonnes;
       const result = estimateTankOption(fuel.id || fuel.name, capacity);
+      const discountRatePerPlanningPeriod =
+        Number(fuel.discountRatePercent) / 100;
+      const technologyCostAdjustmentRatePerPlanningPeriod =
+        Number(fuel.technologyCostAdjustmentRatePercent) / 100;
+      const hasValidDiscountRate =
+        Number.isFinite(discountRatePerPlanningPeriod) &&
+        discountRatePerPlanningPeriod > -1;
+      const financialLines = [];
+
+      if (hasValidDiscountRate) {
+        const periodOneDiscountFactor = calculateDiscountFactor(
+          discountRatePerPlanningPeriod,
+          1
+        );
+        const periodOneAdjustedInvestmentCost =
+          calculateTimeAdjustedInvestmentCost(
+            result.baseInvestmentCostUSD,
+            technologyCostAdjustmentRatePerPlanningPeriod,
+            1
+          );
+        const periodOnePresentValueInvestmentCost = calculatePresentValueCost(
+          periodOneAdjustedInvestmentCost,
+          periodOneDiscountFactor
+        );
+
+        financialLines.push(
+          `<li><strong>Period 1 technology adjustment:</strong> Base cost × (1 + ${technologyCostAdjustmentRatePerPlanningPeriod}) = ${this.fmtUSD(periodOneAdjustedInvestmentCost)} USD.</li>`,
+          `<li><strong>Period 1 discount factor:</strong> 1 / (1 + ${discountRatePerPlanningPeriod}) = ${periodOneDiscountFactor.toFixed(6)}.</li>`,
+          `<li><strong>Period 1 present value:</strong> Adjusted cost × discount factor = ${this.fmtUSD(periodOnePresentValueInvestmentCost)} USD.</li>`
+        );
+      } else {
+        financialLines.push(
+          "<li><strong>Discount rate:</strong> Enter a value greater than -100% to calculate present values.</li>"
+        );
+      }
 
       return [
         `<li><strong>Input:</strong> ${result.capacityMgoEquivalentTonnes} t MGO-e.</li>`,
         `<li><strong>Physical mass:</strong> ${result.capacityMgoEquivalentTonnes} × ${result.mgoLowerHeatingValueMJPerKg} / ${result.fuelLowerHeatingValueMJPerKg} = ${result.physicalMassTonnes.toFixed(2)} t.</li>`,
         `<li><strong>Storage volume:</strong> ${result.physicalMassTonnes.toFixed(2)} × 1000 / ${result.densityKgPerM3} = ${result.storageVolumeM3.toFixed(2)} m³.</li>`,
-        `<li><strong>Shell cost:</strong> ${this.fmtUSD(result.shellCalibrationUSDPerM3)} × ${result.referenceVolumeM3} × (V / ${result.referenceVolumeM3})<sup>${result.scalingExponent}</sup> = ${this.fmtUSD(result.shellInstallationCostUSD)} USD.</li>`,
+        `<li><strong>Shell cost:</strong> ${this.fmtNumber(result.shellCalibrationUSDPerM3)} × ${result.referenceVolumeM3} × (V / ${result.referenceVolumeM3})<sup>${result.scalingExponent}</sup> = ${this.fmtUSD(result.shellInstallationCostUSD)} USD.</li>`,
         `<li><strong>Base investment:</strong> ${this.fmtUSD(result.fixedInstallationCostUSD)} + ${this.fmtUSD(result.shellInstallationCostUSD)} = ${this.fmtUSD(result.baseInvestmentCostUSD)} USD.</li>`,
+        ...financialLines,
         "<li><strong>Cost boundary:</strong> storage installation only; no liquefaction or compression cost is included.</li>",
       ].join("");
     },
@@ -462,21 +567,44 @@ export default {
   border-color: #dc3545 !important;
 }
 
-.cost-inputs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+.financial-assumptions {
+  display: grid;
+  width: 100%;
+  max-width: 700px;
+  gap: 16px;
   margin-top: 20px;
 }
 
-.change-rate {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.assumption-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
-.change-rate input[type="number"] {
-  width: 80px;
+.assumption-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.assumption-field label {
+  font-weight: 400;
+  cursor: help;
+}
+
+.assumption-field input[type="number"] {
+  width: 120px;
+}
+
+.assumption-error {
+  color: #721c24;
+}
+
+@media (max-width: 700px) {
+  .assumption-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Fuel color square (color comes from fuels.css classes) */

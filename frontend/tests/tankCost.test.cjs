@@ -92,6 +92,25 @@ test("cost adjustment and discounting are separate and each applied once", () =>
   approximatelyEqual(presentValue, 96.04 / 1.05 ** 2, 1e-12, "present value");
 });
 
+test("discount factor validates the rate and period index", () => {
+  assert.equal(calculateDiscountFactor(0.05, 0), 1);
+  assert.equal(calculateDiscountFactor(0.05, 1), 1 / 1.05);
+  assert.equal(calculateDiscountFactor(0.05, 2), 1 / 1.05 ** 2);
+  assert.throws(() => calculateDiscountFactor(-1, 1), /greater than -1/);
+  assert.throws(() => calculateDiscountFactor(0.05, -1), /greater than or equal to zero/);
+});
+
+test("neutral discount default is explicitly awaiting author approval", () => {
+  assert.equal(
+    fuelParameterCatalog.common.defaultDiscountRatePerPlanningPeriod,
+    0
+  );
+  assert.equal(
+    fuelParameterCatalog.common.discountRateDefaultStatus,
+    "author-approval-required"
+  );
+});
+
 test("all default tank options comply with their fuel-specific limits", () => {
   for (const fuel of fuelParameterCatalog.fuels) {
     for (const capacity of fuel.defaultCapacitiesMgoEquivalentTonnes) {

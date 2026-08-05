@@ -39,9 +39,13 @@ export function createInitialFuelCapacitySelection() {
           storageVolume: 0,
           cost: 0,
         })),
-        changeRate: common.defaultFuelCostAdjustmentRatePerPeriod * 100,
-        maintenanceCost: common.maintenanceRate * 100,
-        decommissioningCost: common.decommissioningRate * 100,
+        discountRatePercent:
+          common.defaultDiscountRatePerPlanningPeriod * 100,
+        technologyCostAdjustmentRatePercent:
+          common.defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100,
+        maintenanceRatePercent: common.maintenanceRatePerPlanningPeriod * 100,
+        decommissioningRateAtClosurePercent:
+          common.decommissioningRateAtClosure * 100,
       };
     }),
   };

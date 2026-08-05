@@ -1,8 +1,14 @@
 import sys
 import json
 from ortools.linear_solver import pywraplp
+from financial_parameters import (
+    calculate_transition_cost_usd,
+    prepare_financial_costs_for_model,
+)
 
 def solve_facility_location(data):
+    prepared_costs = prepare_financial_costs_for_model(data)
+
     solver = pywraplp.Solver.CreateSolver('CBC')
     if not solver:
         print(json.dumps({"error": "Solver not available!"}))
@@ -12,7 +18,7 @@ def solve_facility_location(data):
     T = data['T']  # Time periods
     Fuels = data['Fuels']  # Fuels list
     Capacities = data['Capacities']  # Capacities per fuel
-    Costs = data['Costs']  # Costs per fuel
+    Costs = prepared_costs  # Validated, full-precision costs per fuel
     Demand = data['Demand']  # Demand data
     # Initialize variables
     y, s, x, z = {}, {}, {}, {}
@@ -36,7 +42,7 @@ def solve_facility_location(data):
     # Objective function components
     objective_terms = []
 
-    # Consume the period costs calculated by the authoritative frontend module.
+    # Consume full-precision period costs derived and validated by the backend.
     for f_idx, fuel in enumerate(Fuels):
         investment_costs_by_period = Costs[fuel]['investmentCostsUSDByPeriod']
         maintenance_costs_by_period = Costs[fuel]['maintenanceCostsUSDByPeriod']
@@ -59,11 +65,17 @@ def solve_facility_location(data):
             for k2_idx in range(len(Capacities[fuel])):
                 if k_idx < k2_idx:
                     for t_idx in range(len(T)):
-                        extension_cost = abs(1.2 * (investment_costs_by_period[k_idx][t_idx] - investment_costs_by_period[k2_idx][t_idx]))
+                        extension_cost = calculate_transition_cost_usd(
+                            investment_costs_by_period[k_idx][t_idx],
+                            investment_costs_by_period[k2_idx][t_idx],
+                        )
                         objective_terms.append(extension_cost * z[f_idx, k_idx, k2_idx, t_idx])
                 elif k_idx > k2_idx:
                     for t_idx in range(len(T)):
-                        reduction_cost = abs(1.2 * (investment_costs_by_period[k_idx][t_idx] - investment_costs_by_period[k2_idx][t_idx]))
+                        reduction_cost = calculate_transition_cost_usd(
+                            investment_costs_by_period[k_idx][t_idx],
+                            investment_costs_by_period[k2_idx][t_idx],
+                        )
                         objective_terms.append(reduction_cost * z[f_idx, k_idx, k2_idx, t_idx])
 
     # Set the objective function
@@ -139,7 +151,24 @@ def solve_facility_location(data):
     status = solver.Solve()
 
     # Prepare the results
-    result_data = {'status': status, 'solution': {}, 'costs': {}}
+    result_data = {
+        'status': status,
+        'solution': {},
+        'costs': {},
+        'planningPeriods': [
+            {'label': year, 'periodIndex': period_index}
+            for period_index, year in enumerate(T)
+        ],
+        'financialParameters': {
+            fuel: {
+                'discountRatePerPlanningPeriod': Costs[fuel]['discountRatePerPlanningPeriod'],
+                'technologyCostAdjustmentRatePerPlanningPeriod': Costs[fuel]['technologyCostAdjustmentRatePerPlanningPeriod'],
+                'maintenanceRatePerPlanningPeriod': Costs[fuel]['maintenanceRatePerPlanningPeriod'],
+                'decommissioningRateAtClosure': Costs[fuel]['decommissioningRateAtClosure'],
+            }
+            for fuel in Fuels
+        },
+    }
 
     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
         for f_idx, fuel in enumerate(Fuels):
@@ -197,12 +226,12 @@ def solve_facility_location(data):
         lp_file.write(json.dumps(result_data))
             
 if __name__ == '__main__':
-    input_text = sys.stdin.read()
-    # Read input data from file
-    # input_file = "input_data.txt"
-    # with open(input_file, "r") as file:
-    #     input_text = file.read()
-    input_data = json.loads(input_text)
-    with open("input_data.txt", "w") as lp_file:
-        lp_file.write(input_text)
-    solve_facility_location(input_data)
+    try:
+        input_text = sys.stdin.read()
+        input_data = json.loads(input_text)
+        with open("input_data.txt", "w") as lp_file:
+            lp_file.write(input_text)
+        solve_facility_location(input_data)
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        print(json.dumps({'error': 'validation_error', 'message': str(error)}))
+        sys.exit(2)

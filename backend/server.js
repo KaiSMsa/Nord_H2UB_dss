@@ -39,7 +39,18 @@ app.post('/submit', (req, res) => {
     if (code === 0) {
       // Send the Python script's output back to the client
       //console.log(output);
-      res.send(output);
+      res.type('application/json').send(output);
+    } else if (code === 2) {
+      let validationResponse;
+      try {
+        validationResponse = JSON.parse(output);
+      } catch {
+        validationResponse = {
+          error: 'validation_error',
+          message: output.trim() || errorOutput.trim() || 'Invalid optimization request',
+        };
+      }
+      res.status(400).json(validationResponse);
     } else {
       console.error(`Python script exited with code ${code}`);
       console.error(`Error output: ${errorOutput}`);

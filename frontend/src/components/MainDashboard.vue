@@ -150,6 +150,8 @@ export default {
           data: initialGlobalData(),
           resultData: null,
           resultCosts: null,
+          resultFinancialParameters: null,
+          resultPlanningPeriods: null,
           /* chart cache */
           cachedChartData: null,
           cachedCostChart: null,
@@ -307,6 +309,8 @@ export default {
             data: initialGlobalData(),
             resultData: null,
             resultCosts: null,
+            resultFinancialParameters: null,
+            resultPlanningPeriods: null,
             /* chart cache */
             cachedChartData: null,
             cachedCostChart: null,
@@ -348,6 +352,8 @@ export default {
         data: cloneDeep(base.data),   // start from the initial scenario
         resultData: null,
         resultCosts: null,
+        resultFinancialParameters: null,
+        resultPlanningPeriods: null,
 
         cachedChartData: null,
         cachedCostChart: null,
@@ -401,8 +407,7 @@ export default {
       dataSubmit.Capacities = {};
       dataSubmit.Costs = {};
       const tankCostPayload = buildTankCostPayload(
-        sData.fuelCapacitySelection.fuels,
-        dataSubmit.T.length
+        sData.fuelCapacitySelection.fuels
       );
       dataSubmit.Capacities = tankCostPayload.Capacities;
       dataSubmit.TankOptions = tankCostPayload.TankOptions;
@@ -431,7 +436,13 @@ export default {
     },
     submit() {
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
-      const dataSubmit = this.processGlobalData(this.activeData);
+      let dataSubmit;
+      try {
+        dataSubmit = this.processGlobalData(this.activeData);
+      } catch (error) {
+        alert(`Please correct the cost assumptions before planning.\n${error.message}`);
+        return;
+      }
 
       fetch(`${API_BASE}/submit`, {
         method: 'POST',
@@ -442,7 +453,11 @@ export default {
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            return response.json().catch(() => ({})).then(errorBody => {
+              throw new Error(
+                errorBody.message || `Error ${response.status}: ${response.statusText}`
+              );
+            });
           }
           return response.json();
         })
@@ -456,6 +471,8 @@ export default {
             // save reults in the active scenario
             this.activeScenario.resultData = data.solution;
             this.activeScenario.resultCosts = data.costs;
+            this.activeScenario.resultFinancialParameters = data.financialParameters;
+            this.activeScenario.resultPlanningPeriods = data.planningPeriods;
             this.activeScenario.cachedChartData = buildChartData(this.activeScenario);
             this.activeScenario.cachedCostChart = buildCostChartData(this.activeScenario);
             this.activeScenario.cachedCostDist = buildCostDistData(this.activeScenario)

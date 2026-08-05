@@ -1,14 +1,13 @@
-const {
-  calculateDecommissioningCost,
-  calculateDiscountFactor,
-  calculateMaintenanceCost,
-  calculatePresentValueCost,
-  calculateTimeAdjustedInvestmentCost,
-  estimateTankOption,
-  fuelParameterCatalog,
-} = require("./tankCost.js");
+const { estimateTankOption, fuelParameterCatalog } = require("./tankCost.js");
 
 function percentageToRate(value, fieldName) {
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && value.trim() === "")
+  ) {
+    throw new TypeError(`${fieldName} is required`);
+  }
   const percentage = Number(value);
   if (!Number.isFinite(percentage)) {
     throw new TypeError(`${fieldName} must be a finite percentage`);
@@ -16,11 +15,7 @@ function percentageToRate(value, fieldName) {
   return percentage / 100;
 }
 
-function buildTankCostPayload(fuels, periodCount = 1) {
-  if (!Number.isInteger(periodCount) || periodCount <= 0) {
-    throw new RangeError("periodCount must be a positive integer");
-  }
-
+function buildTankCostPayload(fuels) {
   const payload = {
     Capacities: {},
     TankOptions: {},
@@ -49,66 +44,32 @@ function buildTankCostPayload(fuels, periodCount = 1) {
     const baseInvestmentCostsUSD = tankOptions.map(
       (option) => option.baseInvestmentCostUSD
     );
-    const fuelCostAdjustmentRatePerPeriod = percentageToRate(
-      fuel.changeRate,
-      `${fuelName}.changeRate`
+    const technologyCostAdjustmentRatePerPlanningPeriod = percentageToRate(
+      fuel.technologyCostAdjustmentRatePercent,
+      `${fuelName}.technologyCostAdjustmentRatePercent`
     );
     const maintenanceRatePerPlanningPeriod = percentageToRate(
-      fuel.maintenanceCost,
-      `${fuelName}.maintenanceCost`
+      fuel.maintenanceRatePercent,
+      `${fuelName}.maintenanceRatePercent`
     );
-    const decommissioningRate = percentageToRate(
-      fuel.decommissioningCost,
-      `${fuelName}.decommissioningCost`
+    const decommissioningRateAtClosure = percentageToRate(
+      fuel.decommissioningRateAtClosurePercent,
+      `${fuelName}.decommissioningRateAtClosurePercent`
     );
-    const discountRatePerPeriod =
-      fuelParameterCatalog.common.discountRatePerPeriod;
-    const discountFactors = Array.from({ length: periodCount }, (_, periodIndex) =>
-      discountRatePerPeriod === null
-        ? 1
-        : calculateDiscountFactor(discountRatePerPeriod, periodIndex)
+    const discountRatePerPlanningPeriod = percentageToRate(
+      fuel.discountRatePercent,
+      `${fuelName}.discountRatePercent`
     );
 
     payload.Costs[fuelName] = {
       baseInvestmentCostsUSD,
-      fuelCostAdjustmentRatePerPeriod,
+      technologyCostAdjustmentRatePerPlanningPeriod,
       maintenanceRatePerPlanningPeriod,
       maintenanceRateBasis: fuelParameterCatalog.common.maintenanceRateBasis,
-      decommissioningRate,
+      decommissioningRateAtClosure,
       decommissioningRateBasis:
         fuelParameterCatalog.common.decommissioningRateBasis,
-      discountRatePerPeriod,
-      investmentCostsUSDByPeriod: baseInvestmentCostsUSD.map((baseCost) =>
-        discountFactors.map((discountFactor, periodIndex) =>
-          calculatePresentValueCost(
-            calculateTimeAdjustedInvestmentCost(
-              baseCost,
-              fuelCostAdjustmentRatePerPeriod,
-              periodIndex
-            ),
-            discountFactor
-          )
-        )
-      ),
-      maintenanceCostsUSDByPeriod: baseInvestmentCostsUSD.map((baseCost) =>
-        discountFactors.map((discountFactor) =>
-          calculatePresentValueCost(
-            calculateMaintenanceCost(
-              baseCost,
-              maintenanceRatePerPlanningPeriod
-            ),
-            discountFactor
-          )
-        )
-      ),
-      decommissioningCostsUSDByPeriod: baseInvestmentCostsUSD.map((baseCost) =>
-        discountFactors.map((discountFactor) =>
-          calculatePresentValueCost(
-            calculateDecommissioningCost(baseCost, decommissioningRate),
-            discountFactor
-          )
-        )
-      ),
+      discountRatePerPlanningPeriod,
     };
   });
 

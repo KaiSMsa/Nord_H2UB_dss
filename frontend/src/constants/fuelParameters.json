@@ -4,12 +4,13 @@
     "mgoLowerHeatingValueMJPerKg": 42.8,
     "referenceVolumeM3": 1000,
     "scalingExponent": 0.65,
-    "maintenanceRate": 0.04,
+    "maintenanceRatePerPlanningPeriod": 0.04,
     "maintenanceRateBasis": "per-planning-period",
-    "decommissioningRate": 0.1,
+    "decommissioningRateAtClosure": 0.1,
     "decommissioningRateBasis": "at-decommissioning",
-    "defaultFuelCostAdjustmentRatePerPeriod": -0.02,
-    "discountRatePerPeriod": null
+    "defaultTechnologyCostAdjustmentRatePerPlanningPeriod": -0.02,
+    "defaultDiscountRatePerPlanningPeriod": 0,
+    "discountRateDefaultStatus": "author-approval-required"
   },
   "fuels": [
     {

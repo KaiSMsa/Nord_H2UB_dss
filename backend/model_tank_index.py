@@ -2,35 +2,16 @@ import sys
 import json
 import math
 from ortools.linear_solver import pywraplp
-
-def validate_tank_option_contract(data):
-    periods = data['T']
-    for fuel in data['Fuels']:
-        options = data['TankOptions'][fuel]
-        capacities = data['Capacities'][fuel]
-        costs = data['Costs'][fuel]
-        base_costs = costs['baseInvestmentCostsUSD']
-        if len(options) != len(capacities) or len(options) != len(base_costs):
-            raise ValueError(f'Inconsistent tank-option array lengths for {fuel}')
-        for option, capacity, base_cost in zip(options, capacities, base_costs):
-            if option['optimizerName'] != fuel:
-                raise ValueError(f'Inconsistent fuel identifier for {fuel}')
-            if option['capacityMgoEquivalentTonnes'] != capacity:
-                raise ValueError(f'Inconsistent capacity for {fuel}')
-            if option['baseInvestmentCostUSD'] != base_cost:
-                raise ValueError(f'Inconsistent base investment cost for {fuel}')
-        for field in (
-            'investmentCostsUSDByPeriod',
-            'maintenanceCostsUSDByPeriod',
-            'decommissioningCostsUSDByPeriod',
-        ):
-            matrix = costs[field]
-            if len(matrix) != len(options):
-                raise ValueError(f'Inconsistent {field} option count for {fuel}')
-            if any(len(period_costs) != len(periods) for period_costs in matrix):
-                raise ValueError(f'Inconsistent {field} period count for {fuel}')
+from financial_parameters import (
+    calculate_transition_cost_usd,
+    prepare_financial_costs_for_model,
+)
 
 def solve_facility_location(data):
+    # Validate the user-entered rates and derive full-precision model
+    # coefficients before constructing any solver variables.
+    prepared_costs = prepare_financial_costs_for_model(data)
+
     solver = pywraplp.Solver.CreateSolver('CBC')
     if not solver:
         print(json.dumps({"error": "Solver not available!"}))
@@ -40,12 +21,9 @@ def solve_facility_location(data):
     T = data['T']  # Time periods
     Fuels = data['Fuels']  # Fuels list
     Capacities = data['Capacities']  # Capacities per fuel
-    Costs = data['Costs']  # Costs per fuel
+    Costs = prepared_costs  # Validated, full-precision costs per fuel
     Demand = data['Demand']  # Demand data
 
-    # Consume, but do not recalculate, authoritative frontend cost results.
-    validate_tank_option_contract(data)
-    
     # Automatically compute how many tanks each fuel might need
     num_tanks_dict = [0] * len(Fuels)
     for f_idx, fuel in enumerate(Fuels):
@@ -100,16 +78,16 @@ def solve_facility_location(data):
                     if k_idx != k2_idx:
                         for t_idx in range(len(T)):
                             if k_idx < k2_idx:
-                                extension_cost = abs(1.2 * (
-                                    investment_costs_by_period[k_idx][t_idx] -
-                                    investment_costs_by_period[k2_idx][t_idx]
-                                ))
+                                extension_cost = calculate_transition_cost_usd(
+                                    investment_costs_by_period[k_idx][t_idx],
+                                    investment_costs_by_period[k2_idx][t_idx],
+                                )
                                 objective_terms.append(extension_cost * z[f_idx, i, k_idx, k2_idx, t_idx])
                             elif k_idx > k2_idx:
-                                reduction_cost = abs(1.2 * (
-                                    investment_costs_by_period[k_idx][t_idx] -
-                                    investment_costs_by_period[k2_idx][t_idx]
-                                ))
+                                reduction_cost = calculate_transition_cost_usd(
+                                    investment_costs_by_period[k_idx][t_idx],
+                                    investment_costs_by_period[k2_idx][t_idx],
+                                )
                                 objective_terms.append(reduction_cost * z[f_idx, i, k_idx, k2_idx, t_idx])
     
     # Set the objective: minimize total cost
@@ -260,7 +238,24 @@ def solve_facility_location(data):
     status = solver.Solve()
 
     # Prepare the results
-    result_data = {'status': status, 'solution': {}, 'costs': {}}
+    result_data = {
+        'status': status,
+        'solution': {},
+        'costs': {},
+        'planningPeriods': [
+            {'label': year, 'periodIndex': period_index}
+            for period_index, year in enumerate(T)
+        ],
+        'financialParameters': {
+            fuel: {
+                'discountRatePerPlanningPeriod': Costs[fuel]['discountRatePerPlanningPeriod'],
+                'technologyCostAdjustmentRatePerPlanningPeriod': Costs[fuel]['technologyCostAdjustmentRatePerPlanningPeriod'],
+                'maintenanceRatePerPlanningPeriod': Costs[fuel]['maintenanceRatePerPlanningPeriod'],
+                'decommissioningRateAtClosure': Costs[fuel]['decommissioningRateAtClosure'],
+            }
+            for fuel in Fuels
+        },
+    }
 
     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
         for f_idx, fuel in enumerate(Fuels):
@@ -327,8 +322,12 @@ def solve_facility_location(data):
         out_file.write(json.dumps(result_data))
 
 if __name__ == '__main__':
-    input_text = sys.stdin.read()
-    input_data = json.loads(input_text)
-    with open("input_data.txt", "w") as in_file:
-        in_file.write(input_text)
-    solve_facility_location(input_data)
+    try:
+        input_text = sys.stdin.read()
+        input_data = json.loads(input_text)
+        with open("input_data.txt", "w") as in_file:
+            in_file.write(input_text)
+        solve_facility_location(input_data)
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        print(json.dumps({'error': 'validation_error', 'message': str(error)}))
+        sys.exit(2)
