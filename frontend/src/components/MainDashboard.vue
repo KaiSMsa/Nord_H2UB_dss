@@ -405,13 +405,20 @@ export default {
 
       // 3. Extract Capacities and Costs
       dataSubmit.Capacities = {};
-      dataSubmit.Costs = {};
       const tankCostPayload = buildTankCostPayload(
-        sData.fuelCapacitySelection.fuels
+        sData.fuelCapacitySelection.fuels,
+        sData.fuelCapacitySelection.discountRatePercent
       );
       dataSubmit.Capacities = tankCostPayload.Capacities;
       dataSubmit.TankOptions = tankCostPayload.TankOptions;
-      dataSubmit.Costs = tankCostPayload.Costs;
+      dataSubmit.discountRatePerPlanningPeriod =
+        tankCostPayload.discountRatePerPlanningPeriod;
+      dataSubmit.technologyCostAdjustmentRatePerPlanningPeriod =
+        tankCostPayload.technologyCostAdjustmentRatePerPlanningPeriod;
+      dataSubmit.maintenanceRatePerPlanningPeriod =
+        tankCostPayload.maintenanceRatePerPlanningPeriod;
+      dataSubmit.decommissioningRateAtClosure =
+        tankCostPayload.decommissioningRateAtClosure;
 
       // 4. Extract Demand Data
       dataSubmit.Demand = {};

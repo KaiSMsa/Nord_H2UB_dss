@@ -1,4 +1,4 @@
-const { estimateTankOption, fuelParameterCatalog } = require("./tankCost.js");
+const { estimateTankOption } = require("./tankCost.js");
 
 function percentageToRate(value, fieldName) {
   if (
@@ -15,11 +15,17 @@ function percentageToRate(value, fieldName) {
   return percentage / 100;
 }
 
-function buildTankCostPayload(fuels) {
+function buildTankCostPayload(fuels, discountRatePercent) {
   const payload = {
     Capacities: {},
     TankOptions: {},
-    Costs: {},
+    discountRatePerPlanningPeriod: percentageToRate(
+      discountRatePercent,
+      "discountRatePercent"
+    ),
+    technologyCostAdjustmentRatePerPlanningPeriod: {},
+    maintenanceRatePerPlanningPeriod: {},
+    decommissioningRateAtClosure: {},
   };
 
   fuels.forEach((fuel) => {
@@ -41,36 +47,19 @@ function buildTankCostPayload(fuels) {
       (option) => option.capacityMgoEquivalentTonnes
     );
     payload.TankOptions[fuelName] = tankOptions;
-    const baseInvestmentCostsUSD = tankOptions.map(
-      (option) => option.baseInvestmentCostUSD
-    );
-    const technologyCostAdjustmentRatePerPlanningPeriod = percentageToRate(
+    payload.technologyCostAdjustmentRatePerPlanningPeriod[fuelName] = percentageToRate(
       fuel.technologyCostAdjustmentRatePercent,
       `${fuelName}.technologyCostAdjustmentRatePercent`
     );
-    const maintenanceRatePerPlanningPeriod = percentageToRate(
+    payload.maintenanceRatePerPlanningPeriod[fuelName] = percentageToRate(
       fuel.maintenanceRatePercent,
       `${fuelName}.maintenanceRatePercent`
     );
-    const decommissioningRateAtClosure = percentageToRate(
+    payload.decommissioningRateAtClosure[fuelName] = percentageToRate(
       fuel.decommissioningRateAtClosurePercent,
       `${fuelName}.decommissioningRateAtClosurePercent`
     );
-    const discountRatePerPlanningPeriod = percentageToRate(
-      fuel.discountRatePercent,
-      `${fuelName}.discountRatePercent`
-    );
 
-    payload.Costs[fuelName] = {
-      baseInvestmentCostsUSD,
-      technologyCostAdjustmentRatePerPlanningPeriod,
-      maintenanceRatePerPlanningPeriod,
-      maintenanceRateBasis: fuelParameterCatalog.common.maintenanceRateBasis,
-      decommissioningRateAtClosure,
-      decommissioningRateBasis:
-        fuelParameterCatalog.common.decommissioningRateBasis,
-      discountRatePerPlanningPeriod,
-    };
   });
 
   return payload;

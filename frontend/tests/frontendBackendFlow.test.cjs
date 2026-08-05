@@ -33,12 +33,11 @@ test(
         id: "ammonia",
         name: "Ammonia",
         rows: [{ capacity: 3000 }],
-        discountRatePercent: 5,
         technologyCostAdjustmentRatePercent: -2,
         maintenanceRatePercent: 4,
         decommissioningRateAtClosurePercent: 10,
       },
-    ]);
+    ], 5);
     const request = {
       T: ["2025", "2030", "2035", "2040"],
       Fuels: ["Ammonia"],
@@ -55,7 +54,7 @@ test(
 
     assert.equal(result.status, 0, result.stderr || result.stdout);
     const prepared = JSON.parse(result.stdout).Ammonia;
-    const baseCost = request.Costs.Ammonia.baseInvestmentCostsUSD[0];
+    const baseCost = request.TankOptions.Ammonia[0].baseInvestmentCostUSD;
 
     assert.equal(prepared.discountRatePerPlanningPeriod, 0.05);
     assert.equal(
@@ -88,12 +87,11 @@ test(
         id: "mgo",
         name: "MGO",
         rows: [{ capacity: 2000 }],
-        discountRatePercent: 5,
         technologyCostAdjustmentRatePercent: -2,
         maintenanceRatePercent: 4,
         decommissioningRateAtClosurePercent: 10,
       },
-    ]);
+    ], 5);
     const request = {
       T: ["2025", "2030"],
       Fuels: ["MGO"],
@@ -116,16 +114,16 @@ test(
       });
       assert.equal(result.status, 0, result.stderr || result.stdout);
       const response = JSON.parse(result.stdout);
-      const parameters = response.financialParameters.MGO;
-      const baseCost = request.Costs.MGO.baseInvestmentCostsUSD[0];
+      const parameters = response.financialParameters;
+      const baseCost = request.TankOptions.MGO[0].baseInvestmentCostUSD;
 
       assert.equal(parameters.discountRatePerPlanningPeriod, 0.05);
       assert.equal(
-        parameters.technologyCostAdjustmentRatePerPlanningPeriod,
+        parameters.technologyCostAdjustmentRatePerPlanningPeriod.MGO,
         -0.02
       );
-      assert.equal(parameters.maintenanceRatePerPlanningPeriod, 0.04);
-      assert.equal(parameters.decommissioningRateAtClosure, 0.1);
+      assert.equal(parameters.maintenanceRatePerPlanningPeriod.MGO, 0.04);
+      assert.equal(parameters.decommissioningRateAtClosure.MGO, 0.1);
       approximatelyEqual(
         response.costs.MGO["2025"].Tank_1["2000"].operating,
         baseCost * 0.04

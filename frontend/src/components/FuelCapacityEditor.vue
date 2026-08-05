@@ -58,13 +58,13 @@
               <div class="assumption-row">
                 <div class="assumption-field">
                   <label
-                    title="Converts costs incurred in future planning periods into present-value terms. The neutral 0% default requires author approval before production use."
+                    title="Shared across all fuels. Converts costs incurred in future planning periods into present-value terms. The neutral 0% default requires author approval before production use."
                   >Discount rate per planning period (%)</label>
-                  <input type="number" v-model.number="fuel.discountRatePercent" placeholder="0" min="-99.99" step="0.1" required
-                    :class="{ 'is-invalid': isDiscountRateInvalid(fuel) }" :disabled="isDisabled"
+                  <input type="number" v-model.number="localData.discountRatePercent" placeholder="0" min="-99.99" step="0.1" required
+                    :class="{ 'is-invalid': isDiscountRateInvalid() }" :disabled="isDisabled"
                     @input="emitCleanData"
-                    @blur="normalizeNumberField(fuel, 'discountRatePercent', defaultDiscountRatePercent); emitCleanData()" />
-                  <small v-if="isDiscountRateInvalid(fuel)" class="assumption-error">
+                    @blur="normalizeNumberField(localData, 'discountRatePercent', defaultDiscountRatePercent); emitCleanData()" />
+                  <small v-if="isDiscountRateInvalid()" class="assumption-error">
                     Discount rate must be greater than -100%.
                   </small>
                 </div>
@@ -72,7 +72,7 @@
                 <div class="assumption-field">
                   <label
                     title="Represents the expected change in the fuel-specific technology cost between planning periods. Negative values represent cost reductions."
-                  >Cost adjustment per planning period (%)</label>
+                  >Cost adjustment per planning period (%) for {{ fuel.name }}</label>
                   <input type="number" v-model.number="fuel.technologyCostAdjustmentRatePercent" placeholder="-2" min="-99.99" required
                     :disabled="isDisabled"
                     @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRatePercent', 0); emitCleanData()" />
@@ -83,7 +83,7 @@
                 <div class="assumption-field">
                   <label
                     title="Applied to the base investment cost in each planning period in which maintenance is charged."
-                  >Maintenance rate per planning period (%)</label>
+                  >Maintenance rate per planning period (%) for {{ fuel.name }}</label>
                   <input type="number" v-model.number="fuel.maintenanceRatePercent" placeholder="4" min="0" required
                     :disabled="isDisabled"
                     @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRatePercent', 0); emitCleanData()" />
@@ -92,7 +92,7 @@
                 <div class="assumption-field">
                   <label
                     title="Applied once to the base investment cost when the storage asset is decommissioned."
-                  >Decommissioning rate at closure (%)</label>
+                  >Decommissioning rate at closure (%) for {{ fuel.name }}</label>
                   <input type="number" v-model.number="fuel.decommissioningRateAtClosurePercent" placeholder="10" min="0" required
                     :disabled="isDisabled"
                     @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningRateAtClosurePercent', 0); emitCleanData()" />
@@ -209,47 +209,49 @@ export default {
       if (!this.localData) this.localData = { fuels: [] };
       if (!Array.isArray(this.localData.fuels)) this.localData.fuels = [];
 
+      const rateValue = (currentValue, legacyValue, fallback) => {
+        const candidate = currentValue ?? legacyValue;
+        const number = Number(candidate);
+        return candidate !== "" && Number.isFinite(number) ? number : fallback;
+      };
+      const firstFuel = this.localData.fuels[0] || {};
+      this.localData.discountRatePercent = rateValue(
+        this.localData.discountRatePercent,
+        this.localData.discountRate ?? firstFuel.discountRatePercent ?? firstFuel.discountRate,
+        this.defaultDiscountRatePercent
+      );
+      delete this.localData.discountRate;
+
       const existing = new Map(this.localData.fuels.map((f) => [f.name, f]));
       const merged = FUELS.map((def) => {
         const f = existing.get(def.name);
         if (!f) return this.createFuelState(def.name, def.class);
 
-        const rateValue = (currentValue, legacyValue, fallback) => {
-          const candidate = currentValue ?? legacyValue;
-          const number = Number(candidate);
-          return candidate !== "" && Number.isFinite(number) ? number : fallback;
-        };
-        const {
-          discountRate,
-          changeRate,
-          maintenanceCost,
-          decommissioningCost,
-          ...currentState
-        } = f;
+        const currentState = { ...f };
+        delete currentState.discountRate;
+        delete currentState.discountRatePercent;
+        delete currentState.changeRate;
+        delete currentState.maintenanceCost;
+        delete currentState.decommissioningCost;
 
         return {
           ...currentState,
           id: def.id,
           class: def.class,
-          discountRatePercent: rateValue(
-            f.discountRatePercent,
-            discountRate,
-            this.defaultDiscountRatePercent
-          ),
           technologyCostAdjustmentRatePercent: rateValue(
             f.technologyCostAdjustmentRatePercent,
-            changeRate,
+            f.changeRate,
             fuelParameterCatalog.common
               .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100
           ),
           maintenanceRatePercent: rateValue(
             f.maintenanceRatePercent,
-            maintenanceCost,
+            f.maintenanceCost,
             fuelParameterCatalog.common.maintenanceRatePerPlanningPeriod * 100
           ),
           decommissioningRateAtClosurePercent: rateValue(
             f.decommissioningRateAtClosurePercent,
-            decommissioningCost,
+            f.decommissioningCost,
             fuelParameterCatalog.common.decommissioningRateAtClosure * 100
           ),
         };
@@ -263,7 +265,6 @@ export default {
         name,
         class: cssClass,
         rows: [],
-        discountRatePercent: this.defaultDiscountRatePercent,
         technologyCostAdjustmentRatePercent:
           fuelParameterCatalog.common
             .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100,
@@ -329,13 +330,13 @@ export default {
       const v = Number(obj[key]);
       obj[key] = Number.isFinite(v) ? v : fallback;
     },
-    isDiscountRateInvalid(fuel) {
+    isDiscountRateInvalid() {
       if (
-        fuel.discountRatePercent === "" ||
-        fuel.discountRatePercent === null ||
-        fuel.discountRatePercent === undefined
+        this.localData.discountRatePercent === "" ||
+        this.localData.discountRatePercent === null ||
+        this.localData.discountRatePercent === undefined
       ) return true;
-      const ratePercent = Number(fuel.discountRatePercent);
+      const ratePercent = Number(this.localData.discountRatePercent);
       return !Number.isFinite(ratePercent) || ratePercent <= -100;
     },
     /* ---------------------------
@@ -450,7 +451,7 @@ export default {
         parameters.minimumCapacityMgoEquivalentTonnes;
       const result = estimateTankOption(fuel.id || fuel.name, capacity);
       const discountRatePerPlanningPeriod =
-        Number(fuel.discountRatePercent) / 100;
+        Number(this.localData.discountRatePercent) / 100;
       const technologyCostAdjustmentRatePerPlanningPeriod =
         Number(fuel.technologyCostAdjustmentRatePercent) / 100;
       const hasValidDiscountRate =
@@ -582,19 +583,25 @@ export default {
 }
 
 .assumption-field {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  grid-template-rows: minmax(2.7em, auto) auto auto;
+  align-content: start;
+  align-items: start;
   gap: 6px;
 }
 
 .assumption-field label {
+  width: 100%;
+  margin: 0;
   font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
   cursor: help;
 }
 
 .assumption-field input[type="number"] {
   width: 120px;
+  justify-self: start;
 }
 
 .assumption-error {

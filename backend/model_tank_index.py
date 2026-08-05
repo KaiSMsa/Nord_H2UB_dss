@@ -4,6 +4,7 @@ import math
 from ortools.linear_solver import pywraplp
 from financial_parameters import (
     calculate_transition_cost_usd,
+    financial_parameters_for_response,
     prepare_financial_costs_for_model,
 )
 
@@ -246,15 +247,7 @@ def solve_facility_location(data):
             {'label': year, 'periodIndex': period_index}
             for period_index, year in enumerate(T)
         ],
-        'financialParameters': {
-            fuel: {
-                'discountRatePerPlanningPeriod': Costs[fuel]['discountRatePerPlanningPeriod'],
-                'technologyCostAdjustmentRatePerPlanningPeriod': Costs[fuel]['technologyCostAdjustmentRatePerPlanningPeriod'],
-                'maintenanceRatePerPlanningPeriod': Costs[fuel]['maintenanceRatePerPlanningPeriod'],
-                'decommissioningRateAtClosure': Costs[fuel]['decommissioningRateAtClosure'],
-            }
-            for fuel in Fuels
-        },
+        'financialParameters': financial_parameters_for_response(Costs, Fuels),
     }
 
     if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:

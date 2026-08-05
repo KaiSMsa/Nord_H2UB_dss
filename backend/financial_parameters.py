@@ -3,13 +3,11 @@ import math
 import sys
 
 
-RATE_FIELDS = (
-    'discountRatePerPlanningPeriod',
+FUEL_RATE_FIELDS = (
     'technologyCostAdjustmentRatePerPlanningPeriod',
     'maintenanceRatePerPlanningPeriod',
     'decommissioningRateAtClosure',
 )
-
 
 def _require_finite_number(value, field_name):
     if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -79,30 +77,40 @@ def calculate_transition_cost_usd(
     return abs(multiplier * (from_cost - to_cost))
 
 
-def _validate_rates(costs, fuel):
-    for field in RATE_FIELDS:
-        if field not in costs:
-            raise ValueError(f'Costs.{fuel}.{field} is required')
+def _validate_discount_rate(data):
+    field = 'discountRatePerPlanningPeriod'
+    if field not in data:
+        raise ValueError(f'{field} is required')
+    rate = _require_finite_number(data[field], field)
+    if rate <= -1:
+        raise ValueError(f'{field} must be greater than -1')
+    return rate
 
-    rates = {
-        field: _require_finite_number(costs[field], f'Costs.{fuel}.{field}')
-        for field in RATE_FIELDS
-    }
-    if rates['discountRatePerPlanningPeriod'] <= -1:
-        raise ValueError(
-            f'Costs.{fuel}.discountRatePerPlanningPeriod must be greater than -1'
+
+def _validate_fuel_rates(data, fuel):
+    rates = {}
+    for field in FUEL_RATE_FIELDS:
+        mapping = data.get(field)
+        if not isinstance(mapping, dict):
+            raise ValueError(f'{field} must be a mapping by fuel')
+        if fuel not in mapping:
+            raise ValueError(f'{field}.{fuel} is required')
+        rates[field] = _require_finite_number(
+            mapping[fuel],
+            f'{field}.{fuel}',
         )
+
     if rates['technologyCostAdjustmentRatePerPlanningPeriod'] <= -1:
         raise ValueError(
-            f'Costs.{fuel}.technologyCostAdjustmentRatePerPlanningPeriod must be greater than -1'
+            f'technologyCostAdjustmentRatePerPlanningPeriod.{fuel} must be greater than -1'
         )
     if rates['maintenanceRatePerPlanningPeriod'] < 0:
         raise ValueError(
-            f'Costs.{fuel}.maintenanceRatePerPlanningPeriod must be non-negative'
+            f'maintenanceRatePerPlanningPeriod.{fuel} must be non-negative'
         )
     if rates['decommissioningRateAtClosure'] < 0:
         raise ValueError(
-            f'Costs.{fuel}.decommissioningRateAtClosure must be non-negative'
+            f'decommissioningRateAtClosure.{fuel} must be non-negative'
         )
     return rates
 
@@ -119,58 +127,51 @@ def prepare_financial_costs_for_model(data):
 
     capacities_by_fuel = data.get('Capacities')
     options_by_fuel = data.get('TankOptions')
-    costs_by_fuel = data.get('Costs')
     if not isinstance(capacities_by_fuel, dict):
         raise ValueError('Capacities is required')
     if not isinstance(options_by_fuel, dict):
         raise ValueError('TankOptions is required')
-    if not isinstance(costs_by_fuel, dict):
-        raise ValueError('Costs is required')
+    if 'Costs' in data:
+        raise ValueError(
+            'Costs must not be supplied; base costs come from TankOptions and '
+            'the backend constructs all period-specific coefficients'
+        )
+
+    discount_rate = _validate_discount_rate(data)
 
     prepared = {}
     for fuel in fuels:
         if fuel not in capacities_by_fuel or fuel not in options_by_fuel:
             raise ValueError(f'Missing tank options for {fuel}')
-        if fuel not in costs_by_fuel or not isinstance(costs_by_fuel[fuel], dict):
-            raise ValueError(f'Costs.{fuel} is required')
-
         capacities = capacities_by_fuel[fuel]
         options = options_by_fuel[fuel]
-        costs = costs_by_fuel[fuel]
         if not isinstance(capacities, list):
             raise ValueError(f'Capacities.{fuel} must be a list')
         if not isinstance(options, list):
             raise ValueError(f'TankOptions.{fuel} must be a list')
-        base_costs = costs.get('baseInvestmentCostsUSD')
-        if not isinstance(base_costs, list):
-            raise ValueError(f'Costs.{fuel}.baseInvestmentCostsUSD is required')
-        if len(options) != len(capacities) or len(options) != len(base_costs):
+        if len(options) != len(capacities):
             raise ValueError(f'Inconsistent tank-option array lengths for {fuel}')
 
         validated_base_costs = []
-        for option_index, (option, capacity, base_cost) in enumerate(
-            zip(options, capacities, base_costs)
-        ):
+        for option_index, (option, capacity) in enumerate(zip(options, capacities)):
             if not isinstance(option, dict):
                 raise ValueError(
                     f'TankOptions.{fuel}[{option_index}] must be an object'
                 )
             validated_base_cost = _require_finite_number(
-                base_cost,
-                f'Costs.{fuel}.baseInvestmentCostsUSD[{option_index}]',
+                option.get('baseInvestmentCostUSD'),
+                f'TankOptions.{fuel}[{option_index}].baseInvestmentCostUSD',
             )
             if option.get('optimizerName') != fuel:
                 raise ValueError(f'Inconsistent fuel identifier for {fuel}')
             if option.get('capacityMgoEquivalentTonnes') != capacity:
                 raise ValueError(f'Inconsistent capacity for {fuel}')
-            if option.get('baseInvestmentCostUSD') != base_cost:
-                raise ValueError(f'Inconsistent base investment cost for {fuel}')
             validated_base_costs.append(validated_base_cost)
 
-        rates = _validate_rates(costs, fuel)
+        rates = _validate_fuel_rates(data, fuel)
         discount_factors = [
             calculate_discount_factor(
-                rates['discountRatePerPlanningPeriod'],
+                discount_rate,
                 period_index,
             )
             for period_index in range(len(periods))
@@ -207,8 +208,8 @@ def prepare_financial_costs_for_model(data):
             ])
 
         prepared[fuel] = {
-            **costs,
             **rates,
+            'discountRatePerPlanningPeriod': discount_rate,
             'baseInvestmentCostsUSD': validated_base_costs,
             'discountFactorsByPeriod': discount_factors,
             'investmentCostsUSDByPeriod': investment_costs_by_period,
@@ -217,6 +218,29 @@ def prepare_financial_costs_for_model(data):
         }
 
     return prepared
+
+
+def financial_parameters_for_response(prepared_costs, fuels):
+    first_fuel = fuels[0]
+    return {
+        'discountRatePerPlanningPeriod': prepared_costs[first_fuel][
+            'discountRatePerPlanningPeriod'
+        ],
+        'technologyCostAdjustmentRatePerPlanningPeriod': {
+            fuel: prepared_costs[fuel][
+                'technologyCostAdjustmentRatePerPlanningPeriod'
+            ]
+            for fuel in fuels
+        },
+        'maintenanceRatePerPlanningPeriod': {
+            fuel: prepared_costs[fuel]['maintenanceRatePerPlanningPeriod']
+            for fuel in fuels
+        },
+        'decommissioningRateAtClosure': {
+            fuel: prepared_costs[fuel]['decommissioningRateAtClosure']
+            for fuel in fuels
+        },
+    }
 
 
 if __name__ == '__main__':
