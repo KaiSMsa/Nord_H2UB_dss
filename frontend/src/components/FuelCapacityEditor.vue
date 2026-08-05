@@ -56,7 +56,7 @@
 
             <div class="cost-inputs">
               <div class="change-rate">
-                <label>Change Rate (%):</label>
+                <label>Cost adjustment per planning period (%):</label>
                 <input type="number" v-model.number="fuel.changeRate" placeholder="Percentage" min="-100" max="100"
                   :disabled="isDisabled" 
                   @input="emitCleanData" @blur="normalizeNumberField(fuel, 'changeRate', 0); emitCleanData()"
@@ -64,7 +64,7 @@
               </div>
 
               <div class="change-rate">
-                <label>Maintenance cost (%):</label>
+                <label>Maintenance per planning period (%):</label>
                 <input type="number" v-model.number="fuel.maintenanceCost" placeholder="4" min="0" max="10"
                   :disabled="isDisabled"
                   @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceCost', 0); emitCleanData()"
@@ -72,7 +72,7 @@
               </div>
 
               <div class="change-rate">
-                <label>Decommissioning cost (%):</label>
+                <label>Decommissioning at closure (%):</label>
                 <input type="number" v-model.number="fuel.decommissioningCost" placeholder="10" min="0" max="10"
                   :disabled="isDisabled"
                   @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningCost', 0); emitCleanData()"
@@ -89,7 +89,7 @@
               <b-popover :target="stepsLinkId(fuel.name)" triggers="hover focus" placement="bottom" container="body"
                 boundary="window" custom-class="steps-popover">
                 <div class="steps-popover-body">
-                  <ul class="mb-0" v-html="fuelTooltipHtml(fuel.name)"></ul>
+                  <ul class="mb-0" v-html="fuelTooltipHtml(fuel)"></ul>
                 </div>
               </b-popover>
             </div>
@@ -102,46 +102,14 @@
 
 <script>
 import { FUELS, FUEL_BY_NAME } from "@/constants/fuels.js";
+import {
+  estimateTankOption,
+  fuelParameterCatalog,
+  getFuelParameters,
+} from "@/utils/tankCost.js";
 import cloneDeep from "lodash.clonedeep";
 
 const STEP_SIZE = 100;
-const ALPHA = 0.65;
-const V_REF = 1000;
-const MJ_PER_KG_MGO = 42.8;
-
-// Local-only model (kept here since you said it’s only used here)
-const FUEL_MODEL = {
-  MGO: {
-    limits: { min: 2000, max: 10000 },
-    fixed: 500000,
-    props: { rho: 850, EC: 42.8, cShell: 1000 },
-  },
-  "Liquid Hydrogen": {
-    limits: { min: 2000, max: 7000 },
-    fixed: 2000000,
-    props: { rho: 70.8, EC: 120, cShell: 50, cLiquef: 1.2 },
-  },
-  "Compressed Hydrogen": {
-    limits: { min: 3000, max: 6000 },
-    fixed: 20000000,
-    props: { rho: 70.8, EC: 120, cShell: 600 },
-  },
-  Ammonia: {
-    limits: { min: 1000, max: 7000 },
-    fixed: 3000000,
-    props: { rho: 682, EC: 18.6, cShell: 2000 },
-  },
-  Methanol: {
-    limits: { min: 1000, max: 10000 },
-    fixed: 2500000,
-    props: { rho: 792, EC: 19.9, cShell: 1000 },
-  },
-  LNG: {
-    limits: { min: 1000, max: 10000 },
-    fixed: 500000,
-    props: { rho: 450, EC: 50, cShell: 2000 },
-  },
-};
 
 export default {
   name: "FuelCapacityEditor",
@@ -218,19 +186,24 @@ export default {
       const existing = new Map(this.localData.fuels.map((f) => [f.name, f]));
       const merged = FUELS.map((def) => {
         const f = existing.get(def.name);
-        return f ? { ...f, class: def.class } : this.createFuelState(def.name, def.class);
+        return f
+          ? { ...f, id: def.id, class: def.class }
+          : this.createFuelState(def.name, def.class);
       });
 
       this.localData.fuels = merged;
     },
     createFuelState(name, cssClass) {
       return {
+        id: FUEL_BY_NAME[name]?.id,
         name,
         class: cssClass,
         rows: [],
-        changeRate: 0,
-        maintenanceCost: 4,
-        decommissioningCost: 10,
+        changeRate:
+          fuelParameterCatalog.common.defaultFuelCostAdjustmentRatePerPeriod * 100,
+        maintenanceCost: fuelParameterCatalog.common.maintenanceRate * 100,
+        decommissioningCost:
+          fuelParameterCatalog.common.decommissioningRate * 100,
       };
     },
 
@@ -333,6 +306,7 @@ export default {
     recomputeRow(fuel, row) {
       this.validateCapacity(fuel, row);
       if (row.isInvalid) {
+        row.calculation = null;
         row.cost = 0;
         row.storageVolume = 0;
         return;
@@ -343,15 +317,11 @@ export default {
     /* ---------------------------
      * Validation
      * --------------------------- */
-    getFuelModel(fuelName) {
-      return FUEL_MODEL[fuelName] || null;
-    },
     validateCapacity(fuel, row) {
       row.isInvalid = false;
       row.error = "";
 
-      const model = this.getFuelModel(fuel.name);
-      const limits = model?.limits;
+      const parameters = getFuelParameters(fuel.id || fuel.name);
 
       const cap = row.capacity;
       if (cap === null || cap === "" || Number.isNaN(Number(cap))) {
@@ -362,9 +332,12 @@ export default {
 
       const n = Number(cap);
 
-      if (limits && (n < limits.min || n > limits.max)) {
+      if (
+        n < parameters.minimumCapacityMgoEquivalentTonnes ||
+        n > parameters.maximumCapacityMgoEquivalentTonnes
+      ) {
         row.isInvalid = true;
-        row.error = `Allowed range: ${limits.min} – ${limits.max}`;
+        row.error = `Allowed range: ${parameters.minimumCapacityMgoEquivalentTonnes} – ${parameters.maximumCapacityMgoEquivalentTonnes}`;
         return;
       }
 
@@ -378,34 +351,11 @@ export default {
     /* ---------------------------
      * Cost / Volume model
      * --------------------------- */
-    scaledShellCost(volumeM3, baseUSDperM3, alpha = ALPHA) {
-      const V = Math.max(Number(volumeM3) || 0, 0);
-      const k = baseUSDperM3 * Math.pow(V_REF, 1 - alpha);
-      return k * Math.pow(V, alpha);
-    },
     updateCalculations(fuel, row) {
-      const model = this.getFuelModel(fuel.name);
-      if (!model) return;
-
-      const capT = Number(row.capacity || 0);
-      const { fixed, props } = model;
-      const { rho, EC, cShell } = props;
-      const cLiquef = props.cLiquef || 0;
-
-      const capacityMJ = capT * MJ_PER_KG_MGO * 1000;
-
-      const volumeM3 =
-        fuel.name === "MGO"
-          ? (capT * 1000) / rho
-          : (capacityMJ / EC) / rho;
-
-      row.storageVolume = Math.round(volumeM3);
-
-      const shellCost = this.scaledShellCost(row.storageVolume, cShell);
-      const liquefactionCost =
-        fuel.name === "Liquid Hydrogen" ? (capacityMJ / EC) * cLiquef : 0;
-
-      row.cost = Math.round(fixed + shellCost + liquefactionCost);
+      const result = estimateTankOption(fuel.id || fuel.name, row.capacity);
+      row.calculation = result;
+      row.storageVolume = result.storageVolumeM3;
+      row.cost = result.baseInvestmentCostUSD;
     },
 
     /* ---------------------------
@@ -423,61 +373,22 @@ export default {
       return `cost-steps-${this.slugify(fuelName)}`;
     },
 
-    fuelTooltipHtml(fuelName) {
-      const model = this.getFuelModel(fuelName);
-      if (!model) return "<li>Cost estimation details are not available for this fuel.</li>";
+    fuelTooltipHtml(fuel) {
+      const parameters = getFuelParameters(fuel.id || fuel.name);
+      const firstValidRow = (fuel.rows || []).find((row) => !row.isInvalid);
+      const capacity =
+        Number(firstValidRow?.capacity) ||
+        parameters.minimumCapacityMgoEquivalentTonnes;
+      const result = estimateTankOption(fuel.id || fuel.name, capacity);
 
-      const { fixed, props } = model;
-      const lines = [];
-
-      lines.push(`<li><strong>Input:</strong> Tank capacity in <em>t MGO-eq</em>.</li>`);
-
-      if (fuelName === "MGO") {
-        lines.push(
-          `<li><strong>Storage volume:</strong> V = (capacity × 1000) / ρ, with ρ = ${props.rho} kg/m³.</li>`
-        );
-      } else {
-        lines.push(
-          `<li><strong>Energy equivalence:</strong> E = capacity × 42.8 MJ/kg × 1000 (kg/t).</li>`
-        );
-        lines.push(
-          `<li><strong>Fuel mass:</strong> m = E / EC, with EC = ${props.EC} MJ/kg.</li>`
-        );
-        lines.push(
-          `<li><strong>Storage volume:</strong> V = m / ρ, with ρ = ${props.rho} kg/m³.</li>`
-        );
-      }
-
-      lines.push(`<li><strong>Fixed cost per tank:</strong> ${this.fmtUSD(fixed)} USD.</li>`);
-      lines.push(
-        `<li><strong>Tank shell cost basis:</strong> ${this.fmtUSD(props.cShell)} USD/m³.</li>`
-      );
-      lines.push(
-        `<li><strong>Economies of scale:</strong> Shell cost scales as C<sub>shell</sub> = k·V<sup>${ALPHA}</sup>, with α = ${ALPHA}.</li>`
-      );
-      lines.push(
-        `<li><strong>Calibration:</strong> k is chosen so that at V<sub>ref</sub> = ${V_REF} m³, the scaled cost equals the linear cost (${this.fmtUSD(
-          props.cShell
-        )}×V<sub>ref</sub>).</li>`
-      );
-
-      if (fuelName === "Liquid Hydrogen") {
-        lines.push(
-          `<li><strong>Liquefaction cost:</strong> ${props.cLiquef} USD/kg × hydrogen mass (linear with m).</li>`
-        );
-      }
-      if (fuelName === "Ammonia") {
-        lines.push(
-          `<li><strong>Ammonia assumption:</strong> liquid anhydrous NH₃ (refrigerated, near-atmospheric storage).</li>`
-        );
-      }
-
-      lines.push(
-        `<li><strong>Total investment (per tank):</strong> C = fixed + C<sub>shell</sub>${fuelName === "Liquid Hydrogen" ? " + liquefaction" : ""
-        }.</li>`
-      );
-
-      return lines.join("");
+      return [
+        `<li><strong>Input:</strong> ${result.capacityMgoEquivalentTonnes} t MGO-e.</li>`,
+        `<li><strong>Physical mass:</strong> ${result.capacityMgoEquivalentTonnes} × ${result.mgoLowerHeatingValueMJPerKg} / ${result.fuelLowerHeatingValueMJPerKg} = ${result.physicalMassTonnes.toFixed(2)} t.</li>`,
+        `<li><strong>Storage volume:</strong> ${result.physicalMassTonnes.toFixed(2)} × 1000 / ${result.densityKgPerM3} = ${result.storageVolumeM3.toFixed(2)} m³.</li>`,
+        `<li><strong>Shell cost:</strong> ${this.fmtUSD(result.shellCalibrationUSDPerM3)} × ${result.referenceVolumeM3} × (V / ${result.referenceVolumeM3})<sup>${result.scalingExponent}</sup> = ${this.fmtUSD(result.shellInstallationCostUSD)} USD.</li>`,
+        `<li><strong>Base investment:</strong> ${this.fmtUSD(result.fixedInstallationCostUSD)} + ${this.fmtUSD(result.shellInstallationCostUSD)} = ${this.fmtUSD(result.baseInvestmentCostUSD)} USD.</li>`,
+        "<li><strong>Cost boundary:</strong> storage installation only; no liquefaction or compression cost is included.</li>",
+      ].join("");
     },
   },
 };

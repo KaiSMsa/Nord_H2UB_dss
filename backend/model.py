@@ -36,42 +36,34 @@ def solve_facility_location(data):
     # Objective function components
     objective_terms = []
 
-    # Compute dynamic costs and add to objective
+    # Consume the period costs calculated by the authoritative frontend module.
     for f_idx, fuel in enumerate(Fuels):
-        maintenance_rate = Costs[fuel]['maintenanceCost']
-        decommissioning_rate = Costs[fuel]['decommissioningCost']
-        initial_costs = Costs[fuel]['costs']
-        change_rate = Costs[fuel]['changeRate']
+        investment_costs_by_period = Costs[fuel]['investmentCostsUSDByPeriod']
+        maintenance_costs_by_period = Costs[fuel]['maintenanceCostsUSDByPeriod']
+        decommissioning_costs_by_period = Costs[fuel]['decommissioningCostsUSDByPeriod']
 
         for k_idx, capacity in enumerate(Capacities[fuel]):
-            # Compute dynamic costs over time
-            dynamic_costs = [
-                round(initial_costs[k_idx] * ((1 + (change_rate / 100.0)) ** t_idx), -3) for t_idx in range(len(T)) 
-            ]
-            maintenance_cost = round(initial_costs[k_idx] * (maintenance_rate / 100.0), -3)
-            decommissioning_cost = round(initial_costs[k_idx] * (decommissioning_rate / 100.0), -3)
-            
             for t_idx in range(len(T)):
                 # At the beginning of the planning horizon, we enforce to open an MGO tank for the model purpose but we count only for the maintenance cost.
                 if f_idx == 0 and t_idx == 0:
-                    objective_terms.append(maintenance_cost * y[f_idx, k_idx, t_idx])
+                    objective_terms.append(maintenance_costs_by_period[k_idx][t_idx] * y[f_idx, k_idx, t_idx])
                 else:
                     # Opening cost
-                    objective_terms.append(dynamic_costs[t_idx] * y[f_idx, k_idx, t_idx])
-                    objective_terms.append(maintenance_cost * s[f_idx, k_idx, t_idx])
+                    objective_terms.append(investment_costs_by_period[k_idx][t_idx] * y[f_idx, k_idx, t_idx])
+                    objective_terms.append(maintenance_costs_by_period[k_idx][t_idx] * s[f_idx, k_idx, t_idx])
 
                 # Decommissioning cost
-                objective_terms.append(decommissioning_cost * x[f_idx, k_idx, t_idx])
+                objective_terms.append(decommissioning_costs_by_period[k_idx][t_idx] * x[f_idx, k_idx, t_idx])
 
             # Transition costs
             for k2_idx in range(len(Capacities[fuel])):
                 if k_idx < k2_idx:
                     for t_idx in range(len(T)):
-                        extension_cost = abs(1.2 * (dynamic_costs[t_idx] - initial_costs[k2_idx] * ((1 + change_rate) ** t_idx)))
+                        extension_cost = abs(1.2 * (investment_costs_by_period[k_idx][t_idx] - investment_costs_by_period[k2_idx][t_idx]))
                         objective_terms.append(extension_cost * z[f_idx, k_idx, k2_idx, t_idx])
                 elif k_idx > k2_idx:
                     for t_idx in range(len(T)):
-                        reduction_cost = abs(1.2 * (dynamic_costs[t_idx] - initial_costs[k2_idx] * ((1 + change_rate) ** t_idx)))
+                        reduction_cost = abs(1.2 * (investment_costs_by_period[k_idx][t_idx] - investment_costs_by_period[k2_idx][t_idx]))
                         objective_terms.append(reduction_cost * z[f_idx, k_idx, k2_idx, t_idx])
 
     # Set the objective function
@@ -172,50 +164,32 @@ def solve_facility_location(data):
         for f_idx, fuel in enumerate(Fuels):
             cost_data = {}
 
-            maintenance_rate = Costs[fuel]['maintenanceCost']
-            decommissioning_rate = Costs[fuel]['decommissioningCost']
-            initial_costs = Costs[fuel]['costs']
-            change_rate = Costs[fuel]['changeRate']
+            investment_costs_by_period = Costs[fuel]['investmentCostsUSDByPeriod']
+            maintenance_costs_by_period = Costs[fuel]['maintenanceCostsUSDByPeriod']
+            decommissioning_costs_by_period = Costs[fuel]['decommissioningCostsUSDByPeriod']
 
             for t_idx, year in enumerate(T):
                 year_cost = {}
                 for k_idx, capacity in enumerate(Capacities[fuel]):
-                    # Compute dynamic, maintenance and decommissioning costs over time
-                    dynamic_cost = round(initial_costs[k_idx] * ((1 + (change_rate / 100.0)) ** t_idx), -3)
-                    maintenance_cost = round(initial_costs[k_idx] * (maintenance_rate / 100.0), -3)
-                    decommissioning_cost = round(initial_costs[k_idx] * (decommissioning_rate / 100.0), -3)
-                
                     # At the beginning of the planning horizon, we enforce to open an MGO tank for the model purpose but we count only for the maintenance cost.
                     if f_idx == 0 and t_idx == 0:
                         if y[f_idx, k_idx, t_idx].solution_value() > 0.5:
                             year_cost[capacity] = {
                                 'opened': 0,
-                                'operating': maintenance_cost,
+                                'operating': maintenance_costs_by_period[k_idx][t_idx],
                                 'closed': 0
                             }
                     else:
                         if y[f_idx, k_idx, t_idx].solution_value() > 0.5 or s[f_idx, k_idx, t_idx].solution_value() > 0.5 or x[f_idx, k_idx, t_idx].solution_value() > 0.5:
                             year_cost[capacity] = {
-                                'opened': int(y[f_idx, k_idx, t_idx].solution_value() * dynamic_cost),
-                                'operating': int(s[f_idx, k_idx, t_idx].solution_value() * maintenance_cost),
-                                'closed': int(x[f_idx, k_idx, t_idx].solution_value() * decommissioning_cost)
+                                'opened': y[f_idx, k_idx, t_idx].solution_value() * investment_costs_by_period[k_idx][t_idx],
+                                'operating': s[f_idx, k_idx, t_idx].solution_value() * maintenance_costs_by_period[k_idx][t_idx],
+                                'closed': x[f_idx, k_idx, t_idx].solution_value() * decommissioning_costs_by_period[k_idx][t_idx]
                             }
                 if year_cost:
                     cost_data[year] = year_cost
             if cost_data:
                 result_data['costs'][fuel] = cost_data
-
-                    # # Transition costs
-                    # for k2_idx in range(len(Capacities[fuel])):
-                    #     if k_idx < k2_idx:
-                    #         for t_idx in range(len(T)):
-                    #             extension_cost = abs(1.2 * (dynamic_costs[t_idx] - initial_costs[k2_idx] * ((1 + change_rate) ** t_idx)))
-                    #             objective_terms.append(extension_cost * z[f_idx, k_idx, k2_idx, t_idx])
-                    #     elif k_idx > k2_idx:
-                    #         for t_idx in range(len(T)):
-                    #             reduction_cost = abs(1.2 * (dynamic_costs[t_idx] - initial_costs[k2_idx] * ((1 + change_rate) ** t_idx)))
-                    #             objective_terms.append(reduction_cost * z[f_idx, k_idx, k2_idx, t_idx])
-
 
     print(json.dumps(result_data))  # Output the results in JSON format
 

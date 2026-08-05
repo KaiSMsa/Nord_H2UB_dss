@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "common": {
+    "mgoLowerHeatingValueMJPerKg": 42.8,
+    "referenceVolumeM3": 1000,
+    "scalingExponent": 0.65,
+    "maintenanceRate": 0.04,
+    "maintenanceRateBasis": "per-planning-period",
+    "decommissioningRate": 0.1,
+    "decommissioningRateBasis": "at-decommissioning",
+    "defaultFuelCostAdjustmentRatePerPeriod": -0.02,
+    "discountRatePerPeriod": null
+  },
+  "fuels": [
+    {
+      "id": "mgo",
+      "displayName": "MGO",
+      "abbreviation": "MGO",
+      "storageCondition": "Ambient liquid storage",
+      "lowerHeatingValueMJPerKg": 42.8,
+      "densityKgPerM3": 850,
+      "fixedInstallationCostUSD": 500000,
+      "shellCalibrationUSDPerM3": 1000,
+      "minimumCapacityMgoEquivalentTonnes": 2000,
+      "maximumCapacityMgoEquivalentTonnes": 10000,
+      "defaultCapacitiesMgoEquivalentTonnes": [2000, 5000, 10000],
+      "tankCostParameterSource": "legacy-application-model"
+    },
+    {
+      "id": "liquid-hydrogen",
+      "displayName": "Liquid hydrogen",
+      "optimizerName": "Liquid Hydrogen",
+      "abbreviation": "LH2",
+      "storageCondition": "Near atmospheric pressure at approximately -253 °C",
+      "lowerHeatingValueMJPerKg": 120,
+      "densityKgPerM3": 70.8,
+      "fixedInstallationCostUSD": 2000000,
+      "shellCalibrationUSDPerM3": 2500,
+      "minimumCapacityMgoEquivalentTonnes": 2000,
+      "maximumCapacityMgoEquivalentTonnes": 7000,
+      "defaultCapacitiesMgoEquivalentTonnes": [2000, 5000, 7000]
+    },
+    {
+      "id": "compressed-hydrogen",
+      "displayName": "Compressed hydrogen",
+      "optimizerName": "Compressed Hydrogen",
+      "abbreviation": "CH2",
+      "storageCondition": "300 bar and 25 °C",
+      "lowerHeatingValueMJPerKg": 120,
+      "densityKgPerM3": 20.54,
+      "fixedInstallationCostUSD": 20000000,
+      "shellCalibrationUSDPerM3": 1200,
+      "minimumCapacityMgoEquivalentTonnes": 100,
+      "maximumCapacityMgoEquivalentTonnes": 1000,
+      "defaultCapacitiesMgoEquivalentTonnes": [100, 500, 1000]
+    },
+    {
+      "id": "ammonia",
+      "displayName": "Ammonia",
+      "abbreviation": "NH3",
+      "storageCondition": "Refrigerated liquid near atmospheric pressure at approximately -33 °C",
+      "lowerHeatingValueMJPerKg": 18.6,
+      "densityKgPerM3": 682,
+      "fixedInstallationCostUSD": 3000000,
+      "shellCalibrationUSDPerM3": 2000,
+      "minimumCapacityMgoEquivalentTonnes": 1000,
+      "maximumCapacityMgoEquivalentTonnes": 7000,
+      "defaultCapacitiesMgoEquivalentTonnes": [1000, 5000, 7000]
+    },
+    {
+      "id": "methanol",
+      "displayName": "Methanol",
+      "abbreviation": "CH3OH",
+      "storageCondition": "Ambient conditions",
+      "lowerHeatingValueMJPerKg": 19.9,
+      "densityKgPerM3": 790,
+      "fixedInstallationCostUSD": 2500000,
+      "shellCalibrationUSDPerM3": 600,
+      "minimumCapacityMgoEquivalentTonnes": 1000,
+      "maximumCapacityMgoEquivalentTonnes": 10000,
+      "defaultCapacitiesMgoEquivalentTonnes": [2000, 5000, 10000]
+    },
+    {
+      "id": "lng",
+      "displayName": "Liquefied natural gas",
+      "optimizerName": "LNG",
+      "abbreviation": "LNG",
+      "storageCondition": "Near atmospheric pressure at approximately -162 °C",
+      "lowerHeatingValueMJPerKg": 49,
+      "densityKgPerM3": 425,
+      "fixedInstallationCostUSD": 500000,
+      "shellCalibrationUSDPerM3": 1500,
+      "minimumCapacityMgoEquivalentTonnes": 1000,
+      "maximumCapacityMgoEquivalentTonnes": 10000,
+      "defaultCapacitiesMgoEquivalentTonnes": [2000, 5000, 10000]
+    }
+  ]
+}

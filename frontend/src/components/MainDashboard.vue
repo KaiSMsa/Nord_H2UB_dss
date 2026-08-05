@@ -83,6 +83,8 @@ import FuelCapacitySelection from './FuelCapacitySelection.vue';
 import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
 import { PLANNING_YEARS } from '@/constants/planningYears.js';
+import { createInitialFuelCapacitySelection } from '@/constants/fuels.js';
+import { buildTankCostPayload } from '@/utils/optimizationPayload.js';
 
 import {
   buildChartData,
@@ -111,16 +113,7 @@ function initialGlobalData() {
         }
       }))
     },
-    fuelCapacitySelection: {
-      fuels: [
-        { name: 'MGO', class: 'mgo-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Liquid Hydrogen', class: 'lh2-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Compressed Hydrogen', class: 'ch2-bar', rows: [{ capacity: 3000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 6000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Ammonia', class: 'ammonia-bar', rows: [{ capacity: 1000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 7000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'Methanol', class: 'methanol-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 },
-        { name: 'LNG', class: 'lng-bar', rows: [{ capacity: 2000, storageVolume: 0, cost: 0 }, { capacity: 5000, storageVolume: 0, cost: 0 }, { capacity: 10000, storageVolume: 0, cost: 0 }], changeRate: -2, maintenanceCost: 4, decommissioningCost: 10 }
-      ]
-    }
+    fuelCapacitySelection: createInitialFuelCapacitySelection()
   };
 }
 
@@ -407,29 +400,13 @@ export default {
       // 3. Extract Capacities and Costs
       dataSubmit.Capacities = {};
       dataSubmit.Costs = {};
-
-      sData.fuelCapacitySelection.fuels.forEach((fuel) => {
-        const fuelName = fuel.name;
-
-        // Capacities
-        const capacities = fuel.rows.map((row) => row.capacity);
-
-        // Costs
-        const costs = fuel.rows.map((row) => row.cost);
-
-        // Other cost parameters
-        const changeRate = fuel.changeRate;
-        const maintenanceCost = fuel.maintenanceCost;
-        const decommissioningCost = fuel.decommissioningCost;
-
-        dataSubmit.Capacities[fuelName] = capacities;
-        dataSubmit.Costs[fuelName] = {
-          costs: costs,
-          changeRate: changeRate,
-          maintenanceCost: maintenanceCost,
-          decommissioningCost: decommissioningCost,
-        };
-      });
+      const tankCostPayload = buildTankCostPayload(
+        sData.fuelCapacitySelection.fuels,
+        dataSubmit.T.length
+      );
+      dataSubmit.Capacities = tankCostPayload.Capacities;
+      dataSubmit.TankOptions = tankCostPayload.TankOptions;
+      dataSubmit.Costs = tankCostPayload.Costs;
 
       // 4. Extract Demand Data
       dataSubmit.Demand = {};
