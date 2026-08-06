@@ -1,7 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { buildTankCostPayload } = require("../src/utils/optimizationPayload.js");
+const {
+  buildInitialStatePayload,
+  buildTankCostPayload,
+} = require("../src/utils/optimizationPayload.js");
 
 function validFuel(overrides = {}) {
   return {
@@ -98,4 +101,20 @@ test("out-of-range options cannot reach the backend", () => {
       ], 5),
     /above the maximum/
   );
+});
+
+test("initial state is explicit, binary, and satisfies period-zero demand", () => {
+  const initialState = buildInitialStatePayload(
+    ["MGO", "Ammonia"],
+    { MGO: [2000, 5000, 10000], Ammonia: [1000, 5000, 7000] },
+    {
+      MGO: { "2025": 10000, "2030": 5000 },
+      Ammonia: { "2025": 0, "2030": 7000 },
+    },
+    ["2025", "2030"]
+  );
+
+  assert.deepEqual(initialState.MGO[0], [0, 0, 1]);
+  assert.equal(initialState.MGO.flat().reduce((sum, value) => sum + value, 0), 1);
+  assert.equal(initialState.Ammonia.flat().reduce((sum, value) => sum + value, 0), 0);
 });

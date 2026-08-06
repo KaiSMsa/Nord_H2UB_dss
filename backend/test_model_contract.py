@@ -3,7 +3,11 @@ import math
 import unittest
 
 from financial_parameters import (
-    calculate_transition_cost_usd,
+    calculate_decommissioning_cost_coefficient,
+    calculate_discount_factor,
+    calculate_maintenance_cost_coefficient,
+    calculate_opening_cost_coefficient,
+    calculate_transition_cost_coefficient,
     prepare_financial_costs_for_model,
 )
 
@@ -30,6 +34,51 @@ def valid_payload():
 
 
 class FinancialParameterContractTest(unittest.TestCase):
+    def test_financial_factors_and_coefficients(self):
+        base_cost = 9_876_543.21098765
+        discount_rate = 0.071
+        technology_rate = -0.013
+        maintenance_rate = 0.037
+        decommissioning_rate = 0.123
+
+        for period_index in range(3):
+            discount_factor = calculate_discount_factor(
+                discount_rate,
+                period_index,
+            )
+            self.assertEqual(
+                discount_factor,
+                1 / ((1 + discount_rate) ** period_index),
+            )
+            self.assertAlmostEqual(
+                calculate_opening_cost_coefficient(
+                    base_cost,
+                    technology_rate,
+                    period_index,
+                    discount_factor,
+                ),
+                base_cost * ((1 + technology_rate) ** period_index) * discount_factor,
+                places=10,
+            )
+            self.assertAlmostEqual(
+                calculate_maintenance_cost_coefficient(
+                    base_cost,
+                    maintenance_rate,
+                    discount_factor,
+                ),
+                base_cost * maintenance_rate * discount_factor,
+                places=10,
+            )
+            self.assertAlmostEqual(
+                calculate_decommissioning_cost_coefficient(
+                    base_cost,
+                    decommissioning_rate,
+                    discount_factor,
+                ),
+                base_cost * decommissioning_rate * discount_factor,
+                places=10,
+            )
+
     def test_frontend_rates_prepare_full_precision_period_coefficients(self):
         prepared = prepare_financial_costs_for_model(valid_payload())['Ammonia']
 
@@ -68,9 +117,12 @@ class FinancialParameterContractTest(unittest.TestCase):
         payload['Capacities']['Ammonia'].append(5000)
         prepared = prepare_financial_costs_for_model(payload)['Ammonia']
         period_index = 2
-        transition = calculate_transition_cost_usd(
-            prepared['investmentCostsUSDByPeriod'][0][period_index],
-            prepared['investmentCostsUSDByPeriod'][1][period_index],
+        transition = calculate_transition_cost_coefficient(
+            BASE_COST,
+            BASE_COST * 1.5,
+            -0.02,
+            period_index,
+            1 / (1.05 ** period_index),
         )
         expected = abs(
             1.2
@@ -79,6 +131,40 @@ class FinancialParameterContractTest(unittest.TestCase):
             / (1.05 ** period_index)
         )
         self.assertAlmostEqual(transition, expected, places=8)
+        self.assertIsNone(prepared['transitionCostCoefficientsUSD'][0][1][0])
+        self.assertAlmostEqual(
+            prepared['transitionCostCoefficientsUSD'][0][1][period_index],
+            expected,
+            places=8,
+        )
+
+    def test_distinctive_rates_are_preserved_in_backend_coefficients(self):
+        payload = valid_payload()
+        payload['discountRatePerPlanningPeriod'] = 0.071
+        payload['technologyCostAdjustmentRatePerPlanningPeriod']['Ammonia'] = -0.013
+        payload['maintenanceRatePerPlanningPeriod']['Ammonia'] = 0.037
+        payload['decommissioningRateAtClosure']['Ammonia'] = 0.123
+        prepared = prepare_financial_costs_for_model(payload)['Ammonia']
+
+        self.assertEqual(prepared['discountRatePerPlanningPeriod'], 0.071)
+        self.assertEqual(prepared['technologyCostAdjustmentRatePerPlanningPeriod'], -0.013)
+        self.assertEqual(prepared['maintenanceRatePerPlanningPeriod'], 0.037)
+        self.assertEqual(prepared['decommissioningRateAtClosure'], 0.123)
+        self.assertAlmostEqual(
+            prepared['openingCostCoefficientsUSD'][0][2],
+            BASE_COST * (0.987 ** 2) / (1.071 ** 2),
+            places=10,
+        )
+        self.assertAlmostEqual(
+            prepared['maintenanceCostCoefficientsUSD'][0][2],
+            BASE_COST * 0.037 / (1.071 ** 2),
+            places=10,
+        )
+        self.assertAlmostEqual(
+            prepared['decommissioningCostCoefficientsUSD'][0][2],
+            BASE_COST * 0.123 / (1.071 ** 2),
+            places=10,
+        )
 
     def test_valid_zero_rates_are_not_replaced(self):
         payload = valid_payload()

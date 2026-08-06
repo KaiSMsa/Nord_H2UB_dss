@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint src",
-    "test": "node --test tests/tankCost.test.cjs tests/optimizationPayload.test.cjs tests/frontendBackendFlow.test.cjs tests/currencyFormatting.test.cjs"
+    "test": "node --test tests/tankCost.test.cjs tests/optimizationPayload.test.cjs tests/frontendBackendFlow.test.cjs tests/currencyFormatting.test.cjs tests/modelSourceContract.test.cjs"
   },
   "dependencies": {
     "apexcharts": "^4.5.0",

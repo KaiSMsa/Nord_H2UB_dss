@@ -84,7 +84,10 @@ import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
 import { PLANNING_YEARS } from '@/constants/planningYears.js';
 import { createInitialFuelCapacitySelection } from '@/constants/fuels.js';
-import { buildTankCostPayload } from '@/utils/optimizationPayload.js';
+import {
+  buildInitialStatePayload,
+  buildTankCostPayload,
+} from '@/utils/optimizationPayload.js';
 
 import {
   buildChartData,
@@ -438,6 +441,13 @@ export default {
           }
         });
       });
+
+      dataSubmit.InitialState = buildInitialStatePayload(
+        fuels,
+        dataSubmit.Capacities,
+        dataSubmit.Demand,
+        dataSubmit.T
+      );
 
       return dataSubmit;
     },

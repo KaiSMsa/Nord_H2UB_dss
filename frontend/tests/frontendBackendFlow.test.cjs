@@ -33,11 +33,11 @@ test(
         id: "ammonia",
         name: "Ammonia",
         rows: [{ capacity: 3000 }],
-        technologyCostAdjustmentRatePercent: -2,
-        maintenanceRatePercent: 4,
-        decommissioningRateAtClosurePercent: 10,
+        technologyCostAdjustmentRatePercent: -1.3,
+        maintenanceRatePercent: 3.7,
+        decommissioningRateAtClosurePercent: 12.3,
       },
-    ], 5);
+    ], 7.1);
     const request = {
       T: ["2025", "2030", "2035", "2040"],
       Fuels: ["Ammonia"],
@@ -56,24 +56,24 @@ test(
     const prepared = JSON.parse(result.stdout).Ammonia;
     const baseCost = request.TankOptions.Ammonia[0].baseInvestmentCostUSD;
 
-    assert.equal(prepared.discountRatePerPlanningPeriod, 0.05);
+    assert.equal(prepared.discountRatePerPlanningPeriod, 0.071);
     assert.equal(
       prepared.technologyCostAdjustmentRatePerPlanningPeriod,
-      -0.02
+      -0.013
     );
-    assert.equal(prepared.maintenanceRatePerPlanningPeriod, 0.04);
-    assert.equal(prepared.decommissioningRateAtClosure, 0.1);
+    assert.equal(prepared.maintenanceRatePerPlanningPeriod, 0.037);
+    assert.equal(prepared.decommissioningRateAtClosure, 0.123);
     approximatelyEqual(
       prepared.investmentCostsUSDByPeriod[0][2],
-      baseCost * 0.98 ** 2 / 1.05 ** 2
+      baseCost * 0.987 ** 2 / 1.071 ** 2
     );
     approximatelyEqual(
       prepared.maintenanceCostsUSDByPeriod[0][2],
-      baseCost * 0.04 / 1.05 ** 2
+      baseCost * 0.037 / 1.071 ** 2
     );
     approximatelyEqual(
       prepared.decommissioningCostsUSDByPeriod[0][2],
-      baseCost * 0.1 / 1.05 ** 2
+      baseCost * 0.123 / 1.071 ** 2
     );
   }
 );
@@ -96,6 +96,7 @@ test(
       T: ["2025", "2030"],
       Fuels: ["MGO"],
       Demand: { MGO: { "2025": 2000, "2030": 2000 } },
+      InitialState: { MGO: [[1]] },
       ...tankPayload,
     };
     const backendScript = path.resolve(
@@ -124,13 +125,23 @@ test(
       );
       assert.equal(parameters.maintenanceRatePerPlanningPeriod.MGO, 0.04);
       assert.equal(parameters.decommissioningRateAtClosure.MGO, 0.1);
+      assert.deepEqual(response.periodMapping[0], {
+        label: "2025",
+        periodIndex: 0,
+        discountFactor: 1,
+      });
+      approximatelyEqual(response.periodMapping[1].discountFactor, 1 / 1.05);
       approximatelyEqual(
         response.costs.MGO["2025"].Tank_1["2000"].operating,
-        baseCost * 0.04
+        0
       );
       approximatelyEqual(
         response.costs.MGO["2030"].Tank_1["2000"].operating,
         baseCost * 0.04 / 1.05
+      );
+      approximatelyEqual(
+        response.costBreakdown.totalObjectiveUSD,
+        response.costBreakdown.maintenanceCostUSD
       );
     } finally {
       fs.rmSync(temporaryDirectory, { recursive: true, force: true });

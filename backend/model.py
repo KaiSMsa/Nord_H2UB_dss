@@ -2,7 +2,6 @@ import sys
 import json
 from ortools.linear_solver import pywraplp
 from financial_parameters import (
-    calculate_transition_cost_usd,
     financial_parameters_for_response,
     prepare_financial_costs_for_model,
 )
@@ -48,6 +47,7 @@ def solve_facility_location(data):
         investment_costs_by_period = Costs[fuel]['investmentCostsUSDByPeriod']
         maintenance_costs_by_period = Costs[fuel]['maintenanceCostsUSDByPeriod']
         decommissioning_costs_by_period = Costs[fuel]['decommissioningCostsUSDByPeriod']
+        transition_costs_by_period = Costs[fuel]['transitionCostCoefficientsUSD']
 
         for k_idx, capacity in enumerate(Capacities[fuel]):
             for t_idx in range(len(T)):
@@ -65,18 +65,12 @@ def solve_facility_location(data):
             # Transition costs
             for k2_idx in range(len(Capacities[fuel])):
                 if k_idx < k2_idx:
-                    for t_idx in range(len(T)):
-                        extension_cost = calculate_transition_cost_usd(
-                            investment_costs_by_period[k_idx][t_idx],
-                            investment_costs_by_period[k2_idx][t_idx],
-                        )
+                    for t_idx in range(1, len(T)):
+                        extension_cost = transition_costs_by_period[k_idx][k2_idx][t_idx]
                         objective_terms.append(extension_cost * z[f_idx, k_idx, k2_idx, t_idx])
                 elif k_idx > k2_idx:
-                    for t_idx in range(len(T)):
-                        reduction_cost = calculate_transition_cost_usd(
-                            investment_costs_by_period[k_idx][t_idx],
-                            investment_costs_by_period[k2_idx][t_idx],
-                        )
+                    for t_idx in range(1, len(T)):
+                        reduction_cost = transition_costs_by_period[k_idx][k2_idx][t_idx]
                         objective_terms.append(reduction_cost * z[f_idx, k_idx, k2_idx, t_idx])
 
     # Set the objective function

@@ -57,24 +57,83 @@ def calculate_present_value_cost(nominal_period_cost, discount_factor):
     return cost * factor
 
 
-def calculate_transition_cost_usd(
-    from_present_value_investment_cost,
-    to_present_value_investment_cost,
+def calculate_opening_cost_coefficient(
+    base_investment_cost_usd,
+    technology_cost_adjustment_rate_per_planning_period,
+    period_index,
+    discount_factor,
+):
+    return calculate_present_value_cost(
+        calculate_technology_adjusted_cost(
+            base_investment_cost_usd,
+            technology_cost_adjustment_rate_per_planning_period,
+            period_index,
+        ),
+        discount_factor,
+    )
+
+
+def calculate_maintenance_cost_coefficient(
+    base_investment_cost_usd,
+    maintenance_rate_per_planning_period,
+    discount_factor,
+):
+    base_cost = _require_finite_number(
+        base_investment_cost_usd,
+        'baseInvestmentCostUSD',
+    )
+    rate = _require_finite_number(
+        maintenance_rate_per_planning_period,
+        'maintenanceRatePerPlanningPeriod',
+    )
+    return calculate_present_value_cost(base_cost * rate, discount_factor)
+
+
+def calculate_decommissioning_cost_coefficient(
+    base_investment_cost_usd,
+    decommissioning_rate_at_closure,
+    discount_factor,
+):
+    base_cost = _require_finite_number(
+        base_investment_cost_usd,
+        'baseInvestmentCostUSD',
+    )
+    rate = _require_finite_number(
+        decommissioning_rate_at_closure,
+        'decommissioningRateAtClosure',
+    )
+    return calculate_present_value_cost(base_cost * rate, discount_factor)
+
+
+def calculate_transition_cost_coefficient(
+    from_base_investment_cost_usd,
+    to_base_investment_cost_usd,
+    technology_cost_adjustment_rate_per_planning_period,
+    period_index,
+    discount_factor,
     transition_cost_multiplier=1.2,
 ):
     from_cost = _require_finite_number(
-        from_present_value_investment_cost,
-        'fromPresentValueInvestmentCostUSD',
+        from_base_investment_cost_usd,
+        'fromBaseInvestmentCostUSD',
     )
     to_cost = _require_finite_number(
-        to_present_value_investment_cost,
-        'toPresentValueInvestmentCostUSD',
+        to_base_investment_cost_usd,
+        'toBaseInvestmentCostUSD',
     )
     multiplier = _require_finite_number(
         transition_cost_multiplier,
         'transitionCostMultiplier',
     )
-    return abs(multiplier * (from_cost - to_cost))
+    adjusted_difference = calculate_technology_adjusted_cost(
+        abs(to_cost - from_cost),
+        technology_cost_adjustment_rate_per_planning_period,
+        period_index,
+    )
+    return calculate_present_value_cost(
+        multiplier * adjusted_difference,
+        discount_factor,
+    )
 
 
 def _validate_discount_rate(data):
@@ -162,6 +221,11 @@ def prepare_financial_costs_for_model(data):
                 option.get('baseInvestmentCostUSD'),
                 f'TankOptions.{fuel}[{option_index}].baseInvestmentCostUSD',
             )
+            if validated_base_cost < 0:
+                raise ValueError(
+                    f'TankOptions.{fuel}[{option_index}].baseInvestmentCostUSD '
+                    'must be non-negative'
+                )
             if option.get('optimizerName') != fuel:
                 raise ValueError(f'Inconsistent fuel identifier for {fuel}')
             if option.get('capacityMgoEquivalentTonnes') != capacity:
@@ -177,42 +241,64 @@ def prepare_financial_costs_for_model(data):
             for period_index in range(len(periods))
         ]
 
-        investment_costs_by_period = []
+        opening_costs_by_period = []
         maintenance_costs_by_period = []
         decommissioning_costs_by_period = []
         for base_cost in validated_base_costs:
-            investment_costs_by_period.append([
-                calculate_present_value_cost(
-                    calculate_technology_adjusted_cost(
-                        base_cost,
-                        rates['technologyCostAdjustmentRatePerPlanningPeriod'],
-                        period_index,
-                    ),
+            opening_costs_by_period.append([
+                calculate_opening_cost_coefficient(
+                    base_cost,
+                    rates['technologyCostAdjustmentRatePerPlanningPeriod'],
+                    period_index,
                     discount_factors[period_index],
                 )
                 for period_index in range(len(periods))
             ])
             maintenance_costs_by_period.append([
-                calculate_present_value_cost(
-                    base_cost * rates['maintenanceRatePerPlanningPeriod'],
+                calculate_maintenance_cost_coefficient(
+                    base_cost,
+                    rates['maintenanceRatePerPlanningPeriod'],
                     discount_factor,
                 )
                 for discount_factor in discount_factors
             ])
             decommissioning_costs_by_period.append([
-                calculate_present_value_cost(
-                    base_cost * rates['decommissioningRateAtClosure'],
+                calculate_decommissioning_cost_coefficient(
+                    base_cost,
+                    rates['decommissioningRateAtClosure'],
                     discount_factor,
                 )
                 for discount_factor in discount_factors
             ])
+
+        transition_costs_by_period = [
+            [
+                None if from_index == to_index else [None] + [
+                    calculate_transition_cost_coefficient(
+                        validated_base_costs[from_index],
+                        validated_base_costs[to_index],
+                        rates['technologyCostAdjustmentRatePerPlanningPeriod'],
+                        period_index,
+                        discount_factors[period_index],
+                    )
+                    for period_index in range(1, len(periods))
+                ]
+                for to_index in range(len(validated_base_costs))
+            ]
+            for from_index in range(len(validated_base_costs))
+        ]
 
         prepared[fuel] = {
             **rates,
             'discountRatePerPlanningPeriod': discount_rate,
             'baseInvestmentCostsUSD': validated_base_costs,
             'discountFactorsByPeriod': discount_factors,
-            'investmentCostsUSDByPeriod': investment_costs_by_period,
+            'openingCostCoefficientsUSD': opening_costs_by_period,
+            'maintenanceCostCoefficientsUSD': maintenance_costs_by_period,
+            'decommissioningCostCoefficientsUSD': decommissioning_costs_by_period,
+            'transitionCostCoefficientsUSD': transition_costs_by_period,
+            # Compatibility aliases for the retained legacy model entry point.
+            'investmentCostsUSDByPeriod': opening_costs_by_period,
             'maintenanceCostsUSDByPeriod': maintenance_costs_by_period,
             'decommissioningCostsUSDByPeriod': decommissioning_costs_by_period,
         }
