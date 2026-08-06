@@ -177,7 +177,10 @@ def build_facility_location_model(data):
                 for period_index in range(len(periods)):
                     objective_terms.append(
                         coefficients['maintenanceCostCoefficientsUSD'][option_index][period_index]
-                        * s[fuel_index, tank_index, option_index, period_index]
+                        * (
+                            y[fuel_index, tank_index, option_index, period_index]
+                            + s[fuel_index, tank_index, option_index, period_index]
+                        )
                     )
                     objective_terms.append(
                         coefficients['decommissioningCostCoefficientsUSD'][option_index][period_index]
@@ -386,10 +389,12 @@ def solve_facility_location(data, export_model=False):
 
     status = solver.Solve()
     discount_factors = prepared_costs[fuels[0]]['discountFactorsByPeriod']
+    planning_period_years = prepared_costs[fuels[0]]['planningPeriodYears']
     period_mapping = [
         {
             'label': period,
             'periodIndex': period_index,
+            'elapsedYears': planning_period_years * period_index,
             'discountFactor': discount_factors[period_index],
         }
         for period_index, period in enumerate(periods)
@@ -456,7 +461,7 @@ def solve_facility_location(data, export_model=False):
                         else 0.0
                     )
                     maintenance_cost = (
-                        operating
+                        (opened + operating)
                         * coefficients['maintenanceCostCoefficientsUSD'][option_index][period_index]
                     )
                     decommissioning_cost = (
@@ -517,7 +522,19 @@ def solve_facility_location(data, export_model=False):
         if fuel_transitions:
             result['transitions'][fuel] = fuel_transitions
 
-    result['costBreakdown']['totalObjectiveUSD'] = solver.Objective().Value()
+    component_total = (
+        result['costBreakdown']['openingInvestmentCostUSD']
+        + result['costBreakdown']['maintenanceCostUSD']
+        + result['costBreakdown']['decommissioningCostUSD']
+        + result['costBreakdown']['transitionCostUSD']
+    )
+    objective_total = solver.Objective().Value()
+    if not math.isclose(component_total, objective_total, rel_tol=1e-9, abs_tol=1e-6):
+        raise RuntimeError(
+            'Reported cost breakdown does not match the solver objective: '
+            f'{component_total} != {objective_total}'
+        )
+    result['costBreakdown']['totalObjectiveUSD'] = objective_total
     return result
 
 

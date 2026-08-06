@@ -51,15 +51,12 @@ def solve_facility_location(data):
 
         for k_idx, capacity in enumerate(Capacities[fuel]):
             for t_idx in range(len(T)):
-                # At the beginning of the planning horizon, we enforce to open an MGO tank for the model purpose but we count only for the maintenance cost.
-                if f_idx == 0 and t_idx == 0:
-                    objective_terms.append(maintenance_costs_by_period[k_idx][t_idx] * y[f_idx, k_idx, t_idx])
-                else:
-                    # Opening cost
+                if t_idx > 0:
                     objective_terms.append(investment_costs_by_period[k_idx][t_idx] * y[f_idx, k_idx, t_idx])
-                    objective_terms.append(maintenance_costs_by_period[k_idx][t_idx] * s[f_idx, k_idx, t_idx])
-
-                # Decommissioning cost
+                objective_terms.append(
+                    maintenance_costs_by_period[k_idx][t_idx]
+                    * (y[f_idx, k_idx, t_idx] + s[f_idx, k_idx, t_idx])
+                )
                 objective_terms.append(decommissioning_costs_by_period[k_idx][t_idx] * x[f_idx, k_idx, t_idx])
 
             # Transition costs
@@ -187,21 +184,19 @@ def solve_facility_location(data):
             for t_idx, year in enumerate(T):
                 year_cost = {}
                 for k_idx, capacity in enumerate(Capacities[fuel]):
-                    # At the beginning of the planning horizon, we enforce to open an MGO tank for the model purpose but we count only for the maintenance cost.
-                    if f_idx == 0 and t_idx == 0:
-                        if y[f_idx, k_idx, t_idx].solution_value() > 0.5:
-                            year_cost[capacity] = {
-                                'opened': 0,
-                                'operating': maintenance_costs_by_period[k_idx][t_idx],
-                                'closed': 0
-                            }
-                    else:
-                        if y[f_idx, k_idx, t_idx].solution_value() > 0.5 or s[f_idx, k_idx, t_idx].solution_value() > 0.5 or x[f_idx, k_idx, t_idx].solution_value() > 0.5:
-                            year_cost[capacity] = {
-                                'opened': y[f_idx, k_idx, t_idx].solution_value() * investment_costs_by_period[k_idx][t_idx],
-                                'operating': s[f_idx, k_idx, t_idx].solution_value() * maintenance_costs_by_period[k_idx][t_idx],
-                                'closed': x[f_idx, k_idx, t_idx].solution_value() * decommissioning_costs_by_period[k_idx][t_idx]
-                            }
+                    if y[f_idx, k_idx, t_idx].solution_value() > 0.5 or s[f_idx, k_idx, t_idx].solution_value() > 0.5 or x[f_idx, k_idx, t_idx].solution_value() > 0.5:
+                        year_cost[capacity] = {
+                            'opened': (
+                                y[f_idx, k_idx, t_idx].solution_value()
+                                * investment_costs_by_period[k_idx][t_idx]
+                                if t_idx > 0 else 0.0
+                            ),
+                            'operating': (
+                                y[f_idx, k_idx, t_idx].solution_value()
+                                + s[f_idx, k_idx, t_idx].solution_value()
+                            ) * maintenance_costs_by_period[k_idx][t_idx],
+                            'closed': x[f_idx, k_idx, t_idx].solution_value() * decommissioning_costs_by_period[k_idx][t_idx]
+                        }
                 if year_cost:
                     cost_data[year] = year_cost
             if cost_data:

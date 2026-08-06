@@ -5,6 +5,7 @@ import unittest
 from financial_parameters import (
     calculate_decommissioning_cost_coefficient,
     calculate_discount_factor,
+    calculate_elapsed_years,
     calculate_maintenance_cost_coefficient,
     calculate_opening_cost_coefficient,
     calculate_transition_cost_coefficient,
@@ -26,89 +27,74 @@ def valid_payload():
         'Fuels': ['Ammonia'],
         'Capacities': {'Ammonia': [3000]},
         'TankOptions': {'Ammonia': [option]},
-        'discountRatePerPlanningPeriod': 0.05,
-        'technologyCostAdjustmentRatePerPlanningPeriod': {'Ammonia': -0.02},
-        'maintenanceRatePerPlanningPeriod': {'Ammonia': 0.04},
-        'decommissioningRateAtClosure': {'Ammonia': 0.10},
+        'planningPeriodYears': 5,
+        'discountRateAnnual': 0.071,
+        'transitionCostRate': 1.2,
+        'technologyCostAdjustmentRateAnnual': {'Ammonia': -0.013},
+        'maintenanceRateAnnual': {'Ammonia': 0.037},
+        'decommissioningRateAtClosure': {'Ammonia': 0.123},
     }
 
 
 class FinancialParameterContractTest(unittest.TestCase):
-    def test_financial_factors_and_coefficients(self):
-        base_cost = 9_876_543.21098765
-        discount_rate = 0.071
-        technology_rate = -0.013
-        maintenance_rate = 0.037
-        decommissioning_rate = 0.123
-
-        for period_index in range(3):
-            discount_factor = calculate_discount_factor(
-                discount_rate,
-                period_index,
-            )
-            self.assertEqual(
-                discount_factor,
-                1 / ((1 + discount_rate) ** period_index),
-            )
-            self.assertAlmostEqual(
-                calculate_opening_cost_coefficient(
-                    base_cost,
-                    technology_rate,
-                    period_index,
-                    discount_factor,
-                ),
-                base_cost * ((1 + technology_rate) ** period_index) * discount_factor,
-                places=10,
-            )
-            self.assertAlmostEqual(
-                calculate_maintenance_cost_coefficient(
-                    base_cost,
-                    maintenance_rate,
-                    discount_factor,
-                ),
-                base_cost * maintenance_rate * discount_factor,
-                places=10,
-            )
-            self.assertAlmostEqual(
-                calculate_decommissioning_cost_coefficient(
-                    base_cost,
-                    decommissioning_rate,
-                    discount_factor,
-                ),
-                base_cost * decommissioning_rate * discount_factor,
-                places=10,
-            )
-
-    def test_frontend_rates_prepare_full_precision_period_coefficients(self):
-        prepared = prepare_financial_costs_for_model(valid_payload())['Ammonia']
-
-        self.assertEqual(prepared['discountRatePerPlanningPeriod'], 0.05)
+    def test_period_two_uses_ten_elapsed_years(self):
+        self.assertEqual(calculate_elapsed_years(5, 2), 10)
         self.assertEqual(
-            prepared['technologyCostAdjustmentRatePerPlanningPeriod'],
-            -0.02,
+            calculate_discount_factor(0.071, 5, 2),
+            1 / (1.071 ** 10),
         )
-        self.assertEqual(prepared['maintenanceRatePerPlanningPeriod'], 0.04)
-        self.assertEqual(prepared['decommissioningRateAtClosure'], 0.10)
+
+    def test_annual_coefficients(self):
+        prepared = prepare_financial_costs_for_model(valid_payload())['Ammonia']
         for period_index in range(4):
-            discount_factor = 1 / (1.05 ** period_index)
+            elapsed_years = 5 * period_index
+            discount_factor = 1 / (1.071 ** elapsed_years)
             self.assertEqual(
                 prepared['discountFactorsByPeriod'][period_index],
                 discount_factor,
             )
-            self.assertEqual(
-                prepared['investmentCostsUSDByPeriod'][0][period_index],
-                BASE_COST * (0.98 ** period_index) * discount_factor,
+            self.assertAlmostEqual(
+                prepared['openingCostCoefficientsUSD'][0][period_index],
+                BASE_COST * (0.987 ** elapsed_years) * discount_factor,
+                places=9,
             )
-            self.assertEqual(
-                prepared['maintenanceCostsUSDByPeriod'][0][period_index],
-                BASE_COST * 0.04 * discount_factor,
+            self.assertAlmostEqual(
+                prepared['maintenanceCostCoefficientsUSD'][0][period_index],
+                5 * BASE_COST * 0.037 * discount_factor,
+                places=9,
             )
-            self.assertEqual(
-                prepared['decommissioningCostsUSDByPeriod'][0][period_index],
-                BASE_COST * 0.10 * discount_factor,
+            self.assertAlmostEqual(
+                prepared['decommissioningCostCoefficientsUSD'][0][period_index],
+                BASE_COST * 0.123 * discount_factor,
+                places=9,
             )
 
-    def test_transition_uses_period_present_value_costs_once(self):
+    def test_helper_formulas_use_annual_rates(self):
+        period_index = 2
+        discount_factor = 1 / (1.071 ** 10)
+        self.assertAlmostEqual(
+            calculate_opening_cost_coefficient(
+                BASE_COST, -0.013, 0.071, 5, period_index
+            ),
+            BASE_COST * (0.987 ** 10) * discount_factor,
+            places=9,
+        )
+        self.assertAlmostEqual(
+            calculate_maintenance_cost_coefficient(
+                BASE_COST, 0.037, 0.071, 5, period_index
+            ),
+            5 * BASE_COST * 0.037 * discount_factor,
+            places=9,
+        )
+        self.assertAlmostEqual(
+            calculate_decommissioning_cost_coefficient(
+                BASE_COST, 0.123, 0.071, 5, period_index
+            ),
+            BASE_COST * 0.123 * discount_factor,
+            places=9,
+        )
+
+    def test_transition_uses_adjusted_costs_then_discounting(self):
         payload = valid_payload()
         second_option = copy.deepcopy(payload['TankOptions']['Ammonia'][0])
         second_option['capacityMgoEquivalentTonnes'] = 5000
@@ -117,20 +103,22 @@ class FinancialParameterContractTest(unittest.TestCase):
         payload['Capacities']['Ammonia'].append(5000)
         prepared = prepare_financial_costs_for_model(payload)['Ammonia']
         period_index = 2
-        transition = calculate_transition_cost_coefficient(
+        expected = (
+            1.2
+            * abs(BASE_COST * 1.5 - BASE_COST)
+            * (0.987 ** 10)
+            / (1.071 ** 10)
+        )
+        calculated = calculate_transition_cost_coefficient(
             BASE_COST,
             BASE_COST * 1.5,
-            -0.02,
+            1.2,
+            -0.013,
+            0.071,
+            5,
             period_index,
-            1 / (1.05 ** period_index),
         )
-        expected = abs(
-            1.2
-            * (BASE_COST - BASE_COST * 1.5)
-            * (0.98 ** period_index)
-            / (1.05 ** period_index)
-        )
-        self.assertAlmostEqual(transition, expected, places=8)
+        self.assertAlmostEqual(calculated, expected, places=8)
         self.assertIsNone(prepared['transitionCostCoefficientsUSD'][0][1][0])
         self.assertAlmostEqual(
             prepared['transitionCostCoefficientsUSD'][0][1][period_index],
@@ -138,113 +126,95 @@ class FinancialParameterContractTest(unittest.TestCase):
             places=8,
         )
 
-    def test_distinctive_rates_are_preserved_in_backend_coefficients(self):
-        payload = valid_payload()
-        payload['discountRatePerPlanningPeriod'] = 0.071
-        payload['technologyCostAdjustmentRatePerPlanningPeriod']['Ammonia'] = -0.013
-        payload['maintenanceRatePerPlanningPeriod']['Ammonia'] = 0.037
-        payload['decommissioningRateAtClosure']['Ammonia'] = 0.123
-        prepared = prepare_financial_costs_for_model(payload)['Ammonia']
-
-        self.assertEqual(prepared['discountRatePerPlanningPeriod'], 0.071)
-        self.assertEqual(prepared['technologyCostAdjustmentRatePerPlanningPeriod'], -0.013)
-        self.assertEqual(prepared['maintenanceRatePerPlanningPeriod'], 0.037)
-        self.assertEqual(prepared['decommissioningRateAtClosure'], 0.123)
-        self.assertAlmostEqual(
-            prepared['openingCostCoefficientsUSD'][0][2],
-            BASE_COST * (0.987 ** 2) / (1.071 ** 2),
-            places=10,
-        )
-        self.assertAlmostEqual(
-            prepared['maintenanceCostCoefficientsUSD'][0][2],
-            BASE_COST * 0.037 / (1.071 ** 2),
-            places=10,
-        )
-        self.assertAlmostEqual(
-            prepared['decommissioningCostCoefficientsUSD'][0][2],
-            BASE_COST * 0.123 / (1.071 ** 2),
-            places=10,
-        )
-
     def test_valid_zero_rates_are_not_replaced(self):
         payload = valid_payload()
-        payload['discountRatePerPlanningPeriod'] = 0
-        for field in (
-            'technologyCostAdjustmentRatePerPlanningPeriod',
-            'maintenanceRatePerPlanningPeriod',
-            'decommissioningRateAtClosure',
-        ):
-            payload[field]['Ammonia'] = 0
+        payload['discountRateAnnual'] = 0
+        payload['transitionCostRate'] = 0
+        payload['technologyCostAdjustmentRateAnnual']['Ammonia'] = 0
+        payload['maintenanceRateAnnual']['Ammonia'] = 0
+        payload['decommissioningRateAtClosure']['Ammonia'] = 0
         prepared = prepare_financial_costs_for_model(payload)['Ammonia']
-        self.assertEqual(prepared['discountRatePerPlanningPeriod'], 0)
-        self.assertEqual(
-            prepared['technologyCostAdjustmentRatePerPlanningPeriod'],
-            0,
-        )
-        self.assertEqual(prepared['maintenanceRatePerPlanningPeriod'], 0)
+        self.assertEqual(prepared['discountRateAnnual'], 0)
+        self.assertEqual(prepared['transitionCostRate'], 0)
+        self.assertEqual(prepared['technologyCostAdjustmentRateAnnual'], 0)
+        self.assertEqual(prepared['maintenanceRateAnnual'], 0)
         self.assertEqual(prepared['decommissioningRateAtClosure'], 0)
 
-    def test_rejects_missing_non_numeric_infinite_and_nan_rates(self):
-        missing_discount = valid_payload()
-        del missing_discount['discountRatePerPlanningPeriod']
-        with self.assertRaisesRegex(ValueError, 'is required'):
-            prepare_financial_costs_for_model(missing_discount)
-
-        for invalid_value in ('5', None, math.inf, -math.inf, math.nan):
-            invalid = valid_payload()
-            invalid['discountRatePerPlanningPeriod'] = invalid_value
-            with self.assertRaises(ValueError):
-                prepare_financial_costs_for_model(invalid)
-
-        for field in (
-            'technologyCostAdjustmentRatePerPlanningPeriod',
-            'maintenanceRatePerPlanningPeriod',
+    def test_missing_non_numeric_boolean_infinite_and_nan_are_rejected(self):
+        scalar_fields = (
+            'planningPeriodYears',
+            'discountRateAnnual',
+            'transitionCostRate',
+        )
+        mapping_fields = (
+            'technologyCostAdjustmentRateAnnual',
+            'maintenanceRateAnnual',
             'decommissioningRateAtClosure',
-        ):
+        )
+        for field in scalar_fields:
+            missing = valid_payload()
+            del missing[field]
+            with self.assertRaises(ValueError):
+                prepare_financial_costs_for_model(missing)
+            for invalid in (True, False, '5', None, math.inf, -math.inf, math.nan):
+                payload = valid_payload()
+                payload[field] = invalid
+                with self.assertRaises(ValueError):
+                    prepare_financial_costs_for_model(payload)
+
+        for field in mapping_fields:
             missing = valid_payload()
             del missing[field]['Ammonia']
             with self.assertRaisesRegex(ValueError, 'is required'):
                 prepare_financial_costs_for_model(missing)
-
-            for invalid_value in ('5', None, math.inf, -math.inf, math.nan):
-                invalid = valid_payload()
-                invalid[field]['Ammonia'] = invalid_value
+            for invalid in (True, False, '5', None, math.inf, -math.inf, math.nan):
+                payload = valid_payload()
+                payload[field]['Ammonia'] = invalid
                 with self.assertRaises(ValueError):
-                    prepare_financial_costs_for_model(invalid)
+                    prepare_financial_costs_for_model(payload)
 
-    def test_rejects_rates_outside_allowed_ranges(self):
-        invalid_cases = (
-            ('discountRatePerPlanningPeriod', -1),
-            ('technologyCostAdjustmentRatePerPlanningPeriod', -1),
-            ('maintenanceRatePerPlanningPeriod', -0.01),
-            ('decommissioningRateAtClosure', -0.01),
+    def test_incoherent_values_are_rejected(self):
+        cases = (
+            ('planningPeriodYears', 0),
+            ('discountRateAnnual', -1),
+            ('transitionCostRate', -0.01),
         )
-        for field, value in invalid_cases:
+        for field, value in cases:
             payload = valid_payload()
-            if field == 'discountRatePerPlanningPeriod':
-                payload[field] = value
-            else:
-                payload[field]['Ammonia'] = value
+            payload[field] = value
+            with self.assertRaises(ValueError):
+                prepare_financial_costs_for_model(payload)
+        for field, value in (
+            ('technologyCostAdjustmentRateAnnual', -1),
+            ('maintenanceRateAnnual', -0.01),
+            ('decommissioningRateAtClosure', -0.01),
+        ):
+            payload = valid_payload()
+            payload[field]['Ammonia'] = value
             with self.assertRaises(ValueError):
                 prepare_financial_costs_for_model(payload)
 
-    def test_rejects_non_numeric_tank_option_base_cost(self):
-        payload = valid_payload()
-        payload['TankOptions']['Ammonia'][0]['baseInvestmentCostUSD'] = 'invalid'
-        with self.assertRaisesRegex(ValueError, 'must be a numeric value'):
-            prepare_financial_costs_for_model(payload)
-
-    def test_rejects_client_generated_period_cost_matrices(self):
+    def test_legacy_period_rate_fields_are_rejected_clearly(self):
         for field in (
-            'discountFactorsByPeriod',
-            'investmentCostsUSDByPeriod',
-            'maintenanceCostsUSDByPeriod',
-            'decommissioningCostsUSDByPeriod',
+            'discountRatePerPlanningPeriod',
+            'technologyCostAdjustmentRatePerPlanningPeriod',
+            'maintenanceRatePerPlanningPeriod',
         ):
             payload = valid_payload()
-            payload['Costs'] = {'Ammonia': {field: [[1, 2, 3, 4]]}}
-            with self.assertRaisesRegex(ValueError, 'must not be supplied'):
+            payload[field] = 0
+            with self.assertRaisesRegex(ValueError, 'Legacy planning-period'):
                 prepare_financial_costs_for_model(payload)
+
+    def test_base_cost_and_client_cost_matrices_are_rejected(self):
+        payload = valid_payload()
+        payload['TankOptions']['Ammonia'][0]['baseInvestmentCostUSD'] = -1
+        with self.assertRaisesRegex(ValueError, 'non-negative'):
+            prepare_financial_costs_for_model(payload)
+
+        payload = valid_payload()
+        payload['Costs'] = {'Ammonia': {'openingCostCoefficientsUSD': [[1]]}}
+        with self.assertRaisesRegex(ValueError, 'must not be supplied'):
+            prepare_financial_costs_for_model(payload)
 
 
 if __name__ == '__main__':

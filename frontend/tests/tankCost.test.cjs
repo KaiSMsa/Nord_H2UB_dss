@@ -79,17 +79,17 @@ test("maintenance and decommissioning derive from the same base investment cost"
   const baseCost = estimateTankOption("ammonia", 3000).baseInvestmentCostUSD;
   assert.equal(calculateMaintenanceCost(baseCost, 0.04), baseCost * 0.04);
   assert.equal(calculateDecommissioningCost(baseCost, 0.1), baseCost * 0.1);
-  assert.equal(fuelParameterCatalog.common.maintenanceRateBasis, "per-planning-period");
+  assert.equal(fuelParameterCatalog.common.maintenanceRateBasis, "annual");
 });
 
-test("cost adjustment and discounting are separate and each applied once", () => {
-  const adjusted = calculateTimeAdjustedInvestmentCost(100, -0.02, 2);
-  const discountFactor = calculateDiscountFactor(0.05, 2);
+test("annual cost adjustment and discounting use elapsed years", () => {
+  const adjusted = calculateTimeAdjustedInvestmentCost(100, -0.02, 10);
+  const discountFactor = calculateDiscountFactor(0.05, 10);
   const presentValue = calculatePresentValueCost(adjusted, discountFactor);
 
-  approximatelyEqual(adjusted, 96.04, 1e-12, "adjusted cost");
-  approximatelyEqual(discountFactor, 1 / 1.05 ** 2, 1e-12, "discount factor");
-  approximatelyEqual(presentValue, 96.04 / 1.05 ** 2, 1e-12, "present value");
+  approximatelyEqual(adjusted, 100 * 0.98 ** 10, 1e-12, "adjusted cost");
+  approximatelyEqual(discountFactor, 1 / 1.05 ** 10, 1e-12, "discount factor");
+  approximatelyEqual(presentValue, 100 * 0.98 ** 10 / 1.05 ** 10, 1e-12, "present value");
 });
 
 test("discount factor validates the rate and period index", () => {
@@ -102,7 +102,7 @@ test("discount factor validates the rate and period index", () => {
 
 test("neutral discount default is explicitly awaiting author approval", () => {
   assert.equal(
-    fuelParameterCatalog.common.defaultDiscountRatePerPlanningPeriod,
+    fuelParameterCatalog.common.defaultDiscountRateAnnual,
     0
   );
   assert.equal(

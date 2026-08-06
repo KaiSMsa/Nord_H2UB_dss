@@ -58,12 +58,12 @@
               <div class="assumption-row">
                 <div class="assumption-field">
                   <label
-                    title="Shared across all fuels. Converts costs incurred in future planning periods into present-value terms. The neutral 0% default requires author approval before production use."
-                  >Discount rate per planning period (%)</label>
-                  <input type="number" v-model.number="localData.discountRatePercent" placeholder="0" min="-99.99" step="0.1" required
+                    title="Shared across all fuels. Annual rate used to convert future costs into present-value terms. The neutral 0% default requires author approval before production use."
+                  >Annual discount rate (%)</label>
+                  <input type="number" v-model.number="localData.discountRateAnnualPercent" placeholder="0" min="-99.99" step="0.1" required
                     :class="{ 'is-invalid': isDiscountRateInvalid() }" :disabled="isDisabled"
                     @input="emitCleanData"
-                    @blur="normalizeNumberField(localData, 'discountRatePercent', defaultDiscountRatePercent); emitCleanData()" />
+                    @blur="normalizeNumberField(localData, 'discountRateAnnualPercent', defaultDiscountRateAnnualPercent); emitCleanData()" />
                   <small v-if="isDiscountRateInvalid()" class="assumption-error">
                     Discount rate must be greater than -100%.
                   </small>
@@ -71,22 +71,22 @@
 
                 <div class="assumption-field">
                   <label
-                    title="Represents the expected change in the fuel-specific technology cost between planning periods. Negative values represent cost reductions."
-                  >Cost adjustment per planning period (%) for {{ fuel.name }}</label>
-                  <input type="number" v-model.number="fuel.technologyCostAdjustmentRatePercent" placeholder="-2" min="-99.99" required
+                    title="Annual expected change in the fuel-specific technology cost. Negative values represent cost reductions."
+                  >Annual cost adjustment (%) for {{ fuel.name }}</label>
+                  <input type="number" v-model.number="fuel.technologyCostAdjustmentRateAnnualPercent" placeholder="-2" min="-99.99" required
                     :disabled="isDisabled"
-                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRatePercent', 0); emitCleanData()" />
+                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRateAnnualPercent', 0); emitCleanData()" />
                 </div>
               </div>
 
               <div class="assumption-row">
                 <div class="assumption-field">
                   <label
-                    title="Applied to the base investment cost in each planning period in which maintenance is charged."
-                  >Maintenance rate per planning period (%) for {{ fuel.name }}</label>
-                  <input type="number" v-model.number="fuel.maintenanceRatePercent" placeholder="4" min="0" required
+                    title="Annual maintenance cost as a share of base investment. The backend aggregates it over each planning period."
+                  >Annual maintenance rate (%) for {{ fuel.name }}</label>
+                  <input type="number" v-model.number="fuel.maintenanceRateAnnualPercent" placeholder="4" min="0" required
                     :disabled="isDisabled"
-                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRatePercent', 0); emitCleanData()" />
+                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRateAnnualPercent', 0); emitCleanData()" />
                 </div>
 
                 <div class="assumption-field">
@@ -122,6 +122,7 @@
 
 <script>
 import { FUELS, FUEL_BY_NAME } from "@/constants/fuels.js";
+import { PLANNING_PERIOD_YEARS } from "@/constants/planningYears.js";
 import {
   calculateDiscountFactor,
   calculatePresentValueCost,
@@ -130,7 +131,7 @@ import {
   fuelParameterCatalog,
   getFuelParameters,
 } from "@/utils/tankCost.js";
-import { formatUSDToNearestThousand } from "@/utils/currencyFormatting.js";
+import { formatUSDWithoutDecimals } from "@/utils/currencyFormatting.js";
 import cloneDeep from "lodash.clonedeep";
 
 const STEP_SIZE = 100;
@@ -146,8 +147,8 @@ export default {
     return {
       localData: this.clone(this.capacitySelection),
       stepSize: STEP_SIZE,
-      defaultDiscountRatePercent:
-        fuelParameterCatalog.common.defaultDiscountRatePerPlanningPeriod * 100,
+      defaultDiscountRateAnnualPercent:
+        fuelParameterCatalog.common.defaultDiscountRateAnnual * 100,
       lastEmittedSignature: "",
     };
   },
@@ -214,13 +215,47 @@ export default {
         const number = Number(candidate);
         return candidate !== "" && Number.isFinite(number) ? number : fallback;
       };
+      const equivalentAnnualPercent = (planningPeriodPercent) => {
+        if (
+          planningPeriodPercent === "" ||
+          planningPeriodPercent === null ||
+          planningPeriodPercent === undefined
+        ) return undefined;
+        const percentage = Number(planningPeriodPercent);
+        if (!Number.isFinite(percentage) || percentage <= -100) return undefined;
+        return (
+          (Math.pow(
+            1 + percentage / 100,
+            1 / PLANNING_PERIOD_YEARS
+          ) - 1) * 100
+        );
+      };
+      const annualMaintenancePercent = (planningPeriodPercent) => {
+        if (
+          planningPeriodPercent === "" ||
+          planningPeriodPercent === null ||
+          planningPeriodPercent === undefined
+        ) return undefined;
+        const percentage = Number(planningPeriodPercent);
+        return Number.isFinite(percentage)
+          ? percentage / PLANNING_PERIOD_YEARS
+          : undefined;
+      };
       const firstFuel = this.localData.fuels[0] || {};
-      this.localData.discountRatePercent = rateValue(
-        this.localData.discountRatePercent,
-        this.localData.discountRate ?? firstFuel.discountRatePercent ?? firstFuel.discountRate,
-        this.defaultDiscountRatePercent
+      const legacyDiscountRatePercent =
+        this.localData.discountRatePercent
+        ?? this.localData.discountRate
+        ?? firstFuel.discountRatePercent
+        ?? firstFuel.discountRate;
+      this.localData.discountRateAnnualPercent = rateValue(
+        this.localData.discountRateAnnualPercent,
+        equivalentAnnualPercent(legacyDiscountRatePercent),
+        this.defaultDiscountRateAnnualPercent
       );
       delete this.localData.discountRate;
+      delete this.localData.discountRatePercent;
+      this.localData.transitionCostRate ??=
+        fuelParameterCatalog.common.transitionCostRate;
 
       const existing = new Map(this.localData.fuels.map((f) => [f.name, f]));
       const merged = FUELS.map((def) => {
@@ -231,23 +266,29 @@ export default {
         delete currentState.discountRate;
         delete currentState.discountRatePercent;
         delete currentState.changeRate;
+        delete currentState.technologyCostAdjustmentRatePercent;
         delete currentState.maintenanceCost;
+        delete currentState.maintenanceRatePercent;
         delete currentState.decommissioningCost;
 
         return {
           ...currentState,
           id: def.id,
           class: def.class,
-          technologyCostAdjustmentRatePercent: rateValue(
-            f.technologyCostAdjustmentRatePercent,
-            f.changeRate,
+          technologyCostAdjustmentRateAnnualPercent: rateValue(
+            f.technologyCostAdjustmentRateAnnualPercent,
+            equivalentAnnualPercent(
+              f.technologyCostAdjustmentRatePercent ?? f.changeRate
+            ),
             fuelParameterCatalog.common
-              .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100
+              .defaultTechnologyCostAdjustmentRateAnnual * 100
           ),
-          maintenanceRatePercent: rateValue(
-            f.maintenanceRatePercent,
-            f.maintenanceCost,
-            fuelParameterCatalog.common.maintenanceRatePerPlanningPeriod * 100
+          maintenanceRateAnnualPercent: rateValue(
+            f.maintenanceRateAnnualPercent,
+            annualMaintenancePercent(
+              f.maintenanceRatePercent ?? f.maintenanceCost
+            ),
+            fuelParameterCatalog.common.maintenanceRateAnnual * 100
           ),
           decommissioningRateAtClosurePercent: rateValue(
             f.decommissioningRateAtClosurePercent,
@@ -265,11 +306,11 @@ export default {
         name,
         class: cssClass,
         rows: [],
-        technologyCostAdjustmentRatePercent:
+        technologyCostAdjustmentRateAnnualPercent:
           fuelParameterCatalog.common
-            .defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100,
-        maintenanceRatePercent:
-          fuelParameterCatalog.common.maintenanceRatePerPlanningPeriod * 100,
+            .defaultTechnologyCostAdjustmentRateAnnual * 100,
+        maintenanceRateAnnualPercent:
+          fuelParameterCatalog.common.maintenanceRateAnnual * 100,
         decommissioningRateAtClosurePercent:
           fuelParameterCatalog.common.decommissioningRateAtClosure * 100,
       };
@@ -332,11 +373,11 @@ export default {
     },
     isDiscountRateInvalid() {
       if (
-        this.localData.discountRatePercent === "" ||
-        this.localData.discountRatePercent === null ||
-        this.localData.discountRatePercent === undefined
+        this.localData.discountRateAnnualPercent === "" ||
+        this.localData.discountRateAnnualPercent === null ||
+        this.localData.discountRateAnnualPercent === undefined
       ) return true;
-      const ratePercent = Number(this.localData.discountRatePercent);
+      const ratePercent = Number(this.localData.discountRateAnnualPercent);
       return !Number.isFinite(ratePercent) || ratePercent <= -100;
     },
     /* ---------------------------
@@ -429,7 +470,7 @@ export default {
      * UI helpers
      * --------------------------- */
     fmtUSD(x) {
-      return formatUSDToNearestThousand(x);
+      return formatUSDWithoutDecimals(x);
     },
     fmtNumber(x) {
       return new Intl.NumberFormat("en-US", {
@@ -450,25 +491,24 @@ export default {
         Number(firstValidRow?.capacity) ||
         parameters.minimumCapacityMgoEquivalentTonnes;
       const result = estimateTankOption(fuel.id || fuel.name, capacity);
-      const discountRatePerPlanningPeriod =
-        Number(this.localData.discountRatePercent) / 100;
-      const technologyCostAdjustmentRatePerPlanningPeriod =
-        Number(fuel.technologyCostAdjustmentRatePercent) / 100;
+      const discountRateAnnual =
+        Number(this.localData.discountRateAnnualPercent) / 100;
+      const technologyCostAdjustmentRateAnnual =
+        Number(fuel.technologyCostAdjustmentRateAnnualPercent) / 100;
       const hasValidDiscountRate =
-        Number.isFinite(discountRatePerPlanningPeriod) &&
-        discountRatePerPlanningPeriod > -1;
+        Number.isFinite(discountRateAnnual) && discountRateAnnual > -1;
       const financialLines = [];
 
       if (hasValidDiscountRate) {
         const periodOneDiscountFactor = calculateDiscountFactor(
-          discountRatePerPlanningPeriod,
-          1
+          discountRateAnnual,
+          PLANNING_PERIOD_YEARS
         );
         const periodOneAdjustedInvestmentCost =
           calculateTimeAdjustedInvestmentCost(
             result.baseInvestmentCostUSD,
-            technologyCostAdjustmentRatePerPlanningPeriod,
-            1
+            technologyCostAdjustmentRateAnnual,
+            PLANNING_PERIOD_YEARS
           );
         const periodOnePresentValueInvestmentCost = calculatePresentValueCost(
           periodOneAdjustedInvestmentCost,
@@ -476,8 +516,8 @@ export default {
         );
 
         financialLines.push(
-          `<li><strong>Period 1 technology adjustment:</strong> Base cost × (1 + ${technologyCostAdjustmentRatePerPlanningPeriod}) = ${this.fmtUSD(periodOneAdjustedInvestmentCost)} USD.</li>`,
-          `<li><strong>Period 1 discount factor:</strong> 1 / (1 + ${discountRatePerPlanningPeriod}) = ${periodOneDiscountFactor.toFixed(6)}.</li>`,
+          `<li><strong>Period 1 technology adjustment:</strong> Base cost × (1 + ${technologyCostAdjustmentRateAnnual})<sup>${PLANNING_PERIOD_YEARS}</sup> = ${this.fmtUSD(periodOneAdjustedInvestmentCost)} USD.</li>`,
+          `<li><strong>Period 1 discount factor:</strong> 1 / (1 + ${discountRateAnnual})<sup>${PLANNING_PERIOD_YEARS}</sup> = ${periodOneDiscountFactor.toFixed(6)}.</li>`,
           `<li><strong>Period 1 present value:</strong> Adjusted cost × discount factor = ${this.fmtUSD(periodOnePresentValueInvestmentCost)} USD.</li>`
         );
       } else {

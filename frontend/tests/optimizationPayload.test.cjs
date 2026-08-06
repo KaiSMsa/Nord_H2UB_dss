@@ -11,55 +11,60 @@ function validFuel(overrides = {}) {
     id: "liquid-hydrogen",
     name: "Liquid Hydrogen",
     rows: [{ capacity: 3000 }],
-    technologyCostAdjustmentRatePercent: -2,
-    maintenanceRatePercent: 4,
+    technologyCostAdjustmentRateAnnualPercent: -2,
+    maintenanceRateAnnualPercent: 4,
     decommissioningRateAtClosurePercent: 10,
     ...overrides,
   };
 }
 
 test("request preserves exact base costs and converts percentages once", () => {
-  const payload = buildTankCostPayload([validFuel()], 5);
+  const payload = buildTankCostPayload([validFuel()], 5, 5, 1.2);
   const option = payload.TankOptions["Liquid Hydrogen"][0];
 
   assert.equal(Number.isFinite(option.baseInvestmentCostUSD), true);
   assert.equal(payload.Capacities["Liquid Hydrogen"][0], 3000);
-  assert.equal(payload.discountRatePerPlanningPeriod, 0.05);
-  assert.equal(payload.technologyCostAdjustmentRatePerPlanningPeriod["Liquid Hydrogen"], -0.02);
-  assert.equal(payload.maintenanceRatePerPlanningPeriod["Liquid Hydrogen"], 0.04);
+  assert.equal(payload.discountRateAnnual, 0.05);
+  assert.equal(payload.technologyCostAdjustmentRateAnnual["Liquid Hydrogen"], -0.02);
+  assert.equal(payload.maintenanceRateAnnual["Liquid Hydrogen"], 0.04);
   assert.equal(payload.decommissioningRateAtClosure["Liquid Hydrogen"], 0.1);
+  assert.equal(payload.planningPeriodYears, 5);
+  assert.equal(payload.transitionCostRate, 1.2);
   assert.equal("Costs" in payload, false);
 });
 
 test("valid zero percentages are preserved rather than treated as missing", () => {
   const payload = buildTankCostPayload([
     validFuel({
-      technologyCostAdjustmentRatePercent: 0,
-      maintenanceRatePercent: 0,
+      technologyCostAdjustmentRateAnnualPercent: 0,
+      maintenanceRateAnnualPercent: 0,
       decommissioningRateAtClosurePercent: 0,
     }),
-  ], 0);
+  ], 0, 5, 0);
 
-  assert.equal(payload.discountRatePerPlanningPeriod, 0);
-  assert.equal(payload.technologyCostAdjustmentRatePerPlanningPeriod["Liquid Hydrogen"], 0);
-  assert.equal(payload.maintenanceRatePerPlanningPeriod["Liquid Hydrogen"], 0);
+  assert.equal(payload.discountRateAnnual, 0);
+  assert.equal(payload.technologyCostAdjustmentRateAnnual["Liquid Hydrogen"], 0);
+  assert.equal(payload.maintenanceRateAnnual["Liquid Hydrogen"], 0);
   assert.equal(payload.decommissioningRateAtClosure["Liquid Hydrogen"], 0);
 });
 
 for (const field of [
-  "technologyCostAdjustmentRatePercent",
-  "maintenanceRatePercent",
+  "technologyCostAdjustmentRateAnnualPercent",
+  "maintenanceRateAnnualPercent",
   "decommissioningRateAtClosurePercent",
 ]) {
   test(`missing ${field} is rejected before request serialization`, () => {
     const fuel = validFuel();
     delete fuel[field];
-    assert.throws(() => buildTankCostPayload([fuel], 5), /is required/);
+    assert.throws(() => buildTankCostPayload([fuel], 5, 5, 1.2), /is required/);
   });
 }
 
 test("missing scalar discount rate is rejected before request serialization", () => {
-  assert.throws(() => buildTankCostPayload([validFuel()]), /discountRatePercent is required/);
+  assert.throws(
+    () => buildTankCostPayload([validFuel()], undefined, 5, 1.2),
+    /discountRateAnnualPercent is required/
+  );
 });
 
 test("discount rate is scalar while other rates are mappings by fuel", () => {
@@ -68,18 +73,18 @@ test("discount rate is scalar while other rates are mappings by fuel", () => {
     validFuel({
       id: "ammonia",
       name: "Ammonia",
-      technologyCostAdjustmentRatePercent: -3,
-      maintenanceRatePercent: 5,
+      technologyCostAdjustmentRateAnnualPercent: -3,
+      maintenanceRateAnnualPercent: 5,
       decommissioningRateAtClosurePercent: 12,
     }),
-  ], 6);
+  ], 6, 5, 1.2);
 
-  assert.equal(payload.discountRatePerPlanningPeriod, 0.06);
-  assert.deepEqual(payload.technologyCostAdjustmentRatePerPlanningPeriod, {
+  assert.equal(payload.discountRateAnnual, 0.06);
+  assert.deepEqual(payload.technologyCostAdjustmentRateAnnual, {
     "Liquid Hydrogen": -0.02,
     Ammonia: -0.03,
   });
-  assert.deepEqual(payload.maintenanceRatePerPlanningPeriod, {
+  assert.deepEqual(payload.maintenanceRateAnnual, {
     "Liquid Hydrogen": 0.04,
     Ammonia: 0.05,
   });
@@ -98,8 +103,23 @@ test("out-of-range options cannot reach the backend", () => {
           name: "Compressed Hydrogen",
           rows: [{ capacity: 3000 }],
         }),
-      ], 5),
+      ], 5, 5, 1.2),
     /above the maximum/
+  );
+});
+
+test("planning duration and transition rate are required and validated", () => {
+  assert.throws(
+    () => buildTankCostPayload([validFuel()], 5, 0, 1.2),
+    /planningPeriodYears/
+  );
+  assert.throws(
+    () => buildTankCostPayload([validFuel()], 5, 5, -0.1),
+    /transitionCostRate/
+  );
+  assert.throws(
+    () => buildTankCostPayload([validFuel()], 5, 5, true),
+    /transitionCostRate/
   );
 });
 

@@ -97,13 +97,13 @@ function calculateBaseInvestmentCost(
 
 function calculateMaintenanceCost(
   baseInvestmentCostUSD,
-  maintenanceRatePerPlanningPeriod
+  maintenanceRateAnnual
 ) {
   return (
     requireFiniteNumber(baseInvestmentCostUSD, "baseInvestmentCostUSD") *
     requireFiniteNumber(
-      maintenanceRatePerPlanningPeriod,
-      "maintenanceRatePerPlanningPeriod"
+      maintenanceRateAnnual,
+      "maintenanceRateAnnual"
     )
   );
 }
@@ -123,36 +123,34 @@ function calculateDecommissioningCost(
 
 function calculateTimeAdjustedInvestmentCost(
   baseInvestmentCostUSD,
-  technologyCostAdjustmentRatePerPlanningPeriod,
-  periodIndex
+  technologyCostAdjustmentRateAnnual,
+  elapsedYears
 ) {
   const baseCost = requireFiniteNumber(
     baseInvestmentCostUSD,
     "baseInvestmentCostUSD"
   );
   const rate = requireFiniteNumber(
-    technologyCostAdjustmentRatePerPlanningPeriod,
-    "technologyCostAdjustmentRatePerPlanningPeriod"
+    technologyCostAdjustmentRateAnnual,
+    "technologyCostAdjustmentRateAnnual"
   );
-  const period = requireFiniteNumber(periodIndex, "periodIndex");
-  return baseCost * Math.pow(1 + rate, period);
+  const years = requireFiniteNumber(elapsedYears, "elapsedYears");
+  return baseCost * Math.pow(1 + rate, years);
 }
 
-function calculateDiscountFactor(discountRatePerPlanningPeriod, periodIndex) {
+function calculateDiscountFactor(discountRateAnnual, elapsedYears) {
   const rate = requireFiniteNumber(
-    discountRatePerPlanningPeriod,
-    "discountRatePerPlanningPeriod"
+    discountRateAnnual,
+    "discountRateAnnual"
   );
-  const period = requireFiniteNumber(periodIndex, "periodIndex");
+  const years = requireFiniteNumber(elapsedYears, "elapsedYears");
   if (rate <= -1) {
-    throw new RangeError(
-      "discountRatePerPlanningPeriod must be greater than -1"
-    );
+    throw new RangeError("discountRateAnnual must be greater than -1");
   }
-  if (period < 0) {
-    throw new RangeError("periodIndex must be greater than or equal to zero");
+  if (years < 0) {
+    throw new RangeError("elapsedYears must be greater than or equal to zero");
   }
-  return 1 / Math.pow(1 + rate, period);
+  return 1 / Math.pow(1 + rate, years);
 }
 
 function calculatePresentValueCost(nominalPeriodCostUSD, discountFactor) {

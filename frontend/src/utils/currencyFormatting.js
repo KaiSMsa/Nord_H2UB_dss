@@ -10,7 +10,17 @@ function formatUSDToNearestThousand(value) {
   }).format(roundUSDToNearestThousand(value));
 }
 
+function formatUSDWithoutDecimals(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "0";
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 module.exports = {
   roundUSDToNearestThousand,
   formatUSDToNearestThousand,
+  formatUSDWithoutDecimals,
 };

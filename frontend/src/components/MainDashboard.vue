@@ -82,7 +82,11 @@ import PortFuelInformation from './PortFuelInformation.vue';
 import FuelCapacitySelection from './FuelCapacitySelection.vue';
 import FuelBarSelection from './FuelBarSelection.vue';
 import ResultBarChart from './ResultBarChart.vue';
-import { PLANNING_YEARS } from '@/constants/planningYears.js';
+import {
+  PLANNING_PERIOD_YEARS,
+  PLANNING_YEARS,
+} from '@/constants/planningYears.js';
+import fuelParameterCatalog from '@/constants/fuelParameters.json';
 import { createInitialFuelCapacitySelection } from '@/constants/fuels.js';
 import {
   buildInitialStatePayload,
@@ -410,18 +414,21 @@ export default {
       dataSubmit.Capacities = {};
       const tankCostPayload = buildTankCostPayload(
         sData.fuelCapacitySelection.fuels,
-        sData.fuelCapacitySelection.discountRatePercent
+        sData.fuelCapacitySelection.discountRateAnnualPercent,
+        PLANNING_PERIOD_YEARS,
+        sData.fuelCapacitySelection.transitionCostRate
+          ?? fuelParameterCatalog.common.transitionCostRate
       );
       dataSubmit.Capacities = tankCostPayload.Capacities;
       dataSubmit.TankOptions = tankCostPayload.TankOptions;
-      dataSubmit.discountRatePerPlanningPeriod =
-        tankCostPayload.discountRatePerPlanningPeriod;
-      dataSubmit.technologyCostAdjustmentRatePerPlanningPeriod =
-        tankCostPayload.technologyCostAdjustmentRatePerPlanningPeriod;
-      dataSubmit.maintenanceRatePerPlanningPeriod =
-        tankCostPayload.maintenanceRatePerPlanningPeriod;
+      dataSubmit.discountRateAnnual = tankCostPayload.discountRateAnnual;
+      dataSubmit.technologyCostAdjustmentRateAnnual =
+        tankCostPayload.technologyCostAdjustmentRateAnnual;
+      dataSubmit.maintenanceRateAnnual = tankCostPayload.maintenanceRateAnnual;
       dataSubmit.decommissioningRateAtClosure =
         tankCostPayload.decommissioningRateAtClosure;
+      dataSubmit.planningPeriodYears = tankCostPayload.planningPeriodYears;
+      dataSubmit.transitionCostRate = tankCostPayload.transitionCostRate;
 
       // 4. Extract Demand Data
       dataSubmit.Demand = {};

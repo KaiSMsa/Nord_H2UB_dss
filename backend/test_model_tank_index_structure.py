@@ -28,11 +28,13 @@ def model_payload(demand):
             'Test Fuel': dict(zip(periods, demand)),
         },
         'InitialState': {'Test Fuel': [[0]]},
-        'discountRatePerPlanningPeriod': 0.071,
-        'technologyCostAdjustmentRatePerPlanningPeriod': {
+        'planningPeriodYears': 5,
+        'discountRateAnnual': 0.071,
+        'transitionCostRate': 1.2,
+        'technologyCostAdjustmentRateAnnual': {
             'Test Fuel': -0.013,
         },
-        'maintenanceRatePerPlanningPeriod': {'Test Fuel': 0.037},
+        'maintenanceRateAnnual': {'Test Fuel': 0.037},
         'decommissioningRateAtClosure': {'Test Fuel': 0.123},
     }
 
@@ -48,7 +50,7 @@ class TankIndexModelStructureTest(unittest.TestCase):
         self.assertEqual(solution['2030']['Tank_1'][100]['opened'], 1)
         self.assertEqual(solution['2035']['Tank_1'][100]['operating'], 1)
         self.assertEqual(solution['2040']['Tank_1'][100]['operating'], 1)
-        self.assertEqual(result['costs']['Test Fuel']['2030']['Tank_1'][100]['operating'], 0.0)
+        self.assertGreater(result['costs']['Test Fuel']['2030']['Tank_1'][100]['operating'], 0.0)
         self.assertGreater(result['costs']['Test Fuel']['2035']['Tank_1'][100]['operating'], 0.0)
 
         model = build_facility_location_model(payload)
@@ -56,6 +58,14 @@ class TankIndexModelStructureTest(unittest.TestCase):
         objective = model['solver'].Objective()
         self.assertEqual(objective.GetCoefficient(y[0, 0, 0, 0]), 0.0)
         self.assertGreater(objective.GetCoefficient(y[0, 0, 0, 1]), 0.0)
+
+    def test_initial_tank_has_maintenance_but_no_opening_investment(self):
+        payload = model_payload([100, 100, 100, 100])
+        payload['InitialState']['Test Fuel'] = [[1]]
+        result = solve_facility_location(payload)
+        initial_cost = result['costs']['Test Fuel']['2025']['Tank_1'][100]
+        self.assertEqual(initial_cost['opened'], 0.0)
+        self.assertGreater(initial_cost['operating'], 0.0)
 
     def test_decommissioning_is_charged_once_at_closure(self):
         result = solve_facility_location(model_payload([0, 100, 100, 0]))
@@ -66,6 +76,21 @@ class TankIndexModelStructureTest(unittest.TestCase):
             result['costs']['Test Fuel']['2040']['Tank_1'][100]['closed'],
             0.0,
         )
+        self.assertEqual(
+            result['costBreakdown']['decommissioningCostUSD'],
+            result['costs']['Test Fuel']['2040']['Tank_1'][100]['closed'],
+        )
+
+    def test_cost_breakdown_matches_objective(self):
+        result = solve_facility_location(model_payload([0, 100, 100, 0]))
+        breakdown = result['costBreakdown']
+        component_sum = (
+            breakdown['openingInvestmentCostUSD']
+            + breakdown['maintenanceCostUSD']
+            + breakdown['decommissioningCostUSD']
+            + breakdown['transitionCostUSD']
+        )
+        self.assertAlmostEqual(component_sum, breakdown['totalObjectiveUSD'], places=6)
 
     def test_transition_variables_exclude_same_capacity_and_period_zero(self):
         payload = model_payload([0, 100, 100, 100])

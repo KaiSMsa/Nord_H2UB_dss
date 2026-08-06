@@ -14,7 +14,7 @@ const coefficientSource = fs.readFileSync(
 
 test("active model structurally follows period-zero and state-variable timing", () => {
   assert.match(modelSource, /for period_index in range\(1, len\(periods\)\):/);
-  assert.match(modelSource, /maintenanceCostCoefficientsUSD'[\s\S]*\* s\[/);
+  assert.match(modelSource, /maintenanceCostCoefficientsUSD'[\s\S]*y\[[\s\S]*\+ s\[/);
   assert.match(modelSource, /decommissioningCostCoefficientsUSD'[\s\S]*\* x\[/);
   assert.match(modelSource, /initial_opening/);
   assert.match(modelSource, /initial_operating/);
@@ -49,5 +49,6 @@ test("backend owns all four full-precision period coefficient formulas", () => {
   ]) {
     assert.ok(coefficientSource.includes(`def ${functionName}(`), functionName);
   }
-  assert.match(coefficientSource, /transition_cost_multiplier=1\.2/);
+  assert.match(coefficientSource, /transition_cost_rate/);
+  assert.doesNotMatch(coefficientSource, /transition_cost_multiplier=1\.2/);
 });

@@ -15,17 +15,34 @@ function percentageToRate(value, fieldName) {
   return percentage / 100;
 }
 
-function buildTankCostPayload(fuels, discountRatePercent) {
+function buildTankCostPayload(
+  fuels,
+  discountRateAnnualPercent,
+  planningPeriodYears,
+  transitionCostRate
+) {
+  if (!Number.isInteger(planningPeriodYears) || planningPeriodYears <= 0) {
+    throw new TypeError("planningPeriodYears must be a positive integer");
+  }
+  if (
+    typeof transitionCostRate !== "number" ||
+    !Number.isFinite(transitionCostRate) ||
+    transitionCostRate < 0
+  ) {
+    throw new TypeError("transitionCostRate must be a finite non-negative number");
+  }
   const payload = {
     Capacities: {},
     TankOptions: {},
-    discountRatePerPlanningPeriod: percentageToRate(
-      discountRatePercent,
-      "discountRatePercent"
+    discountRateAnnual: percentageToRate(
+      discountRateAnnualPercent,
+      "discountRateAnnualPercent"
     ),
-    technologyCostAdjustmentRatePerPlanningPeriod: {},
-    maintenanceRatePerPlanningPeriod: {},
+    technologyCostAdjustmentRateAnnual: {},
+    maintenanceRateAnnual: {},
     decommissioningRateAtClosure: {},
+    planningPeriodYears,
+    transitionCostRate,
   };
 
   fuels.forEach((fuel) => {
@@ -47,13 +64,13 @@ function buildTankCostPayload(fuels, discountRatePercent) {
       (option) => option.capacityMgoEquivalentTonnes
     );
     payload.TankOptions[fuelName] = tankOptions;
-    payload.technologyCostAdjustmentRatePerPlanningPeriod[fuelName] = percentageToRate(
-      fuel.technologyCostAdjustmentRatePercent,
-      `${fuelName}.technologyCostAdjustmentRatePercent`
+    payload.technologyCostAdjustmentRateAnnual[fuelName] = percentageToRate(
+      fuel.technologyCostAdjustmentRateAnnualPercent,
+      `${fuelName}.technologyCostAdjustmentRateAnnualPercent`
     );
-    payload.maintenanceRatePerPlanningPeriod[fuelName] = percentageToRate(
-      fuel.maintenanceRatePercent,
-      `${fuelName}.maintenanceRatePercent`
+    payload.maintenanceRateAnnual[fuelName] = percentageToRate(
+      fuel.maintenanceRateAnnualPercent,
+      `${fuelName}.maintenanceRateAnnualPercent`
     );
     payload.decommissioningRateAtClosure[fuelName] = percentageToRate(
       fuel.decommissioningRateAtClosurePercent,

@@ -25,8 +25,9 @@ export function createInitialFuelCapacitySelection() {
   const common = fuelParameterCatalog.common;
 
   return {
-    discountRatePercent:
-      common.defaultDiscountRatePerPlanningPeriod * 100,
+    discountRateAnnualPercent:
+      common.defaultDiscountRateAnnual * 100,
+    transitionCostRate: common.transitionCostRate,
     fuels: FUELS.map((fuelDefinition) => {
       const parameters = fuelParameterCatalog.fuels.find(
         (fuel) => fuel.id === fuelDefinition.id
@@ -41,9 +42,9 @@ export function createInitialFuelCapacitySelection() {
           storageVolume: 0,
           cost: 0,
         })),
-        technologyCostAdjustmentRatePercent:
-          common.defaultTechnologyCostAdjustmentRatePerPlanningPeriod * 100,
-        maintenanceRatePercent: common.maintenanceRatePerPlanningPeriod * 100,
+        technologyCostAdjustmentRateAnnualPercent:
+          common.defaultTechnologyCostAdjustmentRateAnnual * 100,
+        maintenanceRateAnnualPercent: common.maintenanceRateAnnual * 100,
         decommissioningRateAtClosurePercent:
           common.decommissioningRateAtClosure * 100,
       };
