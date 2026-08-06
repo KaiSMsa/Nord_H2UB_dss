@@ -89,6 +89,11 @@ import {
 import fuelParameterCatalog from '@/constants/fuelParameters.json';
 import { createInitialFuelCapacitySelection } from '@/constants/fuels.js';
 import {
+  INITIAL_MGO_EQUIVALENT_TONNES,
+  INITIAL_PORT_FUEL_AMOUNTS_TONNES,
+  createInitialFuelSelectionIntervals,
+} from '@/constants/initialFuelSelection.js';
+import {
   buildInitialStatePayload,
   buildTankCostPayload,
 } from '@/utils/optimizationPayload.js';
@@ -103,22 +108,11 @@ function initialGlobalData() {
   return {
     isStep1Initial: true,
     portFuelInformation: {
-      totalMGOEquivalent: 10000,
-      fuelAmounts: { MGO: 10000, MDO: 0, IFO: 0, VLSFO: 0, HFO: 0 }
+      totalMGOEquivalent: INITIAL_MGO_EQUIVALENT_TONNES,
+      fuelAmounts: { ...INITIAL_PORT_FUEL_AMOUNTS_TONNES }
     },
     fuelBarSelection: {
-      intervals: PLANNING_YEARS.map(year => ({
-        name: year,
-        totalAmount: 10000,
-        fuelValues: {
-          MGO: 10000,
-          'Liquid Hydrogen': 0,
-          'Compressed Hydrogen': 0,
-          Ammonia: 0,
-          Methanol: 0,
-          LNG: 0
-        }
-      }))
+      intervals: createInitialFuelSelectionIntervals(PLANNING_YEARS)
     },
     fuelCapacitySelection: createInitialFuelCapacitySelection()
   };

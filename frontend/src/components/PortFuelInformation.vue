@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { createInitialFuelSelectionIntervals } from '@/constants/initialFuelSelection.js';
+
 export default {
   name: 'PortFuelCapacity',
   props: {
@@ -72,29 +74,10 @@ export default {
       this.totalMJ = totalMJ;
 
       if (this.localData.isStep1Initial) {
-        this.localData.fuelBarSelection.intervals.forEach((interval, index) => {
-          if (index > 2)  //apply a 10% increase for the last two time periods
-            totalMGO = Math.ceil(totalMGO * 1.1 / 100) * 100;
-
-          interval.totalAmount = totalMGO;
-          if (index == 0)
-            interval.fuelValues.MGO = totalMGO;
-          else if (index === 1) {
-            interval.fuelValues.MGO = Math.round((totalMGO * 0.6) / 100) * 100;
-            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.3) / 100) * 100;
-            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
-          }
-          else if (index === 2) {
-            interval.fuelValues.MGO = Math.round((totalMGO * 0.3) / 100) * 100;
-            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.6) / 100) * 100;
-            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
-          }
-          else if (index > 2) {
-            interval.fuelValues.MGO = Math.round((totalMGO * 0.1) / 100) * 100;
-            interval.fuelValues['Liquid Hydrogen'] = Math.round((totalMGO * 0.8) / 100) * 100;
-            interval.fuelValues.LNG = Math.round((totalMGO * 0.1) / 100) * 100;
-          }
-        });
+        const planningYears = this.localData.fuelBarSelection.intervals
+          .map((interval) => interval.name);
+        this.localData.fuelBarSelection.intervals =
+          createInitialFuelSelectionIntervals(planningYears, totalMGO);
       }
       this.$emit("update:globalData", this.localData);
     },

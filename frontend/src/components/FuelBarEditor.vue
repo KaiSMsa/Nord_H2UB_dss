@@ -141,6 +141,7 @@
 import cloneDeep from 'lodash.clonedeep'
 import { PLANNING_YEARS } from '@/constants/planningYears.js';
 import { FUELS } from '@/constants/fuels';
+import { createInitialFuelSelectionIntervals } from '@/constants/initialFuelSelection.js';
 
 // Builds { "MGO": 0, "Liquid Hydrogen": 0, ... } from FUELS
 function buildDefaultFuelValues() {
@@ -149,6 +150,7 @@ function buildDefaultFuelValues() {
 
 function normalizeFuelSelection(sel) {
   const defaults = buildDefaultFuelValues();
+  const initialIntervals = createInitialFuelSelectionIntervals(PLANNING_YEARS);
 
   const existing = (sel?.intervals || []).reduce((acc, iv) => {
     acc[String(iv.name)] = iv;
@@ -162,7 +164,7 @@ function normalizeFuelSelection(sel) {
     // Only fill missing fuels with 0 so we always have complete keys.
     const fuelValues = {
       ...defaults,
-      ...(iv?.fuelValues || (idx === 0 ? { ...defaults, MGO: 10000 } : defaults))
+      ...(iv?.fuelValues || initialIntervals[idx].fuelValues)
     };
 
     // Always recompute totalAmount from fuelValues so bars can scale/drag.
