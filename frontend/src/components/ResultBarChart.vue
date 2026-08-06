@@ -30,6 +30,7 @@ import { utils, writeFile } from 'xlsx';          // SheetJS
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';              // tiny helper  
 import { roundUSDToNearestThousand } from '@/utils/currencyFormatting.js';
+import { OPERATIONAL_EMISSION_FACTORS_BY_NAME } from '@/constants/fuels.js';
 
 export default {
   name: 'ResultBarChart',
@@ -64,7 +65,7 @@ export default {
       /* 2) Fuel Selection */
       const intervals = sc.data.fuelBarSelection.intervals;
       const selHdr = ['Fuel', ...intervals.map(i => i.name), 'Total MGO-eq', 'Total CO₂-eq'];
-      const factors = { MGO: 3.17, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0, Ammonia: 0, Methanol: 1.37, LNG: 2.75 };
+      const factors = OPERATIONAL_EMISSION_FACTORS_BY_NAME;
 
       const selBody = Object.keys(intervals[0].fuelValues).map(fuel => {
         const row = [fuel];
@@ -174,10 +175,7 @@ export default {
 
       const intervals = sc.data.fuelBarSelection.intervals;
       const fuels = Object.keys(intervals[0].fuelValues);
-      const factors = {
-        MGO: 3.17, 'Liquid Hydrogen': 0, 'Compressed Hydrogen': 0,
-        Ammonia: 0, Methanol: 1.37, LNG: 2.75
-      };
+      const factors = OPERATIONAL_EMISSION_FACTORS_BY_NAME;
 
       const selHdr = ['Fuel', ...intervals.map(i => i.name)];
       const colTotMGO = Array(intervals.length).fill(0);

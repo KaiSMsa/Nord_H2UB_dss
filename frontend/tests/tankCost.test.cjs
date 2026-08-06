@@ -118,3 +118,21 @@ test("all default tank options comply with their fuel-specific limits", () => {
     }
   }
 });
+
+test("operational CO2-e factors match the retained fuel-characteristics table", () => {
+  const factors = Object.fromEntries(
+    fuelParameterCatalog.fuels.map((fuel) => [
+      fuel.id,
+      fuel.operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent,
+    ])
+  );
+
+  assert.deepEqual(factors, {
+    mgo: 3.17,
+    "liquid-hydrogen": 0,
+    "compressed-hydrogen": 0,
+    ammonia: 0,
+    methanol: 2.96,
+    lng: 2.4,
+  });
+});

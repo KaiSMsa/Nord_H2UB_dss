@@ -196,16 +196,12 @@ export default {
       stepSize: 100, // Step size for inputs
       MAX_FACTOR: 3,
       /* css class for each fuel */
-      fuels: FUELS.map((f) => ({ name: f.name, class: f.class })),
-
-      emissionFactors: {
-        MGO: 3.17,               // CO2-eq per tonne for Marine Gas Oil
-        'Liquid Hydrogen': 0, // Example value
-        'Compressed Hydrogen': 0,
-        Ammonia: 0,
-        Methanol: 1.37,
-        LNG: 2.75,
-      },
+      fuels: FUELS.map((f) => ({
+        name: f.name,
+        class: f.class,
+        operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent:
+          f.operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent,
+      })),
       dragging: false,
       dragInfo: {
         interval: null,
@@ -617,11 +613,12 @@ export default {
     },
     calculateCO2Equivalent(interval) {
       let totalCO2Eq = 0;
-      for (const [fuel, amount] of Object.entries(interval.fuelValues)) {
-        const factor = this.emissionFactors[fuel] || 0;
-        totalCO2Eq += amount * factor;
+      for (const fuel of this.fuels) {
+        const amount = Number(interval.fuelValues[fuel.name]) || 0;
+        totalCO2Eq += amount
+          * fuel.operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent;
       }
-      return totalCO2Eq; // Format with commas and 2 decimal places
+      return totalCO2Eq;
     },
     calculateCO2Reduction(interval) {
       const baseline = this.calculateCO2Equivalent(this.intervals[0]); // CO2 equivalent

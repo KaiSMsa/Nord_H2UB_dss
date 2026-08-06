@@ -15,11 +15,19 @@ export const FUELS = fuelParameterCatalog.fuels.map((fuel) => ({
   name: fuel.optimizerName || fuel.displayName,
   displayName: fuel.displayName,
   abbreviation: fuel.abbreviation,
+  operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent:
+    fuel.operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent,
   ...PRESENTATION_BY_ID[fuel.id],
 }));
 
 export const FUEL_BY_NAME = Object.fromEntries(FUELS.map(f => [f.name, f]));
 export const FUEL_COLORS_BY_NAME = Object.fromEntries(FUELS.map(f => [f.name, f.color]));
+export const OPERATIONAL_EMISSION_FACTORS_BY_NAME = Object.freeze(
+  Object.fromEntries(FUELS.map((fuel) => [
+    fuel.name,
+    fuel.operationalEmissionFactorTonnesCO2ePerTonneMgoEquivalent,
+  ]))
+);
 
 export function createInitialFuelCapacitySelection() {
   const common = fuelParameterCatalog.common;
