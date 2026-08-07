@@ -289,7 +289,8 @@ export default {
       const costTypes = [
         { label: 'Opening Costs ($)', key: 'opening' },
         { label: 'Maintenance Costs ($)', key: 'operating' },
-        { label: 'Decommissioning Costs ($)', key: 'decommissioning' }
+        { label: 'Decommissioning Costs ($)', key: 'decommissioning' },
+        { label: 'Transition Costs ($)', key: 'transition' }
       ];
 
       costTypes.forEach((ct) => {

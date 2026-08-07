@@ -215,7 +215,8 @@ export default defineComponent({
                     `${dataset.label}: $${formatUSDToNearestThousand(detail.total)}`,
                     `Opening: $${formatUSDToNearestThousand(detail.opening)}`,
                     `Maintenance: $${formatUSDToNearestThousand(detail.operating)}`,
-                    `Decommissioning: $${formatUSDToNearestThousand(detail.decommissioning)}`
+                    `Decommissioning: $${formatUSDToNearestThousand(detail.decommissioning)}`,
+                    `Transition: $${formatUSDToNearestThousand(detail.transition)}`
                   ];
                 }
                 return `${dataset.label}: $${formatUSDToNearestThousand(context.raw)}`;

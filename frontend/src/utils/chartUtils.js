@@ -4,6 +4,7 @@
 // -------------------------------------------------------------
 import { PLANNING_YEARS } from '@/constants/planningYears.js';
 import { FUELS} from "@/constants/fuels.js";
+import { aggregateFuelYearCosts } from '@/utils/costAggregation.js';
 const FUEL_LIST = FUELS.map(f => f.name);
 const FUEL_COLORS = Object.fromEntries(FUELS.map(f => [f.name, f.color]));
 const YEARS      = PLANNING_YEARS;
@@ -56,30 +57,20 @@ export function buildChartData (scenario) {
  * 2) Cost stacked-log bar
  * -------------------------------------------------- */
 export function buildCostChartData (scenario) {
-  const costs = scenario.resultCosts;
-  if (!costs) return { labels: [], datasets: [] };
+  const costs = scenario.resultCosts || {};
+  const transitions = scenario.resultTransitions || {};
+  if (!scenario.resultCosts && !scenario.resultTransitions) {
+    return { labels: [], datasets: [] };
+  }
 
   const datasets = [];
 
   FUEL_LIST.forEach(fuel => {
-    if (!costs[fuel]) return;
+    if (!costs[fuel] && !transitions[fuel]) return;
 
-    const data = YEARS.map(y => {
-      let opening = 0, operating = 0, decommissioning = 0;
-      if (costs[fuel][y]) {
-        Object.values(costs[fuel][y]).forEach(tank =>
-          Object.values(tank).forEach(c => {
-            opening        += c.opened       || 0;
-            operating      += c.operating    || 0;
-            decommissioning+= c.closed       || 0;
-          })
-        );
-      }
-      return {
-        total: opening + operating + decommissioning,
-        opening, operating, decommissioning
-      };
-    });
+    const data = YEARS.map(y =>
+      aggregateFuelYearCosts(costs, transitions, fuel, y)
+    );
 
     datasets.push({
       label: fuel,
@@ -96,31 +87,49 @@ export function buildCostChartData (scenario) {
  * 3) Cost distribution pie
  * -------------------------------------------------- */
 export function buildCostDistData (scenario) {
-  const costs = scenario.resultCosts;
-  if (!costs) return { labels: [], datasets: [] };
+  const costs = scenario.resultCosts || {};
+  const transitions = scenario.resultTransitions || {};
+  if (!scenario.resultCosts && !scenario.resultTransitions) {
+    return { labels: [], datasets: [] };
+  }
 
-  const totals = { opened: 0, operating: 0, closed: 0 };
+  const totals = {
+    opening: 0,
+    operating: 0,
+    decommissioning: 0,
+    transition: 0,
+  };
 
-  Object.values(costs).forEach(fuelObj => {
+  const fuels = new Set([
+    ...Object.keys(costs),
+    ...Object.keys(transitions),
+  ]);
+  fuels.forEach(fuel => {
     YEARS.forEach(y => {
-      if (fuelObj[y]) {
-        Object.values(fuelObj[y]).forEach(tank =>
-          Object.values(tank).forEach(c => {
-            totals.opened        += c.opened       || 0;
-            totals.operating     += c.operating    || 0;
-            totals.closed        += c.closed       || 0;
-          })
-        );
-      }
+      const detail = aggregateFuelYearCosts(costs, transitions, fuel, y);
+      totals.opening += detail.opening;
+      totals.operating += detail.operating;
+      totals.decommissioning += detail.decommissioning;
+      totals.transition += detail.transition;
     });
   });
 
   return {
-    labels: ['Opening Costs', 'Maintenance Costs', 'Decommissioning Costs'],
+    labels: [
+      'Opening Costs',
+      'Maintenance Costs',
+      'Decommissioning Costs',
+      'Transition Costs',
+    ],
     datasets: [
       {
-        data: [totals.opened, totals.operating, totals.closed],
-        backgroundColor: ['#007bff', '#28a745', '#dc3545']
+        data: [
+          totals.opening,
+          totals.operating,
+          totals.decommissioning,
+          totals.transition,
+        ],
+        backgroundColor: ['#007bff', '#28a745', '#dc3545', '#6f42c1']
       }
     ]
   };

@@ -100,10 +100,10 @@ test("discount factor validates the rate and period index", () => {
   assert.throws(() => calculateDiscountFactor(0.05, -1), /greater than or equal to zero/);
 });
 
-test("neutral discount default is explicitly awaiting author approval", () => {
+test("configured discount default and its approval status are exposed", () => {
   assert.equal(
     fuelParameterCatalog.common.defaultDiscountRateAnnual,
-    0
+    0.04
   );
   assert.equal(
     fuelParameterCatalog.common.discountRateDefaultStatus,

@@ -1,9 +1,8 @@
-const INITIAL_MGO_EQUIVALENT_TONNES = 10_000;
+const INITIAL_MGO_EQUIVALENT_TONNES = 9_100;
 const INITIAL_VALUE_STEP_TONNES = 100;
-const LATER_PERIOD_TOTAL_GROWTH_RATE = 0.1;
 
 const INITIAL_PORT_FUEL_AMOUNTS_TONNES = Object.freeze({
-  MGO: 10_000,
+  MGO: 9_100,
   MDO: 0,
   IFO: 0,
   VLSFO: 0,
@@ -19,16 +18,37 @@ const FUEL_NAMES = Object.freeze([
   "LNG",
 ]);
 
-const INITIAL_FUEL_MIX_BY_PERIOD = Object.freeze([
-  Object.freeze({ MGO: 1 }),
-  Object.freeze({ MGO: 0.6, "Liquid Hydrogen": 0.3, LNG: 0.1 }),
-  Object.freeze({ MGO: 0.3, "Liquid Hydrogen": 0.6, LNG: 0.1 }),
-]);
-
-const LATER_PERIOD_FUEL_MIX = Object.freeze({
-  MGO: 0.1,
-  "Liquid Hydrogen": 0.8,
-  LNG: 0.1,
+const INITIAL_FUEL_PLAN_BY_YEAR = Object.freeze({
+  "2025": Object.freeze({
+    MGO: 9_100,
+    "Ammonia": 0,
+    Methanol: 0,
+  }),
+  "2030": Object.freeze({
+    MGO: 6_000,
+    "Ammonia": 3_000,
+    Methanol: 1_000,
+  }),
+  "2035": Object.freeze({
+    MGO: 4_000,
+    "Ammonia": 6_000,
+    Methanol: 1_000,
+  }),
+  "2040": Object.freeze({
+    MGO: 3_000,
+    "Ammonia": 8_000,
+    Methanol: 1_000,
+  }),
+  "2045": Object.freeze({
+    MGO: 1_400,
+    "Ammonia": 11_000,
+    Methanol: 1_000,
+  }),
+  "2050": Object.freeze({
+    MGO: 0,
+    "Ammonia": 13_500,
+    Methanol: 1_000,
+  }),
 });
 
 function roundToStep(value) {
@@ -36,43 +56,35 @@ function roundToStep(value) {
     * INITIAL_VALUE_STEP_TONNES;
 }
 
-function createFuelValues(totalMgoEquivalentTonnes, mix) {
-  return Object.fromEntries(FUEL_NAMES.map((fuelName) => [
-    fuelName,
-    roundToStep(totalMgoEquivalentTonnes * (mix[fuelName] || 0)),
-  ]));
-}
-
 function createInitialFuelSelectionIntervals(
   planningYears,
   initialMgoEquivalentTonnes = INITIAL_MGO_EQUIVALENT_TONNES
 ) {
-  let periodTotal = Math.ceil(
-    initialMgoEquivalentTonnes / INITIAL_VALUE_STEP_TONNES
-  ) * INITIAL_VALUE_STEP_TONNES;
+  const scale = initialMgoEquivalentTonnes / INITIAL_MGO_EQUIVALENT_TONNES;
 
-  return planningYears.map((year, periodIndex) => {
-    if (periodIndex >= INITIAL_FUEL_MIX_BY_PERIOD.length) {
-      periodTotal = Math.ceil(
-        periodTotal * (1 + LATER_PERIOD_TOTAL_GROWTH_RATE)
-        / INITIAL_VALUE_STEP_TONNES
-      ) * INITIAL_VALUE_STEP_TONNES;
+  return planningYears.map((year) => {
+    const plannedValues = INITIAL_FUEL_PLAN_BY_YEAR[String(year)];
+    if (!plannedValues) {
+      throw new RangeError(`No initial fuel-selection plan is defined for ${year}`);
     }
-    const mix = INITIAL_FUEL_MIX_BY_PERIOD[periodIndex]
-      || LATER_PERIOD_FUEL_MIX;
+    const fuelValues = Object.fromEntries(FUEL_NAMES.map((fuelName) => [
+      fuelName,
+      roundToStep((plannedValues[fuelName] || 0) * scale),
+    ]));
     return {
       name: year,
-      totalAmount: periodTotal,
-      fuelValues: createFuelValues(periodTotal, mix),
+      totalAmount: Object.values(fuelValues).reduce(
+        (total, amount) => total + amount,
+        0
+      ),
+      fuelValues,
     };
   });
 }
 
 module.exports = {
-  INITIAL_FUEL_MIX_BY_PERIOD,
+  INITIAL_FUEL_PLAN_BY_YEAR,
   INITIAL_MGO_EQUIVALENT_TONNES,
   INITIAL_PORT_FUEL_AMOUNTS_TONNES,
-  LATER_PERIOD_FUEL_MIX,
-  LATER_PERIOD_TOTAL_GROWTH_RATE,
   createInitialFuelSelectionIntervals,
 };

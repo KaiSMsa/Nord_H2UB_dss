@@ -151,6 +151,7 @@ export default {
           data: initialGlobalData(),
           resultData: null,
           resultCosts: null,
+          resultTransitions: null,
           resultFinancialParameters: null,
           resultPlanningPeriods: null,
           /* chart cache */
@@ -230,66 +231,10 @@ export default {
       };
     },
     chartCostData() {
-      const costs = this.activeScenario.resultCosts;
-      if (!costs) return { labels: [], datasets: [] };
-
-      const years = PLANNING_YEARS;
-      const fuelList = ['MGO', 'Liquid Hydrogen', 'Compressed Hydrogen', 'Ammonia', 'Methanol', 'LNG'];
-      const fuelColors = {
-        MGO: '#007bff', 'Liquid Hydrogen': '#28a745', 'Compressed Hydrogen': '#17a2b8',
-        Ammonia: '#ffc107', Methanol: '#dc3545', LNG: '#6f42c1'
-      };
-      const datasets = [];
-
-      fuelList.forEach(fuel => {
-        if (!costs[fuel]) return;
-        const data = years.map(y => {
-          let open = 0, op = 0, dec = 0;
-          if (costs[fuel][y]) {
-            Object.values(costs[fuel][y]).forEach(tank =>
-              Object.values(tank).forEach(c => {
-                open += c.opened || 0; op += c.operating || 0; dec += c.closed || 0;
-              })
-            );
-          }
-          return { total: open + op + dec, opening: open, operating: op, decommissioning: dec };
-        });
-        datasets.push({ label: fuel, data, backgroundColor: fuelColors[fuel], stack: fuel });
-      });
-
-      return { labels: years, datasets };
+      return buildCostChartData(this.activeScenario);
     },
     costDistributionData() {
-      const costs = this.activeScenario.resultCosts;
-      if (!costs) return { labels: [], datasets: [] };
-
-      const fuels = Object.keys(costs);
-      const years = PLANNING_YEARS;
-      const total = { opened: 0, operating: 0, closed: 0 };
-
-      fuels.forEach(f => {
-        years.forEach(y => {
-          if (costs[f][y]) {
-            Object.values(costs[f][y]).forEach(tank =>
-              Object.values(tank).forEach(c => {
-                total.opened += c.opened || 0;
-                total.operating += c.operating || 0;
-                total.closed += c.closed || 0;
-              })
-            );
-          }
-        });
-      });
-
-      return {
-        labels: ['Opening Costs', 'Maintenance Costs', 'Decommissioning Costs'],
-        datasets: [
-          {
-            data: [total.opened, total.operating, total.closed],
-            backgroundColor: ['#007bff', '#28a745', '#dc3545']
-          }
-        ]
-      };
+      return buildCostDistData(this.activeScenario);
     }
   },
   methods: {
@@ -310,6 +255,7 @@ export default {
             data: initialGlobalData(),
             resultData: null,
             resultCosts: null,
+            resultTransitions: null,
             resultFinancialParameters: null,
             resultPlanningPeriods: null,
             /* chart cache */
@@ -353,6 +299,7 @@ export default {
         data: cloneDeep(base.data),   // start from the initial scenario
         resultData: null,
         resultCosts: null,
+        resultTransitions: null,
         resultFinancialParameters: null,
         resultPlanningPeriods: null,
 
@@ -489,6 +436,7 @@ export default {
             // save reults in the active scenario
             this.activeScenario.resultData = data.solution;
             this.activeScenario.resultCosts = data.costs;
+            this.activeScenario.resultTransitions = data.transitions;
             this.activeScenario.resultFinancialParameters = data.financialParameters;
             this.activeScenario.resultPlanningPeriods = data.planningPeriods;
             this.activeScenario.cachedChartData = buildChartData(this.activeScenario);

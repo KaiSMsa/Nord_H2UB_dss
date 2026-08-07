@@ -55,7 +55,42 @@
             </b-button>
 
             <div class="financial-assumptions">
-              <div class="assumption-row">
+              <fieldset class="fuel-financial-frame">
+                <legend>{{ fuel.name }} - Financial costs</legend>
+
+                <div class="assumption-row">
+                  <div class="assumption-field">
+                    <label
+                      title="Annual expected change in technology cost. Negative values represent cost reductions."
+                    >Annual cost adjustment (%)</label>
+                    <input type="number" v-model.number="fuel.technologyCostAdjustmentRateAnnualPercent" placeholder="-2" min="-99.99" required
+                      :disabled="isDisabled"
+                      @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRateAnnualPercent', 0); emitCleanData()" />
+                  </div>
+
+                  <div class="assumption-field">
+                    <label
+                      title="Annual maintenance cost as a share of base investment. The backend aggregates it over each planning period."
+                    >Annual maintenance rate (%)</label>
+                    <input type="number" v-model.number="fuel.maintenanceRateAnnualPercent" placeholder="4" min="0" required
+                      :disabled="isDisabled"
+                      @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRateAnnualPercent', 0); emitCleanData()" />
+                  </div>
+                </div>
+
+                <div class="assumption-row assumption-row-single">
+                  <div class="assumption-field">
+                    <label
+                      title="Applied once to the base investment cost when the storage asset is decommissioned."
+                    >Decommissioning rate at closure (%)</label>
+                    <input type="number" v-model.number="fuel.decommissioningRateAtClosurePercent" placeholder="10" min="0" required
+                      :disabled="isDisabled"
+                      @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningRateAtClosurePercent', 0); emitCleanData()" />
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="assumption-row assumption-row-single shared-financial-assumption">
                 <div class="assumption-field">
                   <label
                     title="Shared across all fuels. Annual rate used to convert future costs into present-value terms. The neutral 0% default requires author approval before production use."
@@ -67,35 +102,6 @@
                   <small v-if="isDiscountRateInvalid()" class="assumption-error">
                     Discount rate must be greater than -100%.
                   </small>
-                </div>
-
-                <div class="assumption-field">
-                  <label
-                    title="Annual expected change in the fuel-specific technology cost. Negative values represent cost reductions."
-                  >Annual cost adjustment (%) for {{ fuel.name }}</label>
-                  <input type="number" v-model.number="fuel.technologyCostAdjustmentRateAnnualPercent" placeholder="-2" min="-99.99" required
-                    :disabled="isDisabled"
-                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRateAnnualPercent', 0); emitCleanData()" />
-                </div>
-              </div>
-
-              <div class="assumption-row">
-                <div class="assumption-field">
-                  <label
-                    title="Annual maintenance cost as a share of base investment. The backend aggregates it over each planning period."
-                  >Annual maintenance rate (%) for {{ fuel.name }}</label>
-                  <input type="number" v-model.number="fuel.maintenanceRateAnnualPercent" placeholder="4" min="0" required
-                    :disabled="isDisabled"
-                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'maintenanceRateAnnualPercent', 0); emitCleanData()" />
-                </div>
-
-                <div class="assumption-field">
-                  <label
-                    title="Applied once to the base investment cost when the storage asset is decommissioned."
-                  >Decommissioning rate at closure (%) for {{ fuel.name }}</label>
-                  <input type="number" v-model.number="fuel.decommissioningRateAtClosurePercent" placeholder="10" min="0" required
-                    :disabled="isDisabled"
-                    @input="emitCleanData" @blur="normalizeNumberField(fuel, 'decommissioningRateAtClosurePercent', 0); emitCleanData()" />
                 </div>
               </div>
             </div>
@@ -612,14 +618,44 @@ export default {
   display: grid;
   width: 100%;
   max-width: 700px;
-  gap: 16px;
+  gap: 18px;
   margin-top: 20px;
+}
+
+.fuel-financial-frame {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 16px 16px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+}
+
+.fuel-financial-frame legend {
+  float: none;
+  width: auto;
+  justify-self: start;
+  margin: 0;
+  padding: 0 8px;
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: left;
 }
 
 .assumption-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+}
+
+.assumption-row-single > .assumption-field {
+  grid-column: 1;
+}
+
+.shared-financial-assumption {
+  padding-left: 16px;
 }
 
 .assumption-field {
@@ -651,6 +687,10 @@ export default {
 @media (max-width: 700px) {
   .assumption-row {
     grid-template-columns: 1fr;
+  }
+
+  .shared-financial-assumption {
+    padding-left: 0;
   }
 }
 
