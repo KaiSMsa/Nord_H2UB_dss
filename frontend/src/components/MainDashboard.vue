@@ -1,9 +1,37 @@
 <template>
+  <div
+    v-if="optimizationState"
+    ref="optimizationDialog"
+    class="optimization-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="optimization-message"
+    tabindex="-1"
+  >
+    <div class="optimization-wait-box">
+      <div
+        v-if="optimizationState === 'running'"
+        class="optimization-spinner"
+        aria-hidden="true"
+      ></div>
+      <p id="optimization-message" class="optimization-message" aria-live="polite">
+        {{ optimizationMessage }}
+      </p>
+      <b-button
+        v-if="optimizationState === 'timed-out'"
+        variant="primary"
+        @click="dismissOptimizationTimeout"
+      >
+        Close
+      </b-button>
+    </div>
+  </div>
+
   <!-- Show HowItWorks first -->
-  <HowItWorks v-if="showHowItWorks" @started="onStarted" />
+  <HowItWorks v-if="showHowItWorks" :inert="isOptimizationBlocking" @started="onStarted" />
 
   <!-- Main Dashboard -->
-  <div v-else class="stepper-container">
+  <div v-else class="stepper-container" :inert="isOptimizationBlocking">
     <!-- Stepper Header -->
     <div class="stepper">
       <div v-for="(step, index) in steps" :key="index" class="step-container">
@@ -58,7 +86,7 @@
       <b-button v-if="currentStep < steps.length - 2" @click="nextStep" variant="primary">
         Next
       </b-button>
-      <b-button v-if="currentStep === steps.length - 2" @click="submit" variant="success">
+      <b-button v-if="currentStep === steps.length - 2" :disabled="isOptimizing" @click="submit" variant="success">
         Plan
       </b-button>
       <div v-if="currentStep === steps.length - 1" class="step-footer results-footer">
@@ -133,6 +161,12 @@ export default {
       showHowItWorks: true,     // whether intro page is shown
       currentScenarioIndex: 0,  // which scenario is active
       currentStep: 0,           // 0..3 in the stepper
+      optimizationState: null,
+      optimizationMessage: '',
+      optimizationProgressTimer: null,
+      optimizationTimeoutTimer: null,
+      optimizationAbortController: null,
+      optimizationDidTimeOut: false,
 
       /* stepper labels */
       steps: [
@@ -165,6 +199,8 @@ export default {
     };
   },
   computed: {
+    isOptimizing() { return this.optimizationState === 'running'; },
+    isOptimizationBlocking() { return this.optimizationState !== null; },
     activeScenario() { return this.scenarios[this.currentScenarioIndex]; },
     activeData() { return this.activeScenario.data; },
     chartData() {
@@ -238,6 +274,43 @@ export default {
     }
   },
   methods: {
+    clearOptimizationTimers() {
+      if (this.optimizationProgressTimer) {
+        clearTimeout(this.optimizationProgressTimer);
+        this.optimizationProgressTimer = null;
+      }
+      if (this.optimizationTimeoutTimer) {
+        clearTimeout(this.optimizationTimeoutTimer);
+        this.optimizationTimeoutTimer = null;
+      }
+    },
+    startOptimizationWait() {
+      this.clearOptimizationTimers();
+      this.optimizationAbortController = new AbortController();
+      this.optimizationDidTimeOut = false;
+      this.optimizationState = 'running';
+      this.optimizationMessage = 'Optimizing the plan...';
+      this.optimizationProgressTimer = setTimeout(() => {
+        if (this.optimizationState === 'running') {
+          this.optimizationMessage = 'Optimization is still in progress...';
+        }
+      }, 3000);
+      this.optimizationTimeoutTimer = setTimeout(() => {
+        if (this.optimizationState !== 'running') return;
+        this.optimizationDidTimeOut = true;
+        this.optimizationState = 'timed-out';
+        this.optimizationMessage =
+          'Optimization is taking longer than usual. Please try again.';
+        this.optimizationAbortController?.abort();
+      }, 30000);
+      this.$nextTick(() => this.$refs.optimizationDialog?.focus());
+    },
+    dismissOptimizationTimeout() {
+      if (this.optimizationState === 'timed-out') {
+        this.optimizationState = null;
+        this.optimizationMessage = '';
+      }
+    },
     onStarted() {
       // Hide the HowItWorks component and show the main dashboard.
       this.showHowItWorks = false;
@@ -399,7 +472,8 @@ export default {
 
       return dataSubmit;
     },
-    submit() {
+    async submit() {
+      if (this.isOptimizing) return;
       const API_BASE = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000';
       let dataSubmit;
       try {
@@ -409,65 +483,114 @@ export default {
         return;
       }
 
-      fetch(`${API_BASE}/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataSubmit),
-      })
-        .then(response => {
-          if (!response.ok) {
-            return response.json().catch(() => ({})).then(errorBody => {
-              throw new Error(
-                errorBody.message || `Error ${response.status}: ${response.statusText}`
-              );
-            });
-          }
-          return response.json();
-        })
-        .then(data => {
-          // Log the returned JSON response in the console.
-          // console.log('Server Response:', data);
-          // Optionally, show the response in an alert.
-          // alert(JSON.stringify(data, null, 2));
+      this.startOptimizationWait();
+      try {
+        const response = await fetch(`${API_BASE}/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataSubmit),
+          signal: this.optimizationAbortController.signal,
+        });
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => ({}));
+          throw new Error(
+            errorBody.message || `Error ${response.status}: ${response.statusText}`
+          );
+        }
+        const data = await response.json();
+        if (this.optimizationDidTimeOut) return;
 
-          if (data.status === 0) {
-            // save reults in the active scenario
-            this.activeScenario.resultData = data.solution;
-            this.activeScenario.resultCosts = data.costs;
-            this.activeScenario.resultTransitions = data.transitions;
-            this.activeScenario.resultFinancialParameters = data.financialParameters;
-            this.activeScenario.resultPlanningPeriods = data.planningPeriods;
-            this.activeScenario.cachedChartData = buildChartData(this.activeScenario);
-            this.activeScenario.cachedCostChart = buildCostChartData(this.activeScenario);
-            this.activeScenario.cachedCostDist = buildCostDistData(this.activeScenario)
-            this.activeScenario.editable = false; // lock the scenario
-            this.activeScenario.viewerReady = true;
-            // Display the optimal solution
-            // this.resultData = data.solution;
-            // this.resultCosts = data.costs;
-            //console.log(JSON.stringify(this.resultData, null, 2));
-            //console.log(JSON.stringify(this.chartCostData, null, 2));
-            // console.log(JSON.stringify(this.costDistributionData, null, 2));
-
-            // Navigate to the "Results" step
-            this.currentStep = this.steps.length - 1;
-          } else {
-            // Display non-optimal solution
-            alert(`Non-optimal solution:\nStatus: ${data.status}`);
-          }
-        })
-        .catch(error => {
+        if (data.status === 0) {
+          this.activeScenario.resultData = data.solution;
+          this.activeScenario.resultCosts = data.costs;
+          this.activeScenario.resultTransitions = data.transitions;
+          this.activeScenario.resultFinancialParameters = data.financialParameters;
+          this.activeScenario.resultPlanningPeriods = data.planningPeriods;
+          this.activeScenario.cachedChartData = buildChartData(this.activeScenario);
+          this.activeScenario.cachedCostChart = buildCostChartData(this.activeScenario);
+          this.activeScenario.cachedCostDist = buildCostDistData(this.activeScenario);
+          this.activeScenario.editable = false;
+          this.activeScenario.viewerReady = true;
+          this.currentStep = this.steps.length - 1;
+        } else {
+          this.optimizationState = null;
+          alert(`Non-optimal solution:\nStatus: ${data.status}`);
+        }
+      } catch (error) {
+        if (!(this.optimizationDidTimeOut && error.name === 'AbortError')) {
+          this.optimizationState = null;
           console.error('Submission Error:', error);
           alert(`An error occurred while submitting data.\n${error}`);
-        });
+        }
+      } finally {
+        this.clearOptimizationTimers();
+        this.optimizationAbortController = null;
+        if (this.optimizationState === 'running') {
+          this.optimizationState = null;
+          this.optimizationMessage = '';
+        }
+      }
     },
+  },
+  beforeUnmount() {
+    this.clearOptimizationTimers();
+    this.optimizationAbortController?.abort();
   },
 };
 </script>
 
 <style scoped>
+.optimization-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(20, 28, 38, 0.58);
+  cursor: wait;
+}
+
+.optimization-wait-box {
+  display: flex;
+  width: min(420px, 100%);
+  min-height: 170px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  cursor: default;
+  text-align: center;
+}
+
+.optimization-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #d9e2ec;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: optimization-spin 0.8s linear infinite;
+}
+
+.optimization-message {
+  margin: 0;
+  color: #212529;
+  font-size: 1.05rem;
+}
+
+@keyframes optimization-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .stepper-container {
   margin: 2rem 0;
 }
