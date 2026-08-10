@@ -9,6 +9,13 @@ from financial_parameters import (
     prepare_financial_costs_for_model,
 )
 
+# This model contains only binary decision variables. CP-SAT is substantially
+# faster than CBC for the current transition formulation. Keep these settings
+# together so they can be tuned against representative production scenarios.
+SOLVER_BACKEND = 'SAT'
+SOLVER_TIME_LIMIT_MS = 30_000
+SOLVER_RELATIVE_MIP_GAP = 0.001
+
 
 def _require_finite_model_number(value, field_name, minimum=None):
     if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -122,9 +129,9 @@ def build_facility_location_model(data):
         prepared_costs,
     )
 
-    solver = pywraplp.Solver.CreateSolver('CBC')
+    solver = pywraplp.Solver.CreateSolver(SOLVER_BACKEND)
     if not solver:
-        raise RuntimeError('CBC solver is not available')
+        raise RuntimeError(f'{SOLVER_BACKEND} solver is not available')
 
     periods = data['T']
     fuels = data['Fuels']
@@ -387,7 +394,13 @@ def solve_facility_location(data, export_model=False):
         with open('facility_location_model.lp', 'w') as lp_file:
             lp_file.write(solver.ExportModelAsLpFormat(False))
 
-    status = solver.Solve()
+    solver.SetTimeLimit(SOLVER_TIME_LIMIT_MS)
+    solver_parameters = pywraplp.MPSolverParameters()
+    solver_parameters.SetDoubleParam(
+        pywraplp.MPSolverParameters.RELATIVE_MIP_GAP,
+        SOLVER_RELATIVE_MIP_GAP,
+    )
+    status = solver.Solve(solver_parameters)
     discount_factors = prepared_costs[fuels[0]]['discountFactorsByPeriod']
     planning_period_years = prepared_costs[fuels[0]]['planningPeriodYears']
     period_mapping = [
@@ -544,7 +557,7 @@ if __name__ == '__main__':
         input_data = json.loads(input_text)
         with open('input_data.txt', 'w') as input_file:
             input_file.write(input_text)
-        result_data = solve_facility_location(input_data, export_model=True)
+        result_data = solve_facility_location(input_data, export_model=False)
         output_text = json.dumps(result_data)
         print(output_text)
         with open('output_data.txt', 'w') as output_file:

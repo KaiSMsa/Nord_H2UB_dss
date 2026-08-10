@@ -10,7 +10,7 @@
     "decommissioningRateBasis": "at-decommissioning",
     "defaultTechnologyCostAdjustmentRateAnnual": -0.02,
     "defaultDiscountRateAnnual": 0.04,
-    "transitionCostRate": 1.5,
+    "transitionCostRate": 1.2,
     "transitionCostRateBasis": "fraction-of-technology-adjusted-cost-difference-at-transition",
     "transitionCostRateSource": "retained-legacy-transition-cost-multiplier-calibration",
     "discountRateDefaultStatus": "author-approval-required"

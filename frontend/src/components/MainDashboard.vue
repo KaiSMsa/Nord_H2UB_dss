@@ -294,7 +294,7 @@ export default {
         if (this.optimizationState === 'running') {
           this.optimizationMessage = 'Optimization is still in progress...';
         }
-      }, 3000);
+      }, 6000);
       this.optimizationTimeoutTimer = setTimeout(() => {
         if (this.optimizationState !== 'running') return;
         this.optimizationDidTimeOut = true;
@@ -302,7 +302,7 @@ export default {
         this.optimizationMessage =
           'Optimization is taking longer than usual. Please try again.';
         this.optimizationAbortController?.abort();
-      }, 30000);
+      }, 60000);
       this.$nextTick(() => this.$refs.optimizationDialog?.focus());
     },
     dismissOptimizationTimeout() {
