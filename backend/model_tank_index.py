@@ -14,7 +14,7 @@ from financial_parameters import (
 # together so they can be tuned against representative production scenarios.
 SOLVER_BACKEND = 'SAT'
 SOLVER_TIME_LIMIT_MS = 30_000
-SOLVER_RELATIVE_MIP_GAP = 0.001
+# SOLVER_RELATIVE_MIP_GAP = 0.001
 
 
 def _require_finite_model_number(value, field_name, minimum=None):
@@ -396,10 +396,10 @@ def solve_facility_location(data, export_model=False):
 
     solver.SetTimeLimit(SOLVER_TIME_LIMIT_MS)
     solver_parameters = pywraplp.MPSolverParameters()
-    solver_parameters.SetDoubleParam(
-        pywraplp.MPSolverParameters.RELATIVE_MIP_GAP,
-        SOLVER_RELATIVE_MIP_GAP,
-    )
+    # solver_parameters.SetDoubleParam(
+    #     pywraplp.MPSolverParameters.RELATIVE_MIP_GAP,
+    #     SOLVER_RELATIVE_MIP_GAP,
+    # )
     status = solver.Solve(solver_parameters)
     discount_factors = prepared_costs[fuels[0]]['discountFactorsByPeriod']
     planning_period_years = prepared_costs[fuels[0]]['planningPeriodYears']
