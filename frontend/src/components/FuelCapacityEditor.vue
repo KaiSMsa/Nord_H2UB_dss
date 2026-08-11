@@ -63,7 +63,7 @@
                     <label
                       title="Annual expected change in technology cost. Negative values represent cost reductions."
                     >Annual cost adjustment (%)</label>
-                    <input type="number" v-model.number="fuel.technologyCostAdjustmentRateAnnualPercent" placeholder="-2" min="-99.99" required
+                    <input type="number" v-model.number="fuel.technologyCostAdjustmentRateAnnualPercent" placeholder="-2" min="-99" required
                       :disabled="isDisabled"
                       @input="emitCleanData" @blur="normalizeNumberField(fuel, 'technologyCostAdjustmentRateAnnualPercent', 0); emitCleanData()" />
                   </div>
@@ -95,7 +95,7 @@
                   <label
                     title="Shared across all fuels. Annual rate used to convert future costs into present-value terms. The neutral 0% default requires author approval before production use."
                   >Annual discount rate (%)</label>
-                  <input type="number" v-model.number="localData.discountRateAnnualPercent" placeholder="0" min="-99.99" step="0.1" required
+                  <input type="number" v-model.number="localData.discountRateAnnualPercent" placeholder="0" min="-99" required
                     :class="{ 'is-invalid': isDiscountRateInvalid() }" :disabled="isDisabled"
                     @input="emitCleanData"
                     @blur="normalizeNumberField(localData, 'discountRateAnnualPercent', defaultDiscountRateAnnualPercent); emitCleanData()" />

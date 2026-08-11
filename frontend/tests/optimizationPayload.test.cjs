@@ -29,7 +29,7 @@ test("request preserves exact base costs and converts percentages once", () => {
   assert.equal(payload.maintenanceRateAnnual["Liquid Hydrogen"], 0.04);
   assert.equal(payload.decommissioningRateAtClosure["Liquid Hydrogen"], 0.1);
   assert.equal(payload.planningPeriodYears, 5);
-  assert.equal(payload.transitionCostRate, 1.2);
+  assert.equal(payload.transitionCostRate, 1.5);
   assert.equal("Costs" in payload, false);
 });
 

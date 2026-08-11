@@ -29,7 +29,7 @@ def valid_payload():
         'TankOptions': {'Ammonia': [option]},
         'planningPeriodYears': 5,
         'discountRateAnnual': 0.071,
-        'transitionCostRate': 1.2,
+        'transitionCostRate': 1.5,
         'technologyCostAdjustmentRateAnnual': {'Ammonia': -0.013},
         'maintenanceRateAnnual': {'Ammonia': 0.037},
         'decommissioningRateAtClosure': {'Ammonia': 0.123},

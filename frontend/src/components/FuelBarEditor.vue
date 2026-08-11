@@ -7,7 +7,7 @@
           <ul class="mb-0">
             <li>Enter the amount of each fuel you intend to supply for future years.</li>
             <li>All figures are in tonnes of MGO-equivalent.</li>
-            <li>Adjust values by typing in the table or by dragging the bars.</li>
+            <li>Adjust values by typing in the table or <strong>by dragging the bars</strong>.</li>
             <li>The total amount per year is capped at <strong>300 % of the 2025 value</strong>.</li>
             <li>Values are rounded to the <strong>nearest 100 tonnes</strong>.</li>
           </ul>
@@ -403,6 +403,8 @@ export default {
       this.recalcIntervalTotal(this.dragInfo.interval);
       // Now clamp if needed
       this.checkAndClampInterval(this.dragInfo.interval);
+      // Keep the table inputs in sync with the live values while dragging.
+      this.syncDraftFromInterval(this.dragInfo.interval);
       // this.emitUpdate();
     },
     startDragTopBar(interval, event) {
@@ -480,6 +482,8 @@ export default {
 
       // Enforce the 300% cap
       this.checkAndClampInterval(this.dragInfo.interval);
+      // Keep the table inputs in sync with the live values while dragging.
+      this.syncDraftFromInterval(this.dragInfo.interval);
       // this.emitUpdate();
     },
     stopDragHandle() {
@@ -489,6 +493,9 @@ export default {
       window.removeEventListener('mouseup', this.stopDragHandle);
 
       this.syncDraftFromInterval(this.dragInfo.interval);
+      this.lastValidFuelValues[this.dragInfo.interval.name] = {
+        ...this.dragInfo.interval.fuelValues
+      };
       // Reset the cursor back to default
       document.body.style.cursor = 'default';
       this.emitUpdate();
