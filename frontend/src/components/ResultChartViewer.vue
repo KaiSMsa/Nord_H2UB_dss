@@ -7,6 +7,7 @@
         <apexchart type="bar" height="400" :options="chartOptions" :series="transformedData.series">
         </apexchart>
       </div>
+      <PlanHighlights :schedule="resultData" :years="transformedData.years" />
     </div>
 
     <!-- Costs Chart using the CostChart component -->
@@ -31,13 +32,16 @@
 import { defineComponent } from 'vue';
 import VueApexChart from 'vue3-apexcharts';
 import CostChart from './CostChart.vue';
+import PlanHighlights from './PlanHighlights.vue';
 import { formatUSDToNearestThousand } from '@/utils/currencyFormatting.js';
+import { buildTankDisplayNames } from '@/utils/planHighlights.js';
 
 export default defineComponent({
   name: 'ResultBarChartViewer',
   components: {
     apexchart: VueApexChart,
     CostChart,
+    PlanHighlights,
   },
   props: {
     chartData: {
@@ -52,8 +56,15 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    resultData: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   computed: {
+    tankDisplayNames() {
+      return buildTankDisplayNames(this.resultData, this.chartData.labels);
+    },
     // Capacities chart transformation (unchanged)
     transformedData() {
       const years = this.chartData.labels; // e.g., ['2025','2030','2035','2040','2045']
@@ -89,7 +100,9 @@ export default defineComponent({
         } else {
           fuelCounters[fuel]++;
         }
-        const tankId = ds.tankId ? ds.tankId : `Tank ${fuelCounters[fuel]}`;
+        const backendTankId = ds.tankId || this.backendTankIdFromLabel(ds.label);
+        const tankId = this.tankDisplayNames[fuel]?.[backendTankId]
+          || `Tank ${fuelCounters[fuel]}`;
         let tankIndex = 0;
         const match = tankId.match(/Tank[\s_-]?(\d+)/);
         const formattedTankId = tankId.replace(/_/g, ' ');
@@ -265,6 +278,12 @@ export default defineComponent({
           },
         },
       };
+    },
+  },
+  methods: {
+    backendTankIdFromLabel(label) {
+      const match = String(label || '').match(/Tank[_ ]?(\d+)/i);
+      return match ? `Tank_${match[1]}` : null;
     },
   },
 });

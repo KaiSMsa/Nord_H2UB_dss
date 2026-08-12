@@ -5,6 +5,7 @@
 import { PLANNING_YEARS } from '@/constants/planningYears.js';
 import { FUELS} from "@/constants/fuels.js";
 import { aggregateFuelYearCosts } from '@/utils/costAggregation.js';
+import { getOrderedTankIds } from '@/utils/planHighlights.js';
 const FUEL_LIST = FUELS.map(f => f.name);
 const FUEL_COLORS = Object.fromEntries(FUELS.map(f => [f.name, f.color]));
 const YEARS      = PLANNING_YEARS;
@@ -22,14 +23,8 @@ export function buildChartData (scenario) {
   FUEL_LIST.forEach(fuel => {
     if (!res[fuel]) return;
 
-    /* gather tank IDs present in any year */
-    const tankIds = new Set();
-    YEARS.forEach(y => {
-      if (res[fuel][y]) Object.keys(res[fuel][y]).forEach(tid => tankIds.add(tid));
-    });
-
-    /* dataset per tank */
-    tankIds.forEach(tid => {
+    /* Use the same opening chronology as Plan Highlights. */
+    getOrderedTankIds(res[fuel], YEARS).forEach(tid => {
       const data = YEARS.map(y => {
         let value = 0;
         const yObj = res[fuel][y];
@@ -43,6 +38,7 @@ export function buildChartData (scenario) {
 
       datasets.push({
         label: `${fuel} – ${tid}`,
+        tankId: tid,
         data,
         backgroundColor: FUEL_COLORS[fuel],
         stack: fuel

@@ -21,33 +21,33 @@ const FUEL_NAMES = Object.freeze([
 const INITIAL_FUEL_PLAN_BY_YEAR = Object.freeze({
   "2025": Object.freeze({
     MGO: 9_100,
-    "Liquid Hydrogen": 0,
+    "Ammonia": 0,
     Methanol: 0,
   }),
   "2030": Object.freeze({
     MGO: 6_000,
-    "Liquid Hydrogen": 3_000,
-    Methanol: 1_000,
+    "Ammonia": 4_000,
+    Methanol: 0,
   }),
   "2035": Object.freeze({
     MGO: 4_000,
-    "Liquid Hydrogen": 6_000,
-    Methanol: 1_000,
+    "Ammonia": 7_000,
+    Methanol: 0,
   }),
   "2040": Object.freeze({
     MGO: 3_000,
-    "Liquid Hydrogen": 8_000,
-    Methanol: 1_000,
+    "Ammonia": 9_000,
+    Methanol: 0,
   }),
   "2045": Object.freeze({
     MGO: 1_400,
-    "Liquid Hydrogen": 11_000,
-    Methanol: 1_000,
+    "Ammonia": 12_000,
+    Methanol: 0,
   }),
   "2050": Object.freeze({
     MGO: 0,
-    "Liquid Hydrogen": 13_500,
-    Methanol: 1_000,
+    "Ammonia": 14_500,
+    Methanol: 0,
   }),
 });
 

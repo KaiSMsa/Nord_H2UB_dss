@@ -1,6 +1,9 @@
+import argparse
 import json
 import math
 import sys
+import time
+from pathlib import Path
 
 from ortools.linear_solver import pywraplp
 
@@ -400,7 +403,11 @@ def solve_facility_location(data, export_model=False):
     #     pywraplp.MPSolverParameters.RELATIVE_MIP_GAP,
     #     SOLVER_RELATIVE_MIP_GAP,
     # )
+    constraint_count = solver.NumConstraints()
+    variable_count = solver.NumVariables()
     status = solver.Solve(solver_parameters)
+    # wall time is returned in milliseconds by OR-Tools
+    solve_cpu_time_seconds = solver.WallTime() / 1000.0
     discount_factors = prepared_costs[fuels[0]]['discountFactorsByPeriod']
     planning_period_years = prepared_costs[fuels[0]]['planningPeriodYears']
     period_mapping = [
@@ -414,6 +421,9 @@ def solve_facility_location(data, export_model=False):
     ]
     result = {
         'status': status,
+        'solveCpuTimeSeconds': solve_cpu_time_seconds,
+        'constraintCount': constraint_count,
+        'variableCount': variable_count,
         'solution': {},
         'costs': {},
         'transitions': {},

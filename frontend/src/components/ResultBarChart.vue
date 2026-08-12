@@ -3,7 +3,7 @@
     <b-tab v-for="(sc) in scenarios" :key="sc.id" :title="sc.name">
       <!-- draw the viewer only the first time we have results -->
       <ResultChartViewer v-if="sc.viewerReady" :chartData="sc.cachedChartData" :costChartData="sc.cachedCostChart"
-        :costDistributionData="sc.cachedCostDist" />
+        :costDistributionData="sc.cachedCostDist" :resultData="sc.resultData" />
       <p v-else>No results available.</p>
       <div class="note-section">
         <strong>Note:</strong>
